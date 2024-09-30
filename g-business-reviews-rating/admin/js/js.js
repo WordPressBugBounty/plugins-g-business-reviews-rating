@@ -5,7 +5,8 @@ function google_business_reviews_rating_admin(popstate) {
 		var popstate = false;
 	}
 
-	const browser_language = window.navigator.userLanguage || window.navigator.language;
+	const browser_language = window.navigator.userLanguage || window.navigator.language,
+		months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
 
 	var place_id = null,
 		google_api_key = null,
@@ -1537,13 +1538,18 @@ function google_business_reviews_rating_admin(popstate) {
 			
 			jQuery.parseHTML(html, null, false);
 			document.getElementById('html-import-input').innerHTML = html;
-			e = jQuery('.Svr5cf', '#html-import-input').length ? jQuery('.Svr5cf[jslog]', '#html-import-input').length ? jQuery('.Svr5cf[jslog]', '#html-import-input') : jQuery('.Svr5cf', '#html-import-input') : jQuery('.WMbnJf', '#html-import-input').length ? jQuery('.WMbnJf', '#html-import-input') : jQuery('div[jsname][data-hveid]', '#html-import-input').length ? jQuery('div[jsname][data-hveid]', '#html-import-input') : jQuery('div.jftiEf[data-review-id]', '#html-import-input') ? jQuery('div.jftiEf[data-review-id]', '#html-import-input') : null;
+			e = jQuery('.J7elmb > [jsmodel]', '#html-import-input').length && jQuery('.J7elmb.bc99Ed > [jsrenderer="tX1S9"][jsmodel="hc6Ubd"] > div > article', '#html-import-input').length ? jQuery('.J7elmb.bc99Ed > [jsrenderer="tX1S9"][jsmodel="hc6Ubd"] > div > article', '#html-import-input') : jQuery('.Svr5cf', '#html-import-input').length ? jQuery('.Svr5cf[jslog]', '#html-import-input').length ? jQuery('.Svr5cf[jslog]', '#html-import-input') : jQuery('.Svr5cf', '#html-import-input') : jQuery('.WMbnJf', '#html-import-input').length ? jQuery('.WMbnJf', '#html-import-input') : jQuery('div[jsname][data-hveid]', '#html-import-input').length ? jQuery('div[jsname][data-hveid]', '#html-import-input') : jQuery('div.jftiEf[data-review-id]', '#html-import-input') ? jQuery('div.jftiEf[data-review-id]', '#html-import-input') : null;
+			
+			if (e == null || !e.length) {
+				e = null;
+			}
+			
 			text_single = (e != null && jQuery('.kyuRq[aria-checked]:eq(0)', '#html-import-input').length)
 
 			if (e != null && jQuery(event.target).is('#html-import') == (event.type == 'change' || event.type == 'blur')) {
 				jQuery('#html-import-review-text').val((text_single) ? '' : 'original');
 			}
-
+			
 			if (e != null) {
 				if (jQuery(this).is('#html-import')) {
 					jQuery('#html-import').addClass('valid');
@@ -1577,8 +1583,8 @@ function google_business_reviews_rating_admin(popstate) {
 
 					translated = false;
 					base_language = true;
-					text = jQuery(this).hasClass('Svr5cf') ? jQuery('.OlkcBc', this).length > 1 && jQuery('span', jQuery('.OlkcBc:eq(1)', this)).length && jQuery('span', jQuery('.OlkcBc:eq(1)', this)).text().length ? jQuery('.K7oBsc:eq(0)', jQuery('.OlkcBc:eq(1)', this)).text() : jQuery('.K7oBsc', this).length && jQuery('span', jQuery('.K7oBsc', this)).length && jQuery('span', jQuery('.K7oBsc', this)).text().length ? jQuery('span', jQuery('.K7oBsc', this)).text() : null : jQuery('.Jtu6Td', this).length && jQuery('.Jtu6Td > span > span', this).length ? jQuery('.Jtu6Td:eq(0) .review-full-text:eq(0)', this).length && jQuery('.Jtu6Td:eq(0) .review-full-text', this).text().length ? jQuery('.Jtu6Td:eq(0) .review-full-text:eq(0)', this).html() : jQuery('.Jtu6Td > span:eq(0) > span:eq(0)', this).html() : jQuery('.review-full-text', this).length && typeof jQuery('div:eq(0) > div:eq(2) .review-full-text:eq(0)', this).html() == 'string' ? jQuery('div:eq(0) > div:eq(2) .review-full-text:eq(0)', this).html() : typeof jQuery('div:eq(0) > div:eq(2) > div:eq(1) > span:eq(0)', this).html() == 'string' ? jQuery('div:eq(0) > div:eq(2) > div:eq(1) > span:eq(0)', this).html() : typeof jQuery('div:eq(0) > div:eq(3) > div:eq(1) > span:eq(0)', this).html() == 'string' ? jQuery('.review-full-text', this).length ? jQuery('div:eq(0) > div:eq(3) > div:eq(1) .review-full-text:eq(0)', this).html() : jQuery('div:eq(0) > div:eq(3) > div:eq(1) > span:eq(0)', this).html() : ((jQuery('.OA1nbd', this).length) ? ((jQuery('.OA1nbd', this).length >= 2) ? jQuery('.OA1nbd:eq(1)', this).text() + ((jQuery('.UEEEAc:eq(0)', this).length) ? ' (' + jQuery('.UEEEAc:eq(0)', this).text() + ') ' : ' ') + jQuery('.OA1nbd:eq(0)', this).text() : jQuery('.OA1nbd:eq(0)', this).text()) : ((jQuery('.MyEned:eq(0)', this).length) ? ((jQuery('.MyEned:eq(0) > span:eq(0)', this).length && jQuery('.MyEned:eq(0) > span:eq(0)', this).html().length) ? jQuery('.MyEned:eq(0) > span:eq(0)', this).html() : jQuery('.MyEned:eq(0)', this).html()) : null));
-					
+					text = (jQuery('.JHMJmf', this) && jQuery('.gyKkFe', this) && (jQuery('[jsname="PBWx0c"]', this).length || jQuery('.gyKkFe.Fv38Af', this).length)) ? (jQuery('[jsname="PBWx0c"]', jQuery('.gyKkFe', this)).length ? jQuery('[jsname="PBWx0c"]', jQuery('.gyKkFe', this)).html() : (jQuery('[jsname="PBWx0c"]', this).length ? jQuery('[jsname="PBWx0c"]', this).html() : jQuery('.gyKkFe.Fv38Af', this).html())) : jQuery(this).hasClass('Svr5cf') ? jQuery('.OlkcBc', this).length > 1 && jQuery('span', jQuery('.OlkcBc:eq(1)', this)).length && jQuery('span', jQuery('.OlkcBc:eq(1)', this)).text().length ? jQuery('.K7oBsc:eq(0)', jQuery('.OlkcBc:eq(1)', this)).text() : jQuery('.K7oBsc', this).length && jQuery('span', jQuery('.K7oBsc', this)).length && jQuery('span', jQuery('.K7oBsc', this)).text().length ? jQuery('span', jQuery('.K7oBsc', this)).text() : null : jQuery('.Jtu6Td', this).length && jQuery('.Jtu6Td > span > span', this).length ? jQuery('.Jtu6Td:eq(0) .review-full-text:eq(0)', this).length && jQuery('.Jtu6Td:eq(0) .review-full-text', this).text().length ? jQuery('.Jtu6Td:eq(0) .review-full-text:eq(0)', this).html() : jQuery('.Jtu6Td > span:eq(0) > span:eq(0)', this).html() : jQuery('.review-full-text', this).length && typeof jQuery('div:eq(0) > div:eq(2) .review-full-text:eq(0)', this).html() == 'string' ? jQuery('div:eq(0) > div:eq(2) .review-full-text:eq(0)', this).html() : typeof jQuery('div:eq(0) > div:eq(2) > div:eq(1) > span:eq(0)', this).html() == 'string' ? jQuery('div:eq(0) > div:eq(2) > div:eq(1) > span:eq(0)', this).html() : typeof jQuery('div:eq(0) > div:eq(3) > div:eq(1) > span:eq(0)', this).html() == 'string' ? jQuery('.review-full-text', this).length ? jQuery('div:eq(0) > div:eq(3) > div:eq(1) .review-full-text:eq(0)', this).html() : jQuery('div:eq(0) > div:eq(3) > div:eq(1) > span:eq(0)', this).html() : ((jQuery('.OA1nbd', this).length) ? ((jQuery('.OA1nbd', this).length >= 2) ? jQuery('.OA1nbd:eq(1)', this).text() + ((jQuery('.UEEEAc:eq(0)', this).length) ? ' (' + jQuery('.UEEEAc:eq(0)', this).text() + ') ' : ' ') + jQuery('.OA1nbd:eq(0)', this).text() : jQuery('.OA1nbd:eq(0)', this).text()) : ((jQuery('.MyEned:eq(0)', this).length) ? ((jQuery('.MyEned:eq(0) > span:eq(0)', this).length && jQuery('.MyEned:eq(0) > span:eq(0)', this).html().length) ? jQuery('.MyEned:eq(0) > span:eq(0)', this).html() : jQuery('.MyEned:eq(0)', this).html()) : null));
+
 					switch (jQuery('#html-import-review-text').val()) {
 					case 'translation':
 						if (text == null || !text.length) {
@@ -1699,6 +1705,22 @@ function google_business_reviews_rating_admin(popstate) {
 					}
 
 					any_translated = (any_translated || translated);
+
+					if (jQuery('.JHMJmf', this) && jQuery('.gyKkFe', this) && (jQuery('.PBWx0c', jQuery('.gyKkFe', this)).length || jQuery('.gyKkFe', this).length)) {
+						reviews.push({
+							author_name: (jQuery('.PskQHd:eq(0)', this).text().length) ? jQuery('.PskQHd:eq(0)', this).text() : null,
+							author_url: null,
+							profile_photo_url: (jQuery('.ooGZkf', this).length && jQuery('.ooGZkf', this).attr('src').length) ? jQuery('.ooGZkf', this).attr('src').replace(/=s(?:40|64)/, '=s128') : null,
+							rating: (jQuery('.DYizzd', this).length && jQuery('.DYizzd:eq(0)', this).attr('aria-label').length && jQuery('.DYizzd:eq(0)', this).attr('aria-label').match(/^.*[1-5].+$/) != null) ? parseInt(jQuery('.DYizzd:eq(0)', this).attr('aria-label').replace(/^.*([1-5]).+$/, '$1')) : null,
+							relative_time_description: (jQuery('.KEfuhb', this).length && jQuery('.KEfuhb', this).text().length) ? jQuery('.KEfuhb', this).text().replace(/^[\s,.·-]+|[\s,.·-]$/gi, '') : null,
+							text: text,
+							translated: translated,
+							language: (text != null && (jQuery('[lang]', this).length && jQuery('[lang]:eq(0)', this).attr('lang').length || jQuery('.rHQsDe a:eq(0)', this).length && jQuery('.rHQsDe a:eq(0)', this).attr('href').length && jQuery('.rHQsDe a:eq(0)', this).attr('href').match(/^.+hl=[a-z]{2}.*$/i) != null)) ? (jQuery('[lang]', this).length && jQuery('[lang]:eq(0)', this).attr('lang').length) ? jQuery('[lang]:eq(0)', this).attr('lang') : jQuery('.rHQsDe a:eq(0)', this).attr('href').replace(/^.+hl=([a-z]{2}).*$/i, '$1').toLowerCase() : null,
+							base_language: base_language,
+							time: null
+						});
+						return;
+					}
 
 					if (jQuery('.X8zlde:eq(0)', this).length && typeof jQuery('.X8zlde:eq(0)', this).text() == 'string') {
 						reviews.push({
@@ -1847,7 +1869,7 @@ function google_business_reviews_rating_admin(popstate) {
 								language = (typeof review.language == 'string' && (review.language in languages)) ? review.language : ((typeof review.author_url == 'string' && (review.author_url.toLowerCase().replace(/^(?:[^?]+)\?(?:hl=([0-9a-z]+)[0-9a-z-]*).+$/i, '$1') in languages)) ? review.author_url.toLowerCase().replace(/^(?:[^?]+)\?(?:hl=([0-9a-z]+)[0-9a-z-]*).+$/i, '$1') : ((jQuery('[data-language-code]', html).length && jQuery('[data-language-code]', html).data('language-code').toLowerCase().replace(/^([0-9a-z]{2}).*$/, '$1') in languages) ? jQuery('[data-language-code]', html).data('language-code').toLowerCase().replace(/^([0-9a-z]{2}).*$/, '$1') : ((browser_language.length && browser_language.toLowerCase().replace(/^([0-9a-z]{2}).*$/, '$1') in languages) ? browser_language.toLowerCase().replace(/^([0-9a-z]{2}).*$/, '$1') : null)));
 								
 								for (k in relative_times) {
-									regex = new RegExp('^' + relative_times[k].text.replace(/%u/g, '\\d+').replace(/ /g, '\\s+') + '$', 'i');
+									regex = new RegExp('^' + relative_times[k].text.replace(/\b(an?)\b/g, '(?:$1|1)').replace(/%u/g, '\\d+').replace(/ /g, '\\s+') + '$', 'i');
 									
 									if (review.relative_time_description != null && review.relative_time_description.match(regex) != null) {
 										date_temp = new Date();
@@ -1862,7 +1884,7 @@ function google_business_reviews_rating_admin(popstate) {
 									}
 								}
 								
-								if (date_temp == null && language != null && language.match(/^(?:cz|da|de|el|es|fr|hu|it|iw|ja|nl|pl|ko).*$/i) != null) {
+								if (date_temp == null && language != null && language.match(/^(?:cz|da|de|el|es|fr|hu|it|iw|ja|nl|pl|ko|sr).*$/i) != null) {
 									time_unit = (review.relative_time_description.match(/^(?:[^\d]*)(\d{1,3})(?:[^\d]*)$/i) != null) ? parseInt(review.relative_time_description.replace(/^(?:[^\d]*)(\d{1,3})(?:[^\d]*)$/i, '$1')) : 1;
 									
 									for (k in relative_times) {
@@ -1882,7 +1904,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^ちょうど今$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^net\s+nu$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^(?:teraz|1\s+godzin[ay]?\s+temu)$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^지금$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^지금$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Уу]право\s+сада$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -1902,7 +1925,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*時間前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^\d+\s+uur\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^\d+\s+godzin[ay]?\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+시간\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+시간\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+\d+\s+сата$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -1922,7 +1946,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*日前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^een\s+dag\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^dzień\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^하루\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^하루\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+једног\s+дана$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -1942,7 +1967,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*日前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^\d+\s+dagen\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^\d+\s+dni\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+일\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+일\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+\d+\s+дана$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -1962,7 +1988,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^過去\s*\d+\s*週間以内$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^in\s+de\s+afgelopen\s+week$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^w\s+ostatnim\s+tygodniu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^1주일\s*미만\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^1주일\s*미만\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Уу]\s+последњој\s+недељи$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -1982,7 +2009,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^一週間前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^een\s+week\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^tydzień\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^일주일\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^일주일\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+недељу\s+дана$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2002,7 +2030,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*週間前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^\d+\s+weken\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^\d+\s+tygodni\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^'\d+주\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^'\d+주\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+\d+\s+недељ[аеу]$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2022,7 +2051,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*か月前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^een\s+maand\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^miesiąc\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^한\s*달\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^한\s*달\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+месец\s+дана$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2042,7 +2072,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*か月前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^\d+\s+maanden\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^\d+\s+miesi[ąę]c[ey](?:\s+temu)?$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+\s*달전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+\s*달전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+\d+\s+месеца$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2062,7 +2093,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*年前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^een\s+jaar\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^rok\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^일년\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^일년\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+годину\s+дана$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2082,7 +2114,8 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^ja/i) != null && review.relative_time_description.match(/^\d+\s*年前$/i) != null ||
 													language.match(/^nl/i) != null && review.relative_time_description.match(/^\d+\s+jaar\s+geleden$/i) != null ||
 													language.match(/^pl/i) != null && review.relative_time_description.match(/^\d+\s+lat[a]?\s+temu$/i) != null ||
-													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+\s*년\s*전$/i) != null
+													language.match(/^ko/i) != null && review.relative_time_description.match(/^\d+\s*년\s*전$/i) != null ||
+													language.match(/^sr/i) != null && review.relative_time_description.match(/^[Пп]ре\s+\d+\s+године$/i) != null
 													) {
 													date_temp = true;
 													break;
@@ -2101,6 +2134,33 @@ function google_business_reviews_rating_admin(popstate) {
 												date_temp.setDate(date_temp.getDate() - Math.round((relative_times[k].divider * time_unit) / 86400));
 												break;
 											}
+										}
+									}
+								}
+
+								if (date_temp == null) {
+									let date_parts = null;
+									
+									if (review.relative_time_description.match(/^(\d{1,2})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{4})\.?\s*$/) != null) {
+										date_parts = review.relative_time_description.match(/^(\d{1,2})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{4})\.?\s*$/);
+										date_temp = new Date(date_parts[3], date_parts[2] - 1, date_parts[1]);
+									}
+									else if (review.relative_time_description.match(/^(\d{4})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{1,2})\.?\s*$/) != null) {
+										date_parts = review.relative_time_description.match(/^(\d{4})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{1,2})\.?\s*$/);
+										date_temp = new Date(date_parts[1], date_parts[2] - 1, date_parts[3]);
+									}
+									else if (review.relative_time_description.match(/^([A-Z]\w{1,2})[ety]?\s+(\d{1,2})[,.\/-]?\s*(\d{4})\.?\s*$/) != null) {
+										date_parts = review.relative_time_description.match(/^([A-Z]\w{1,2})[ety]?\s+(\d{1,2})[,.\/-]?\s*(\d{4})\.?\s*$/);
+
+										if (months.indexOf(date_parts[1]) >= 0) {
+											date_temp = new Date(date_parts[3], months.indexOf(date_parts[1]), date_parts[2]);
+										}
+									}
+									else if (review.relative_time_description.match(/^(\d{1,2})\s+([A-Z]\w{1,2})[ety]?[,.\/-]?\s*(\d{4})\.?\s*$/) != null) {
+										date_parts = review.relative_time_description.match(/^(\d{1,2})\s+([A-Z]\w{1,2})[ety]?[,.\/-]?\s*(\d{4})\.?\s*$/);
+
+										if (months.indexOf(date_parts[2]) >= 0) {
+											date_temp = new Date(date_parts[3], months.indexOf(date_parts[2]), date_parts[1]);
 										}
 									}
 								}

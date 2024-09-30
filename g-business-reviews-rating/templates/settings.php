@@ -854,8 +854,8 @@ Finally for regular requests, please <a href="%5$s" class="components-external-l
                 <tr id="parameter-animate">
                     <td class="parameter">animate</td>
                     <td class="description"><?php /* translators: %s: parameter value for FALSE */
-						echo sprintf(__('Animate the rating stars on load or set as static (<span class="code">%s</span>).', 'g-business-reviews-rating'), 'FALSE'); ?></td>
-                    <td class="accepted">yes, no, true, false, <span class="code">1</span>, <span class="code">0</span>, show, hide, on, off, animate, static</td>
+						echo sprintf(__('Animate the rating stars on view, load or set as static (<span class="code">%s</span>).', 'g-business-reviews-rating'), 'FALSE'); ?></td>
+                    <td class="accepted">yes, no, true, false, <span class="code">1</span>, <span class="code">0</span>, show, hide, on, off, animate, immediate, static</td>
                     <td class="default"><span class="code">TRUE</span></td>
                     <td class="boolean"><span class="dashicons dashicons-yes"></span></td>
                     <td class="boolean"><span class="dashicons dashicons-no"></span></td>

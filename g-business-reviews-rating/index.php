@@ -435,6 +435,19 @@ class google_business_reviews_rating
 				$this->relative_times['year']['text'] = '일년 전';
 				$this->relative_times['years']['text'] = '%u 년 전';
 				break;
+			case 'sr':
+				$this->relative_times['hour']['text'] = '[Уу]право сада';
+				$this->relative_times['hours']['text'] = '[Пп]ре %u сата';
+				$this->relative_times['day']['text'] = '[Пп]ре једног дана';
+				$this->relative_times['days']['text'] = '[Пп]ре %u дана';
+				$this->relative_times['within_week']['text'] = '[Уу] последњој недељи';
+				$this->relative_times['week']['text'] = '[Пп]ре недељу дана';
+				$this->relative_times['weeks']['text'] = '[Пп]ре %u недељ[аеу]';
+				$this->relative_times['month']['text'] = '[Пп]ре месец дана';
+				$this->relative_times['months']['text'] = '[Пп]ре %u месеца';
+				$this->relative_times['year']['text'] = '[Пп]ре годину дана';
+				$this->relative_times['years']['text'] = '[Пп]ре %u године';
+				break;
 			}
 		}
 
@@ -5812,7 +5825,7 @@ class google_business_reviews_rating
 		$write_review_url = (is_string($write_review_url) && preg_match('#^((https?:)?//[^/]{4,150}/?.*|/.*)$#i', $write_review_url)) ? $write_review_url : (($this->demo) ? 'https://search.google.com/local/writereview?placeid=ChIJq6pqZz2uEmsRaQAMbAl0RW0' : 'https://search.google.com/local/writereview?placeid=' . esc_attr((is_string($place_id)) ? $place_id : get_option(__CLASS__ . '_place_id')));			
 		$reviews_link_class = (is_string($reviews_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($reviews_link_class))) : $link_class;
 		$write_review_link_class = (is_string($write_review_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($write_review_link_class))) : $link_class;
-		$animate = (is_null($animate) || is_bool($animate) && $animate || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|animate|animation)$/i', $animate));
+		$animate = (array_key_exists('animate', $atts) && is_string($animate) && preg_match('/^(?:immediate(?:ly)?|(?:on)?(?:load|ready))$/i', $animate)) ? 'immediate' : (is_null($animate) || is_bool($animate) && $animate || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|animate|animation)$/i', $animate));
 		$review_text = (is_null($review_text) || is_bool($review_text) && $review_text || is_string($review_text) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $review_text));
 		$attribution = (is_null($attribution) || is_bool($attribution) && $attribution || is_string($attribution) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|light|dark)$/i', $attribution)) ? ((is_string($attribution) && preg_match('/^(?:light|dark)$/i', $attribution)) ? mb_strtolower($attribution) : TRUE) : ((is_string($attribution) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $attribution)) ? $attribution : FALSE);
 		$review_text_excerpt_length = (is_numeric($excerpt) && $excerpt >= 20) ? intval($excerpt) : ((!array_key_exists('excerpt', $atts)) ? get_option(__CLASS__ . '_review_text_excerpt_length', NULL) : NULL);
@@ -6035,6 +6048,7 @@ class google_business_reviews_rating
 			. ((is_string($link) && (is_bool($link_disable) && !$link_disable || !is_bool($link_disable))) ? ' data-href="' . esc_attr($link) . '"' : '')
 			. (($stylesheet && is_string($stars) && $stars != 'html' && $stars != 'css') ? ' data-stars="' . esc_attr($stars) . '"' : '')
 			. (($stylesheet && is_string($stars_gray) && $stars_gray != 'html' && $stars_gray != 'css') ? ' data-stars-gray="' . esc_attr($stars_gray) . '"' : '')
+			. ((is_string($animate) && $animate == 'immediate') ? ' data-animate="' . esc_attr($animate) . '"' : '')
 			. ((is_numeric($view)) ? ' data-view="' . esc_attr($view) . '"' . ((is_numeric($loop) || is_bool($loop) && $loop) ? ' data-loop="' . esc_attr((!is_numeric($loop)) ? '-1' : $loop) . '"' : '') . ((is_numeric($iterations)) ? ' data-iterations="' . esc_attr($iterations) . '"' : '') . ((is_numeric($interval)) ? ' data-interval="' . esc_attr($interval) . '"' : '') . ((is_string($transition)) ? ' data-transition="' . esc_attr($transition) . '"' . ((is_numeric($transition_duration)) ? ' data-transition-duration="' . esc_attr($transition_duration) . '"' : '') : '') . ((is_bool($cursor) && !$cursor) ? ' data-cursor="0"' : '') . ((is_bool($draggable) && !$draggable) ? ' data-draggable="0"' : '') : '')
 			. '>
 ';
@@ -6078,7 +6092,7 @@ class google_business_reviews_rating
 					if (preg_match('/^inline|inline$/i', $stars))
 					{
 						$partial = (round($rating * 10, 0, PHP_ROUND_HALF_UP) - floor($rating) * 10) * 10;
-						$html .= '<span class="all-stars inline-svg' . (($animate) ? ' animate' : '') . '">' . PHP_EOL;
+						$html .= '<span class="all-stars inline-svg' . ((is_bool($animate) && $animate) ? ' animate' : '') . '">' . PHP_EOL;
 
 						for ($star = 1; $star <= 5; $star++)
 						{

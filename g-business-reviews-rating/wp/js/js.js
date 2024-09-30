@@ -98,7 +98,10 @@ function google_business_reviews_rating(e, i) {
 			jQuery(this).removeData('href').removeAttr('data-href');
 		}
 
-		if (this.querySelector(':scope .all-stars.animate') != null) {
+		if (this.getAttribute('data-animate') == 'immediate') {
+			this.querySelector(':scope .all-stars.animate').classList.add('animation-start');
+		}
+		else if (this.querySelector(':scope .all-stars.animate') != null) {
 			observer.observe(this.querySelector(':scope .all-stars.animate'));
 		}
 

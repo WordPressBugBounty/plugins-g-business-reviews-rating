@@ -6,8 +6,8 @@ Contributors: designextreme
 Donate link: https://paypal.me/designextreme
 Tags: google reviews, google rating, google my business, gmb reviews, structured data
 Requires at least: 4.6
-Tested up to: 6.6.1
-Stable tag: 5.5
+Tested up to: 6.6.2
+Stable tag: 5.6
 Requires PHP: 5.2.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -107,7 +107,7 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 *   See the latest formatted JSON data from Google’s API
 *   Retrieves reviews in the background, collecting more through Google’s API over time with a snapshot of valid data for stability
 *   Clear cache, reset retrieved reviews and overall reset to clear all plugin data
-*   **Advanced** capability to import *all* review data from Google’s review popup HTML or consolidated reviews HTML (inspecting the live HTML)
+*   **Advanced** capability to import *all* review data from Google’s review popup HTML, Google My Business reviews or consolidated reviews HTML (inspecting the live HTML)
 *   A comprehensive and *free* plugin with no upgrades for additional functionality
 
 == Demonstration: ==
@@ -244,12 +244,19 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 
 == Changelog ==
 
+= 5.6 =
+
+* Added immediate start parameter for stars animation
+* Extended HTML Import to accept Google My Business version
+* Tested with WordPress 6.6.2
+
 = 5.5 =
 
 * Added support for inline SVG stars
 * Added Hungarian and Japanese language support for relative times (Thanks to Örs and Kevin)
 * Improved rating star animation: initiating when in view
 * Restricted effect of avatar dimension variables in CSS
+* Tested with WordPress 6.6.1
 
 = 5.4 =
 
