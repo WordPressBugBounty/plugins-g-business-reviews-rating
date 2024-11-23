@@ -62,414 +62,222 @@ class google_business_reviews_rating
 		$this->review_sort_asc = NULL;
 		$this->default_html_tags = array('h2', 'p', 'p', 'ul', 'li', 'ul', 'li', 'p', 'p', 'p');
 		$this->updates = array(
-			NULL => __('Never Synchronize', 'g-business-reviews-rating'),
-			168 => __('Synchronize Weekly', 'g-business-reviews-rating'),
-			24 => __('Synchronize Daily', 'g-business-reviews-rating'),
-			6 => __('Synchronize Every 6 Hours', 'g-business-reviews-rating'),
-			1 => __('Synchronize Hourly', 'g-business-reviews-rating')
+			NULL => 'Never Synchronize',
+			168 => 'Synchronize Weekly',
+			24 => 'Synchronize Daily',
+			6 => 'Synchronize Every 6 Hours',
+			1 => 'Synchronize Hourly'
 		);
 		$this->review_sort_options = array(
 			'relevance_desc' => array(
-				'name' => __('Relevance Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => NULL,
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'relevance_asc' => array(
-				'name' => __('Relevance Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => NULL,
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'date_desc' => array(
-				'name' => __('Date Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('New', 'g-business-reviews-rating'), __('Old', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'time',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'date_asc' => array(
-				'name' => __('Date Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Old', 'g-business-reviews-rating'), __('New', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'time',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'rating_desc' => array(
-				'name' => __('Rating Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'rating',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'rating_asc' => array(
-				'name' => __('Rating Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'rating',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'author_name_asc' => array(
-				'name' => __('Author’s Name Ascending', 'g-business-reviews-rating'),
+				'name' => NULL,
 				'min_max_values' => array('A', 'Z'),
 				'field' => 'author_name',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'author_name_desc' => array(
-				'name' => __('Author’s Name Descending', 'g-business-reviews-rating'),
+				'name' => NULL,
 				'min_max_values' => array('Z', 'A'),
 				'field' => 'author_name',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'review_words_asc' => array(
-				'name' => __('Review Word Count Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'text',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'review_words_desc' => array(
-				'name' => __('Review Word Count Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'text',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'review_characters_asc' => array(
-				'name' => __('Review Character Count Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'text',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'review_characters_desc' => array(
-				'name' => __('Review Character Count Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'text',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'id_asc' => array(
-				'name' => __('ID Ascending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'id',
 				'asc' => TRUE,
 				'static' => FALSE
 			),
 			'id_desc' => array(
-				'name' => __('ID Descending', 'g-business-reviews-rating'),
-				'min_max_values' => array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')),
+				'name' => NULL,
+				'min_max_values' => array(NULL, NULL),
 				'field' => 'id',
 				'asc' => FALSE,
 				'static' => FALSE
 			),
 			'shuffle' => array(
-				'name' => __('Random Shuffle Static', 'g-business-reviews-rating'),
+				'name' => NULL,
 				'static' => TRUE
 			),
 			'shuffle_variable' => array(
-				'name' => __('Random Shuffle Variable', 'g-business-reviews-rating'),
+				'name' => NULL,
 				'static' => FALSE
 			)
 		);
 		$this->relative_times = array(
 			'hour' => array(
-				'text' => __('just now', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => NULL,
 				'max_time' => 2 * HOUR_IN_SECONDS,
 				'divider' => HOUR_IN_SECONDS,
 				'singular' => TRUE
 			),
 			'hours' => array(
-				/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
-				'text' => __('%u hours ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => 2 * HOUR_IN_SECONDS,
 				'max_time' => (11 * HOUR_IN_SECONDS),
 				'divider' => HOUR_IN_SECONDS,
 				'singular' => FALSE
 			),
 			'day' => array(
-				'text' => __('a day ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (11 * HOUR_IN_SECONDS),
 				'max_time' => (1.5 * DAY_IN_SECONDS),
 				'divider' => NULL,
 				'singular' => TRUE
 			),
 			'days' => array(
-				/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
-				'text' => __('%u days ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (1.5 * DAY_IN_SECONDS),
 				'max_time' => (3.5 * DAY_IN_SECONDS),
 				'divider' => DAY_IN_SECONDS,
 				'singular' => FALSE
 			),
 			'within_week' => array(
-				'text' => __('in the last week', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (3.5 * DAY_IN_SECONDS),
 				'max_time' => (6.5 * DAY_IN_SECONDS),
 				'divider' => NULL,
 				'singular' => TRUE
 			),
 			'week' => array(
-				'text' => __('a week ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (6.5 * DAY_IN_SECONDS),
 				'max_time' => (13.5 * DAY_IN_SECONDS),
 				'divider' => NULL,
 				'singular' => TRUE
 			),
 			'weeks' => array(
-				/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
-				'text' => __('%u weeks ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (13.5 * DAY_IN_SECONDS),
 				'max_time' => (29.5 * DAY_IN_SECONDS),
 				'divider' => (WEEK_IN_SECONDS),
 				'singular' => FALSE
 			),
 			'month' => array(
-				'text' => __('a month ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (29.5 * DAY_IN_SECONDS),
 				'max_time' => (58 * DAY_IN_SECONDS),
 				'divider' => NULL,
 				'singular' => TRUE
 			),
 			'months' => array(
-				/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
-				'text' => __('%u months ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (58 * DAY_IN_SECONDS),
 				'max_time' => (350 * DAY_IN_SECONDS),
 				'divider' => (30.5 * DAY_IN_SECONDS),
 				'singular' => FALSE
 			),
 			'year' => array(
-				'text' => __('a year ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (350 * DAY_IN_SECONDS),
 				'max_time' => (700 * DAY_IN_SECONDS),
 				'divider' => NULL,
 				'singular' => TRUE
 			),
 			'years' => array(
-				/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
-				'text' => __('%u years ago', 'g-business-reviews-rating'),
+				'text' => NULL,
 				'min_time' => (700 * DAY_IN_SECONDS),
 				'max_time' => NULL,
 				'divider' => (365.25 * DAY_IN_SECONDS),
 				'singular' => FALSE
 			)
 		);
-		
-		if (!$this->translation_exists())
-		{
-			$language_code = preg_replace('/^[^a-z]*([a-z]{2}l?).*$/', '$1', mb_strtolower(get_option('WPLANG')));
-			
-			switch ($language_code)
-			{
-			case 'cz':
-                $this->relative_times['hour']['text'] = 'právě teď';
-                $this->relative_times['hours']['text'] = 'před %u hodinami';
-                $this->relative_times['day']['text'] = 'před jedním dnem';
-                $this->relative_times['days']['text'] = 'před %u dny';
-                $this->relative_times['within_week']['text'] = 'tento týden';
-                $this->relative_times['week']['text'] = 'před týdnem';
-                $this->relative_times['weeks']['text'] = 'před %u týdny';
-                $this->relative_times['month']['text'] = 'před měsícem';
-                $this->relative_times['months']['text'] = 'před %u měsíci';
-                $this->relative_times['year']['text'] = 'před rokem';
-                $this->relative_times['years']['text'] = 'před %u lety';
-				break;
-			case 'da':
-				$this->relative_times['hour']['text'] = 'nu';
-				$this->relative_times['hours']['text'] = '%u timer siden';
-				$this->relative_times['day']['text'] = 'en dag siden';
-				$this->relative_times['days']['text'] = '%u dage siden';
-				$this->relative_times['within_week']['text'] = 'for mindre end en uge siden';
-				$this->relative_times['week']['text'] = 'en uge siden';
-				$this->relative_times['weeks']['text'] = '%u uger siden';
-				$this->relative_times['month']['text'] = 'for en måned siden';
-				$this->relative_times['months']['text'] = '%u måneder siden';
-				$this->relative_times['year']['text'] = 'for et år siden';
-				$this->relative_times['years']['text'] = '%u år siden';
-				break;
-			case 'de':
-				$this->relative_times['hour']['text'] = 'gerade jetzt';
-				$this->relative_times['hours']['text'] = 'vor %u Stunden';
-				$this->relative_times['day']['text'] = 'vor einem Tag';
-				$this->relative_times['days']['text'] = 'vor %u Tagen';
-				$this->relative_times['within_week']['text'] = 'in der letzten Woche';
-				$this->relative_times['week']['text'] = 'vor einer Woche';
-				$this->relative_times['weeks']['text'] = 'vor %u Wochen';
-				$this->relative_times['month']['text'] = 'vor einem Monat';
-				$this->relative_times['months']['text'] = 'vor %u Monaten';
-				$this->relative_times['year']['text'] = 'vor einem Jahr';
-				$this->relative_times['years']['text'] = 'vor %u Jahren';
-				break;
-			case 'el':
-				$this->relative_times['hour']['text'] = 'πριν από μία ώρα';
-				$this->relative_times['hours']['text'] = 'πριν από %u ώρες';
-				$this->relative_times['day']['text'] = 'πριν από μία ημέρα';
-				$this->relative_times['days']['text'] = 'πριν από %u ημέρες';
-				$this->relative_times['within_week']['text'] = 'αυτή την εβδομάδα';
-				$this->relative_times['week']['text'] = 'πριν από μία εβδομάδα';
-				$this->relative_times['weeks']['text'] = 'πριν από %u εβδομάδες';
-				$this->relative_times['month']['text'] = 'πριν από μία μήνα';
-				$this->relative_times['months']['text'] = 'πριν από %u μήνες';
-				$this->relative_times['year']['text'] = 'πριν από μία έτος';
-				$this->relative_times['years']['text'] = 'πριν από %u έτη';
-				break;
-			case 'es':
-				$this->relative_times['hour']['text'] = 'justo ahora';
-				$this->relative_times['hours']['text'] = 'hace %u horas';
-				$this->relative_times['day']['text'] = 'hace un día';
-				$this->relative_times['days']['text'] = 'hace %u días';
-				$this->relative_times['within_week']['text'] = 'en la ultima semana';
-				$this->relative_times['week']['text'] = 'hace una semana';
-				$this->relative_times['weeks']['text'] = 'hace %u semanas';
-				$this->relative_times['month']['text'] = 'hace un mes';
-				$this->relative_times['months']['text'] = 'hace %u meses';
-				$this->relative_times['year']['text'] = 'hace un año';
-				$this->relative_times['years']['text'] = 'hace %u años';
-				break;
-			case 'fr':
-				$this->relative_times['hour']['text'] = 'maintenant';
-				$this->relative_times['hours']['text'] = 'il y a %u heures';
-				$this->relative_times['day']['text'] = 'il y a un jour';
-				$this->relative_times['days']['text'] = 'il y a %u jours';
-				$this->relative_times['within_week']['text'] = 'il y a moins d’une semaine';
-				$this->relative_times['week']['text'] = 'il y a une semaine';
-				$this->relative_times['weeks']['text'] = 'il y a %u semaines';
-				$this->relative_times['month']['text'] = 'il y a un mois';
-				$this->relative_times['months']['text'] = 'il y a %u mois';
-				$this->relative_times['year']['text'] = 'il y a un an';
-				$this->relative_times['years']['text'] = 'il y a %u années';
-				break;
-			case 'hu':
-				$this->relative_times['hour']['text'] = 'éppen most';
-				$this->relative_times['hours']['text'] = '%u órája';
-				$this->relative_times['day']['text'] = '%u napja';
-				$this->relative_times['days']['text'] = '%u napja';
-				$this->relative_times['within_week']['text'] = 'előző héten';
-				$this->relative_times['week']['text'] = 'egy hete';
-				$this->relative_times['weeks']['text'] = '%u hete';
-				$this->relative_times['month']['text'] = 'egy hónapja';
-				$this->relative_times['months']['text'] = '%u hónapja';
-				$this->relative_times['year']['text'] = 'egy éve';
-				$this->relative_times['years']['text'] = '%u éve';
-				break;
-			case 'it':
-				$this->relative_times['hour']['text'] = 'proprio adesso';
-				$this->relative_times['hours']['text'] = '%u ore fa';
-				$this->relative_times['day']['text'] = 'un giorno fa';
-				$this->relative_times['days']['text'] = '%u giorni fa';
-				$this->relative_times['within_week']['text'] = 'nell’ultima settimana';
-				$this->relative_times['week']['text'] = 'una settimana fa';
-				$this->relative_times['weeks']['text'] = '%u settimane fa';
-				$this->relative_times['month']['text'] = 'un mese fa';
-				$this->relative_times['months']['text'] = '%u mesi fa';
-				$this->relative_times['year']['text'] = 'un anno fa';
-				$this->relative_times['years']['text'] = '%u anni fa';
-				break;
-			case 'iw':
-				$this->relative_times['hour']['text'] = 'עַכשָׁיו';
-				$this->relative_times['hours']['text'] = 'לפני %u שעות';
-				$this->relative_times['day']['text'] = 'לפני יום';
-				$this->relative_times['days']['text'] = 'לפני %u ימים';
-				$this->relative_times['within_week']['text'] = 'לפני פחות משבוע';
-				$this->relative_times['week']['text'] = 'לפני שבוע';
-				$this->relative_times['weeks']['text'] = 'לפני %u שבועות';
-				$this->relative_times['month']['text'] = 'לפני חודש';
-				$this->relative_times['months']['text'] = 'לפני %u חודשים';
-				$this->relative_times['year']['text'] = 'לפני שנה';
-				$this->relative_times['years']['text'] = 'לפני %u שנים';
-				break;
-			case 'ja':
-				$this->relative_times['hour']['text'] = 'ちょうど今';
-				$this->relative_times['hours']['text'] = '%u 時間前';
-				$this->relative_times['day']['text'] = '%u 日前';
-				$this->relative_times['days']['text'] = '%u 日前';
-				$this->relative_times['within_week']['text'] = '過去 %u 週間以内';
-				$this->relative_times['week']['text'] = '一週間前';
-				$this->relative_times['weeks']['text'] = '%u 週間前';
-				$this->relative_times['month']['text'] = '%u か月前';
-				$this->relative_times['months']['text'] = '%u か月前';
-				$this->relative_times['year']['text'] = '%u 年前';
-				$this->relative_times['years']['text'] = '%u 年前';
-			case 'nl':
-				$this->relative_times['hour']['text'] = 'net nu';
-				$this->relative_times['hours']['text'] = '%u uur geleden';
-				$this->relative_times['day']['text'] = 'een dag geleden';
-				$this->relative_times['days']['text'] = '%u dagen geleden';
-				$this->relative_times['within_week']['text'] = 'in de afgelopen week';
-				$this->relative_times['week']['text'] = 'een week geleden';
-				$this->relative_times['weeks']['text'] = '%u weken geleden';
-				$this->relative_times['month']['text'] = 'een maand geleden';
-				$this->relative_times['months']['text'] = '%u maanden geleden';
-				$this->relative_times['year']['text'] = 'een jaar geleden';
-				$this->relative_times['years']['text'] = '%u jaar geleden';
-				break;
-			case 'pl':
-				$this->relative_times['hour']['text'] = 'teraz';
-				$this->relative_times['hours']['text'] = '%u godzin[ay]? temu';
-				$this->relative_times['day']['text'] = 'dzień temu';
-				$this->relative_times['days']['text'] = '%u dni temu';
-				$this->relative_times['within_week']['text'] = 'w ostatnim tygodniu';
-				$this->relative_times['week']['text'] = 'tydzień temu';
-				$this->relative_times['weeks']['text'] = '%u tygodni temu';
-				$this->relative_times['month']['text'] = 'miesiąc temu';
-				$this->relative_times['months']['text'] = '%u miesi[ąę]c[ey] temu';
-				$this->relative_times['year']['text'] = 'rok temu';
-				$this->relative_times['years']['text'] = '%u lat[a]? temu';
-				break;
-			case 'ko':
-				$this->relative_times['hour']['text'] = '지금';
-				$this->relative_times['hours']['text'] = '%u시간 전';
-				$this->relative_times['day']['text'] = '하루 전';
-				$this->relative_times['days']['text'] = '%u일 전';
-				$this->relative_times['within_week']['text'] = '1주일 미만 전';
-				$this->relative_times['week']['text'] = '일주일 전';
-				$this->relative_times['weeks']['text'] = '%u주 전';
-				$this->relative_times['month']['text'] = '한 달 전';
-				$this->relative_times['months']['text'] = '%u 달전';
-				$this->relative_times['year']['text'] = '일년 전';
-				$this->relative_times['years']['text'] = '%u 년 전';
-				break;
-			case 'sr':
-				$this->relative_times['hour']['text'] = '[Уу]право сада';
-				$this->relative_times['hours']['text'] = '[Пп]ре %u сата';
-				$this->relative_times['day']['text'] = '[Пп]ре једног дана';
-				$this->relative_times['days']['text'] = '[Пп]ре %u дана';
-				$this->relative_times['within_week']['text'] = '[Уу] последњој недељи';
-				$this->relative_times['week']['text'] = '[Пп]ре недељу дана';
-				$this->relative_times['weeks']['text'] = '[Пп]ре %u недељ[аеу]';
-				$this->relative_times['month']['text'] = '[Пп]ре месец дана';
-				$this->relative_times['months']['text'] = '[Пп]ре %u месеца';
-				$this->relative_times['year']['text'] = '[Пп]ре годину дана';
-				$this->relative_times['years']['text'] = '[Пп]ре %u године';
-				break;
-			}
-		}
 
 		$this->color_schemes = array(
-			'cranberry' => __('Cranberry', 'g-business-reviews-rating'),
-			'coral' => __('Coral', 'g-business-reviews-rating'),
-			'pumpkin' => __('Pumpkin', 'g-business-reviews-rating'),
-			'mustard' => __('Mustard', 'g-business-reviews-rating'),
-			'forest' => __('Forest', 'g-business-reviews-rating'),
-			'turquoise' => __('Turquoise', 'g-business-reviews-rating'),
-			'ocean' => __('Ocean', 'g-business-reviews-rating'),
-			'amethyst' => __('Amethyst', 'g-business-reviews-rating'),
-			'magenta' => __('Magenta', 'g-business-reviews-rating'),
-			'slate' => __('Slate', 'g-business-reviews-rating'),
-			'carbon' => __('Carbon', 'g-business-reviews-rating'),
-			'copper' => __('Copper', 'g-business-reviews-rating'),
-			'coffee' => __('Coffee', 'g-business-reviews-rating'),
-			'contrast' => __('High Contrast', 'g-business-reviews-rating')
+			'cranberry' => NULL,
+			'coral' => NULL,
+			'pumpkin' => NULL,
+			'mustard' => NULL,
+			'forest' => NULL,
+			'turquoise' => NULL,
+			'ocean' => NULL,
+			'amethyst' => NULL,
+			'magenta' => NULL,
+			'slate' => NULL,
+			'carbon' => NULL,
+			'copper' => NULL,
+			'coffee' => NULL,
+			'contrast' => NULL
 		);
 		
 		$this->admin_init();
 		$this->wp_init();
+
+		add_action('init', array($this, 'loaded'));
+
 		return TRUE;
 	}
 	
@@ -833,6 +641,289 @@ class google_business_reviews_rating
 		return TRUE;
 	}
 
+	public function loaded()
+	{
+		// Initiate the text translations
+
+		load_plugin_textdomain('g-business-reviews-rating', FALSE, basename(dirname(__FILE__)) . '/languages');
+
+		$this->updates = array(
+			NULL => __('Never Synchronize', 'g-business-reviews-rating'),
+			168 => __('Synchronize Weekly', 'g-business-reviews-rating'),
+			24 => __('Synchronize Daily', 'g-business-reviews-rating'),
+			6 => __('Synchronize Every 6 Hours', 'g-business-reviews-rating'),
+			1 => __('Synchronize Hourly', 'g-business-reviews-rating')
+		);
+		$this->review_sort_options['relevance_desc']['name'] = __('Relevance Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['relevance_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
+		$this->review_sort_options['relevance_asc']['name'] = __('Relevance Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['relevance_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
+		$this->review_sort_options['date_desc']['name'] = __('Date Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['date_desc']['min_max_values'] = array(__('New', 'g-business-reviews-rating'), __('Old', 'g-business-reviews-rating'));
+		$this->review_sort_options['date_asc']['name'] = __('Date Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['date_asc']['min_max_values'] = array(__('Old', 'g-business-reviews-rating'), __('New', 'g-business-reviews-rating'));
+		$this->review_sort_options['rating_desc']['name'] = __('Rating Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['rating_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
+		$this->review_sort_options['rating_asc']['name'] = __('Rating Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['rating_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
+		$this->review_sort_options['author_name_asc']['name'] = __('Author’s Name Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['author_name_asc']['min_max_values'] = array('A', 'Z');
+		$this->review_sort_options['author_name_desc']['name'] = __('Author’s Name Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['author_name_desc']['min_max_values'] = array('Z', 'A');
+		$this->review_sort_options['review_words_asc']['name'] = __('Review Word Count Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['review_words_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
+		$this->review_sort_options['review_words_desc']['name'] = __('Review Word Count Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['review_words_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
+		$this->review_sort_options['review_characters_asc']['name'] = __('Review Character Count Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['review_characters_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
+		$this->review_sort_options['review_characters_desc']['name'] = __('Review Character Count Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['review_characters_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
+		$this->review_sort_options['id_asc']['name'] = __('ID Ascending', 'g-business-reviews-rating');
+		$this->review_sort_options['id_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
+		$this->review_sort_options['id_desc']['name'] = __('ID Descending', 'g-business-reviews-rating');
+		$this->review_sort_options['id_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
+		$this->review_sort_options['shuffle']['name'] = __('Random Shuffle Static', 'g-business-reviews-rating');
+		$this->review_sort_options['shuffle_variable']['name'] = __('Random Shuffle Variable', 'g-business-reviews-rating');
+		$this->relative_times['hour']['text'] = __('just now', 'g-business-reviews-rating');
+		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
+		$this->relative_times['hours']['text'] = __('%u hours ago', 'g-business-reviews-rating');
+		$this->relative_times['day']['text'] = __('a day ago', 'g-business-reviews-rating');
+		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
+		$this->relative_times['days']['text'] = __('%u days ago', 'g-business-reviews-rating');
+		$this->relative_times['within_week']['text'] = __('in the last week', 'g-business-reviews-rating');
+		$this->relative_times['week']['text'] = __('a week ago', 'g-business-reviews-rating');
+		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
+		$this->relative_times['weeks']['text'] = __('%u weeks ago', 'g-business-reviews-rating');
+		$this->relative_times['month']['text'] = __('a month ago', 'g-business-reviews-rating');
+		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
+		$this->relative_times['months']['text'] = __('%u months ago', 'g-business-reviews-rating');
+		$this->relative_times['year']['text'] = __('a year ago', 'g-business-reviews-rating');
+		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
+		$this->relative_times['years']['text'] = __('%u years ago', 'g-business-reviews-rating');
+		
+		if (!$this->translation_exists())
+		{
+			$language_code = preg_replace('/^[^a-z]*([a-z]{2}l?).*$/', '$1', mb_strtolower(get_option('WPLANG')));
+			
+			switch ($language_code)
+			{
+			case 'cz':
+                $this->relative_times['hour']['text'] = 'právě teď';
+                $this->relative_times['hours']['text'] = 'před %u hodinami';
+                $this->relative_times['day']['text'] = 'před jedním dnem';
+                $this->relative_times['days']['text'] = 'před %u dny';
+                $this->relative_times['within_week']['text'] = 'tento týden';
+                $this->relative_times['week']['text'] = 'před týdnem';
+                $this->relative_times['weeks']['text'] = 'před %u týdny';
+                $this->relative_times['month']['text'] = 'před měsícem';
+                $this->relative_times['months']['text'] = 'před %u měsíci';
+                $this->relative_times['year']['text'] = 'před rokem';
+                $this->relative_times['years']['text'] = 'před %u lety';
+				break;
+			case 'da':
+				$this->relative_times['hour']['text'] = 'nu';
+				$this->relative_times['hours']['text'] = '%u timer siden';
+				$this->relative_times['day']['text'] = 'en dag siden';
+				$this->relative_times['days']['text'] = '%u dage siden';
+				$this->relative_times['within_week']['text'] = 'for mindre end en uge siden';
+				$this->relative_times['week']['text'] = 'en uge siden';
+				$this->relative_times['weeks']['text'] = '%u uger siden';
+				$this->relative_times['month']['text'] = 'for en måned siden';
+				$this->relative_times['months']['text'] = '%u måneder siden';
+				$this->relative_times['year']['text'] = 'for et år siden';
+				$this->relative_times['years']['text'] = '%u år siden';
+				break;
+			case 'de':
+				$this->relative_times['hour']['text'] = 'gerade jetzt';
+				$this->relative_times['hours']['text'] = 'vor %u Stunden';
+				$this->relative_times['day']['text'] = 'vor einem Tag';
+				$this->relative_times['days']['text'] = 'vor %u Tagen';
+				$this->relative_times['within_week']['text'] = 'in der letzten Woche';
+				$this->relative_times['week']['text'] = 'vor einer Woche';
+				$this->relative_times['weeks']['text'] = 'vor %u Wochen';
+				$this->relative_times['month']['text'] = 'vor einem Monat';
+				$this->relative_times['months']['text'] = 'vor %u Monaten';
+				$this->relative_times['year']['text'] = 'vor einem Jahr';
+				$this->relative_times['years']['text'] = 'vor %u Jahren';
+				break;
+			case 'el':
+				$this->relative_times['hour']['text'] = 'πριν από μία ώρα';
+				$this->relative_times['hours']['text'] = 'πριν από %u ώρες';
+				$this->relative_times['day']['text'] = 'πριν από μία ημέρα';
+				$this->relative_times['days']['text'] = 'πριν από %u ημέρες';
+				$this->relative_times['within_week']['text'] = 'αυτή την εβδομάδα';
+				$this->relative_times['week']['text'] = 'πριν από μία εβδομάδα';
+				$this->relative_times['weeks']['text'] = 'πριν από %u εβδομάδες';
+				$this->relative_times['month']['text'] = 'πριν από μία μήνα';
+				$this->relative_times['months']['text'] = 'πριν από %u μήνες';
+				$this->relative_times['year']['text'] = 'πριν από μία έτος';
+				$this->relative_times['years']['text'] = 'πριν από %u έτη';
+				break;
+			case 'es':
+				$this->relative_times['hour']['text'] = 'justo ahora';
+				$this->relative_times['hours']['text'] = 'hace %u horas';
+				$this->relative_times['day']['text'] = 'hace un día';
+				$this->relative_times['days']['text'] = 'hace %u días';
+				$this->relative_times['within_week']['text'] = 'en la ultima semana';
+				$this->relative_times['week']['text'] = 'hace una semana';
+				$this->relative_times['weeks']['text'] = 'hace %u semanas';
+				$this->relative_times['month']['text'] = 'hace un mes';
+				$this->relative_times['months']['text'] = 'hace %u meses';
+				$this->relative_times['year']['text'] = 'hace un año';
+				$this->relative_times['years']['text'] = 'hace %u años';
+				break;
+			case 'fr':
+				$this->relative_times['hour']['text'] = 'maintenant';
+				$this->relative_times['hours']['text'] = 'il y a %u heures';
+				$this->relative_times['day']['text'] = 'il y a un jour';
+				$this->relative_times['days']['text'] = 'il y a %u jours';
+				$this->relative_times['within_week']['text'] = 'il y a moins d’une semaine';
+				$this->relative_times['week']['text'] = 'il y a une semaine';
+				$this->relative_times['weeks']['text'] = 'il y a %u semaines';
+				$this->relative_times['month']['text'] = 'il y a un mois';
+				$this->relative_times['months']['text'] = 'il y a %u mois';
+				$this->relative_times['year']['text'] = 'il y a un an';
+				$this->relative_times['years']['text'] = 'il y a %u années';
+				break;
+			case 'hr':
+				$this->relative_times['hour']['text'] = 'upravo sada';
+				$this->relative_times['hours']['text'] = 'prije %u sati';
+				$this->relative_times['day']['text'] = 'prije jedan dan';
+				$this->relative_times['days']['text'] = 'prije %u dana';
+				$this->relative_times['within_week']['text'] = 'u posljednjem tjednu';
+				$this->relative_times['week']['text'] = 'prije tjedan dana';
+				$this->relative_times['weeks']['text'] = 'prije %u tjedana';
+				$this->relative_times['month']['text'] = 'prije mjesec dana';
+				$this->relative_times['months']['text'] = 'prije %u mjeseci';
+				$this->relative_times['year']['text'] = 'prije godinu dana';
+				$this->relative_times['years']['text'] = 'prije %u godina';
+				break;
+			case 'hu':
+				$this->relative_times['hour']['text'] = 'éppen most';
+				$this->relative_times['hours']['text'] = '%u órája';
+				$this->relative_times['day']['text'] = '%u napja';
+				$this->relative_times['days']['text'] = '%u napja';
+				$this->relative_times['within_week']['text'] = 'előző héten';
+				$this->relative_times['week']['text'] = 'egy hete';
+				$this->relative_times['weeks']['text'] = '%u hete';
+				$this->relative_times['month']['text'] = 'egy hónapja';
+				$this->relative_times['months']['text'] = '%u hónapja';
+				$this->relative_times['year']['text'] = 'egy éve';
+				$this->relative_times['years']['text'] = '%u éve';
+				break;
+			case 'it':
+				$this->relative_times['hour']['text'] = 'proprio adesso';
+				$this->relative_times['hours']['text'] = '%u ore fa';
+				$this->relative_times['day']['text'] = 'un giorno fa';
+				$this->relative_times['days']['text'] = '%u giorni fa';
+				$this->relative_times['within_week']['text'] = 'nell’ultima settimana';
+				$this->relative_times['week']['text'] = 'una settimana fa';
+				$this->relative_times['weeks']['text'] = '%u settimane fa';
+				$this->relative_times['month']['text'] = 'un mese fa';
+				$this->relative_times['months']['text'] = '%u mesi fa';
+				$this->relative_times['year']['text'] = 'un anno fa';
+				$this->relative_times['years']['text'] = '%u anni fa';
+				break;
+			case 'iw':
+				$this->relative_times['hour']['text'] = 'עַכשָׁיו';
+				$this->relative_times['hours']['text'] = 'לפני %u שעות';
+				$this->relative_times['day']['text'] = 'לפני יום';
+				$this->relative_times['days']['text'] = 'לפני %u ימים';
+				$this->relative_times['within_week']['text'] = 'לפני פחות משבוע';
+				$this->relative_times['week']['text'] = 'לפני שבוע';
+				$this->relative_times['weeks']['text'] = 'לפני %u שבועות';
+				$this->relative_times['month']['text'] = 'לפני חודש';
+				$this->relative_times['months']['text'] = 'לפני %u חודשים';
+				$this->relative_times['year']['text'] = 'לפני שנה';
+				$this->relative_times['years']['text'] = 'לפני %u שנים';
+				break;
+			case 'ja':
+				$this->relative_times['hour']['text'] = 'ちょうど今';
+				$this->relative_times['hours']['text'] = '%u 時間前';
+				$this->relative_times['day']['text'] = '%u 日前';
+				$this->relative_times['days']['text'] = '%u 日前';
+				$this->relative_times['within_week']['text'] = '過去 %u 週間以内';
+				$this->relative_times['week']['text'] = '一週間前';
+				$this->relative_times['weeks']['text'] = '%u 週間前';
+				$this->relative_times['month']['text'] = '%u か月前';
+				$this->relative_times['months']['text'] = '%u か月前';
+				$this->relative_times['year']['text'] = '%u 年前';
+				$this->relative_times['years']['text'] = '%u 年前';
+			case 'nl':
+				$this->relative_times['hour']['text'] = 'net nu';
+				$this->relative_times['hours']['text'] = '%u uur geleden';
+				$this->relative_times['day']['text'] = 'een dag geleden';
+				$this->relative_times['days']['text'] = '%u dagen geleden';
+				$this->relative_times['within_week']['text'] = 'in de afgelopen week';
+				$this->relative_times['week']['text'] = 'een week geleden';
+				$this->relative_times['weeks']['text'] = '%u weken geleden';
+				$this->relative_times['month']['text'] = 'een maand geleden';
+				$this->relative_times['months']['text'] = '%u maanden geleden';
+				$this->relative_times['year']['text'] = 'een jaar geleden';
+				$this->relative_times['years']['text'] = '%u jaar geleden';
+				break;
+			case 'pl':
+				$this->relative_times['hour']['text'] = 'teraz';
+				$this->relative_times['hours']['text'] = '%u godzin[ay]? temu';
+				$this->relative_times['day']['text'] = 'dzień temu';
+				$this->relative_times['days']['text'] = '%u dni temu';
+				$this->relative_times['within_week']['text'] = 'w ostatnim tygodniu';
+				$this->relative_times['week']['text'] = 'tydzień temu';
+				$this->relative_times['weeks']['text'] = '%u tygodni temu';
+				$this->relative_times['month']['text'] = 'miesiąc temu';
+				$this->relative_times['months']['text'] = '%u miesi[ąę]c[ey] temu';
+				$this->relative_times['year']['text'] = 'rok temu';
+				$this->relative_times['years']['text'] = '%u lat[a]? temu';
+				break;
+			case 'ko':
+				$this->relative_times['hour']['text'] = '지금';
+				$this->relative_times['hours']['text'] = '%u시간 전';
+				$this->relative_times['day']['text'] = '하루 전';
+				$this->relative_times['days']['text'] = '%u일 전';
+				$this->relative_times['within_week']['text'] = '1주일 미만 전';
+				$this->relative_times['week']['text'] = '일주일 전';
+				$this->relative_times['weeks']['text'] = '%u주 전';
+				$this->relative_times['month']['text'] = '한 달 전';
+				$this->relative_times['months']['text'] = '%u 달전';
+				$this->relative_times['year']['text'] = '일년 전';
+				$this->relative_times['years']['text'] = '%u 년 전';
+				break;
+			case 'sr':
+				$this->relative_times['hour']['text'] = 'управо сада';
+				$this->relative_times['hours']['text'] = 'пре %u сати';
+				$this->relative_times['day']['text'] = 'пре један дан';
+				$this->relative_times['days']['text'] = 'пре %u дана';
+				$this->relative_times['within_week']['text'] = 'у последњој недељи';
+				$this->relative_times['week']['text'] = 'пре недељу дана';
+				$this->relative_times['weeks']['text'] = 'пре %u недеља';
+				$this->relative_times['month']['text'] = 'пре месец дана';
+				$this->relative_times['months']['text'] = 'пре %u месеци';
+				$this->relative_times['year']['text'] = 'пре годину дана';
+				$this->relative_times['years']['text'] = 'пре %u година';
+				break;
+			}
+		}
+
+		$this->color_schemes = array(
+			'cranberry' => __('Cranberry', 'g-business-reviews-rating'),
+			'coral' => __('Coral', 'g-business-reviews-rating'),
+			'pumpkin' => __('Pumpkin', 'g-business-reviews-rating'),
+			'mustard' => __('Mustard', 'g-business-reviews-rating'),
+			'forest' => __('Forest', 'g-business-reviews-rating'),
+			'turquoise' => __('Turquoise', 'g-business-reviews-rating'),
+			'ocean' => __('Ocean', 'g-business-reviews-rating'),
+			'amethyst' => __('Amethyst', 'g-business-reviews-rating'),
+			'magenta' => __('Magenta', 'g-business-reviews-rating'),
+			'slate' => __('Slate', 'g-business-reviews-rating'),
+			'carbon' => __('Carbon', 'g-business-reviews-rating'),
+			'copper' => __('Copper', 'g-business-reviews-rating'),
+			'coffee' => __('Coffee', 'g-business-reviews-rating'),
+			'contrast' => __('High Contrast', 'g-business-reviews-rating')
+		);
+
+		return TRUE;
+	}
+
 	public function admin_init()
 	{
 		// Initiate the plugin in the dashboard
@@ -880,7 +971,6 @@ class google_business_reviews_rating
 		add_action('admin_notices', array($this, 'admin_notices'));
 		add_action('wp_dashboard_setup', array($this, 'dashboard_widget'));
 		add_action('widgets_init', function() { register_widget('google_business_reviews_rating_widget'); });
-		add_action('plugins_loaded', array($this, 'loaded'));		
 
 		add_filter('plugin_action_links', array(__CLASS__, 'admin_add_action_links'), 10, 5);
 		add_filter('plugin_row_meta', array(__CLASS__, 'admin_add_plugin_meta'), 10, 2);
@@ -929,8 +1019,6 @@ class google_business_reviews_rating
 		{
 			add_action('wp_head', array($this, 'structured_data'));
 		}
-
-		add_action('plugins_loaded', array($this, 'loaded'));		
 
 		return TRUE;
 	}
@@ -5615,7 +5703,7 @@ class google_business_reviews_rating
 		
 		foreach ($this->relative_times as $k => $a)
 		{
-			if ($a['min_time'] == NULL && $seconds >= $a['max_time'] || $a['max_time'] == NULL && $seconds < $a['min_time'] || $a['min_time'] != NULL && $a['max_time'] != NULL && ($seconds >= $a['max_time'] || $seconds < $a['min_time']))
+			if ($a['text'] == NULL || $a['min_time'] == NULL && $seconds >= $a['max_time'] || $a['max_time'] == NULL && $seconds < $a['min_time'] || $a['min_time'] != NULL && $a['max_time'] != NULL && ($seconds >= $a['max_time'] || $seconds < $a['min_time']))
 			{
 				continue;
 			}
@@ -6893,15 +6981,6 @@ class google_business_reviews_rating
 		}
 	
 		echo $this->get_reviews('latest');
-		return TRUE;
-	}
-	
-	public function loaded()
-	{
-		// Load languages
-		
-		load_plugin_textdomain('g-business-reviews-rating', FALSE, basename(dirname(__FILE__)) . '/languages');
-
 		return TRUE;
 	}
 

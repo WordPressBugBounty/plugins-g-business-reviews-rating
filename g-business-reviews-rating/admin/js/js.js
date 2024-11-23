@@ -1884,7 +1884,7 @@ function google_business_reviews_rating_admin(popstate) {
 									}
 								}
 								
-								if (date_temp == null && language != null && language.match(/^(?:cz|da|de|el|es|fr|hu|it|iw|ja|nl|pl|ko|sr).*$/i) != null) {
+								if (date_temp == null && language != null && language.match(/^(?:cz|da|de|el|es|fr|hr|hu|it|iw|ja|nl|pl|ko|sr).*$/i) != null) {
 									time_unit = (review.relative_time_description.match(/^(?:[^\d]*)(\d{1,3})(?:[^\d]*)$/i) != null) ? parseInt(review.relative_time_description.replace(/^(?:[^\d]*)(\d{1,3})(?:[^\d]*)$/i, '$1')) : 1;
 									
 									for (k in relative_times) {
@@ -1898,6 +1898,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+μία\s+ώρα$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+(?:1|una)\s+hora$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+(?:1|une)\s+heure$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^upravo\s+sada$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^éppen\s+most$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^(?:1|un)[\s\'’]+ora\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^עַכשָׁיו$/i) != null ||
@@ -1919,6 +1920,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+\d+\s+ώρες$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+\d+\s+horas$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+\d+\s+heures$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+\d+\s+sati$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+órája$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^\d+\s+ore\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s+\d+\s+שעות$/i) != null ||
@@ -1940,6 +1942,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+μία\s+ημέρα$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+(?:1|un)\s+día$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+(?:1|un)\s+jour$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+jedan\s+dan$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+napja$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^(?:1|un)\s+giorno\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*יום$/i) != null ||
@@ -1961,6 +1964,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+\d+\s+ημέρες$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+\d+\s+días$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+\d+\s+jours$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+\d+\s+dana?$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+napja$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^\d+\s+giorni\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*\d+\s*ימים$/i) != null ||
@@ -1982,6 +1986,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^αυτή\s+την\s+εβδομάδα$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^en\s+la\s+ultima\s+semana$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^la\s+semaine\s+dernière$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^u\s+posljednjem\s+tjednu$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^előző\s+héten$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^nell[\s\'’]+ultima\s+settimana$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*פחות\s*משבוע$/i) != null ||
@@ -2003,6 +2008,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+μία\s+εβδομάδα$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+(?:1|una)\s+semana$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+(?:1|une)\s+semaine$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije tjedan dana$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^egy\s+hete$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^(?:1|una)\s+settimana\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*שבוע$/i) != null ||
@@ -2024,6 +2030,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+\d+\s+εβδομάδες$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+\d+\s+semanas$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+\d+\s+semaines$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+\d+\s+tjedana$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+hete$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^\d+\s+settimane\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*\d+\s*שבועות$/i) != null ||
@@ -2045,6 +2052,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+μία\s+μήνα$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+(?:1|un)\s+mes$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+(?:1|un)\s+mois$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+mjesec\s+dana$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^egy\s+hónapja$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^(?:1|un)\s+mese\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*חודש$/i) != null ||
@@ -2066,6 +2074,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+\d+\s+μήνες$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+\d+\s+meses$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+\d+\s+mois$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+\d+\s+mjesec[ai]?$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+hónapja$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^\d+\s+mesi\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*\d+\s*חודשים$/i) != null ||
@@ -2087,6 +2096,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+μία\s+έτος$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+(?:1|una?)\s+año$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+(?:1|un)\s+an$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+godin[aeu]\s+dana$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^egy\s+éve$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^(?:1|un)\s+anno\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*שנה$/i) != null ||
@@ -2108,6 +2118,7 @@ function google_business_reviews_rating_admin(popstate) {
 													language.match(/^el/i) != null && review.relative_time_description.match(/^πριν\s+από\s+\d+\s+έτη$/i) != null ||
 													language.match(/^es/i) != null && review.relative_time_description.match(/^hace\s+\d+\s+años$/i) != null ||
 													language.match(/^fr/i) != null && review.relative_time_description.match(/^il\s+y\s+a\s+\d+\s+ans$/i) != null ||
+													language.match(/^hr/i) != null && review.relative_time_description.match(/^prije\s+\d+\s+godin[ae]$/i) != null ||
 													language.match(/^hu/i) != null && review.relative_time_description.match(/^\d+\s+éve$/i) != null ||
 													language.match(/^it/i) != null && review.relative_time_description.match(/^\d+\s+anni\s+fa$/i) != null ||
 													language.match(/^iw/i) != null && review.relative_time_description.match(/^לפני\s*\d+\s*ש$/i) != null ||
