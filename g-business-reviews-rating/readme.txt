@@ -7,7 +7,7 @@ Donate link: https://paypal.me/designextreme
 Tags: google reviews, google rating, google my business, gmb reviews, structured data
 Requires at least: 4.6
 Tested up to: 6.7.1
-Stable tag: 5.7
+Stable tag: 5.8
 Requires PHP: 5.2.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -243,6 +243,11 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 10. Dashboard view of advanced import with 9 new reviews
 
 == Changelog ==
+
+= 5.8 =
+
+* Improved support for relative times (Thanks to @ziegel)
+* Fixed parameter for stars to allow color strings (Thanks to @ziegel)
 
 = 5.7 =
 

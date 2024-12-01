@@ -5903,7 +5903,8 @@ class google_business_reviews_rating
 		$draggable = (!array_key_exists('draggable', $atts) || is_bool($draggable) && $draggable || is_string($draggable) && preg_match('/^(?:true|yes|1|on|show|left|right|both)$/', $draggable));
 		$avatar = (is_null($avatar) || is_bool($avatar) && $avatar || is_string($avatar) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $avatar)) ? TRUE : ((is_string($avatar) && preg_match('/^.+\.(?:jpe?g|png|svg|gif|webp).*$/i', $avatar)) ? $avatar : FALSE);
 		$name_format = (is_bool($name_format) && !$name_format || is_string($name_format) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $name_format)) ? FALSE : ((is_string($name_format) && preg_match('/first|last|initials?|capitali[sz]e|uc(?:first|words)|(?:(?:lower|upper|title)(?:case)?)/i', $name_format)) ? $name_format : NULL);
-		$date = (is_null($date) || is_bool($date) && $date || is_string($date) && preg_match('/^(?:true|yes|1|on|show|relative)$/', $date)) ? TRUE : ((is_string($date) && preg_match('/^[aABcdDeFgGhHiIjLlmMNnoOPrSstTuUvwWYyzZ ,.;:()\[\]\/_-]{1,20}$/', $date) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $date)) ? $date : FALSE);
+		$date = (is_null($date) || is_bool($date) && $date || is_string($date) && preg_match('/^(?:true|yes|1|on|show|relative)$/i', $date)) ? TRUE : ((is_string($date) && preg_match('/^[aABcdDeFgGhHiIjLlmMNnoOPrSstTuUvwWYyzZ ,.;:()\[\]\/_-]{1,20}$/', $date) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $date)) ? $date : FALSE);
+		$relative_date = (is_string($date) && preg_match('/^(?:relative)$/i', $date));
 		$link = (is_bool($link) && $link || is_string($link) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $link)) ? TRUE : ((is_string($link) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $link)) ? $link : FALSE);
 		$link_class = (is_string($link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($link_class))) : NULL;
 		$link_disable = (is_bool($link_disable) && $link_disable || is_string($link_disable) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $link_disable)) ? TRUE : ((is_string($link_disable) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $link_disable)) ? preg_split('/,\s*/', preg_replace('/[^\w ,_-]/', '-', trim(mb_strtolower($link_disable))), 3, PREG_SPLIT_NO_EMPTY) : FALSE);
@@ -5928,7 +5929,7 @@ class google_business_reviews_rating
 		$outer_tag = (!array_key_exists('outer_tag', $atts) || (is_null($outer_tag) || is_bool($outer_tag) && $outer_tag || is_string($outer_tag) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $outer_tag)));
 		$multiplier = (is_numeric($multiplier) && $multiplier > 0 && $multiplier < 10) ? floatval($multiplier) : 0.196;
 		$errors = (is_bool($errors) && !$errors || is_string($errors) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $errors)) ? FALSE : ((defined('WP_DEBUG')) ? WP_DEBUG : FALSE);
-		
+
 		switch ($type)
 		{
 		case 'rating':
@@ -6040,7 +6041,7 @@ class google_business_reviews_rating
 			$icon = (is_string($icon)) ? $icon : (is_bool($icon) && $icon);
 			$vicinity = (is_bool($vicinity) && $vicinity) ? $this->get_data('vicinity', $place_id) : ((is_string($vicinity)) ? $vicinity : FALSE);
 			$avatar = (is_bool($avatar) || is_string($avatar)) ? $avatar : FALSE;
-			$date = (is_bool($date)) ? $date : ((is_string($date)) ? $date : FALSE);
+			$date = ($relative_date) ? 'relative' : ((is_bool($date)) ? $date : ((is_string($date)) ? $date : FALSE));
 			$rating_count = $this->get_data('rating_count', $place_id);
 			$rating_count_rounded = $this->get_data('rating_count_rounded', $place_id);
 			
@@ -6099,7 +6100,7 @@ class google_business_reviews_rating
 			{
 				$classes[] = 'demo';
 			}
-			
+
 			$class = implode(' ', array_unique($classes));
 			
 			if (is_bool($icon) && $icon)
@@ -6741,6 +6742,13 @@ class google_business_reviews_rating
 			{
 				return $html;
 			}
+
+			if ((is_string($date) && $date == 'relative' || $data['relative_time_description'] == NULL) && is_numeric($data['time']))
+			{
+				$html .= '				<span class="relative-time-description">' . esc_html($this->get_relative_time_description($data['time'])) . '</span>
+';
+				return $html;
+			}
 			
 			if (is_string($date) && is_numeric($data['time']))
 			{
@@ -6748,7 +6756,7 @@ class google_business_reviews_rating
 ';
 				return $html;
 			}
-			
+
 			$html .= '				<span class="relative-time-description">' . esc_html($data['relative_time_description']) . '</span>
 ';
 			return $html;

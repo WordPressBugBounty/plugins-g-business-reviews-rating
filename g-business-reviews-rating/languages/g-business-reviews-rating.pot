@@ -2,21 +2,21 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Reviews and Rating - Google Reviews 5.7\n"
+"Project-Id-Version: Reviews and Rating - Google Reviews 5.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/g-business-reviews-rating\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-23T14:30:02+00:00\n"
+"POT-Creation-Date: 2024-12-01T18:30:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: g-business-reviews-rating\n"
 
 #. Plugin Name of the plugin
 #: index.php:1048
-#: index.php:6970
+#: index.php:6978
 #: templates/settings.php:10
 #: widget.php:41
 msgid "Reviews and Rating - Google Reviews"
@@ -1761,92 +1761,92 @@ msgid "Imported"
 msgstr ""
 
 #: index.php:5683
-#: index.php:6257
+#: index.php:6258
 msgid "No reviews found."
 msgstr ""
 
-#: index.php:5922
+#: index.php:5923
 #: templates/settings.php:850
 #: templates/settings.php:1385
 msgid "review"
 msgstr ""
 
-#: index.php:5922
+#: index.php:5923
 #: templates/settings.php:850
 #: templates/settings.php:1385
 msgid "reviews"
 msgstr ""
 
-#: index.php:5923
+#: index.php:5924
 #: templates/settings.php:934
 #: widget.php:423
 msgid "More"
 msgstr ""
 
-#: index.php:5955
-#: index.php:5976
-#: index.php:5997
-#: index.php:6540
+#: index.php:5956
+#: index.php:5977
+#: index.php:5998
+#: index.php:6541
 msgid "Error"
 msgstr ""
 
-#: index.php:6152
+#: index.php:6153
 #: templates/settings.php:243
 msgid "Icon"
 msgstr ""
 
-#: index.php:6262
+#: index.php:6263
 msgid "No reviews found, offset too high or another restriction."
 msgstr ""
 
-#: index.php:6442
+#: index.php:6443
 msgid "View Reviews"
 msgstr ""
 
-#: index.php:6452
+#: index.php:6453
 msgid "Write Review"
 msgstr ""
 
-#: index.php:6994
-#: index.php:7000
+#: index.php:7002
+#: index.php:7008
 msgid "Remind me later"
 msgstr ""
 
-#: index.php:7001
+#: index.php:7009
 msgid "Dismiss for a year"
 msgstr ""
 
-#: index.php:7002
+#: index.php:7010
 msgid "I’ve already left a review"
 msgstr ""
 
 #. translators: 1: The initial version of this plugin, 2: refers to review URL at wordpress.org, 3: string to handle notification data
-#: index.php:7026
+#: index.php:7034
 msgid "You have used this plugin for quite a while, since version %1$s. We’d love to hear what you think about its design, features, support… So, please consider <a href=\"%2$s\" target=\"_blank\" %3$s>leaving a review</a>!"
 msgstr ""
 
 #. translators: 1: The initial version of this plugin, 2: refers to review URL at wordpress.org, 3: string to handle notification data
-#: index.php:7026
+#: index.php:7034
 msgid "You’ve experienced using this plugin"
 msgstr ""
 
 #. translators: 1: The plugin installation date, 2: refers to review URL at wordpress.org, 3: string to handle notification data
-#: index.php:7121
+#: index.php:7129
 msgid "You have used this plugin for quite a while, since %1$s. We’d love to hear what you think about its design, features, support… So, please consider <a href=\"%2$s\" target=\"_blank\" %3$s>leaving a review</a>!"
 msgstr ""
 
 #. translators: 1: The plugin installation date, 2: refers to review URL at wordpress.org, 3: string to handle notification data
-#: index.php:7121
+#: index.php:7129
 msgid "You’ve experienced this plugin"
 msgstr ""
 
 #. translators: 1: refers to review URL at wordpress.org, 2: string to handle notification data
-#: index.php:7125
+#: index.php:7133
 msgid "We’d love to hear what you think about its design, features, support… So, please consider <a href=\"%1$s\" target=\"_blank\" %2$s>leaving a review</a>!"
 msgstr ""
 
 #. translators: 1: refers to review URL at wordpress.org, 2: string to handle notification data
-#: index.php:7125
+#: index.php:7133
 msgid "Please review our Google Reviews plugin"
 msgstr ""
 
