@@ -118,17 +118,19 @@ function google_business_reviews_rating(e, i) {
 				
 				if (typeof jQuery('.star.gray', e).css('color') == 'string' && !jQuery('.rating-stars', e).css('color').match(/^(?:#(?:F7B\d0\d|E7711B)|rgba?\s*\(23[12],\s*11[34],\s*2[78](?:,\s*1(?:\.0+)?)?\))$/i)) {
 					jQuery(e).data('stars', jQuery('.rating-stars', e).css('color'));
+					star_color = true;
 				}
 				
 				if (typeof jQuery('.star.gray', e).css('color') == 'string' && (!jQuery(e).hasClass('dark') && !jQuery('.star.gray', e).css('color').match(/^(?:#(?:A4A4A4|C1C1C1|C9C9C9)|rgba?\s*\(193,\s*193,\s*193(?:,\s*1(?:\.0+)?)?\))$/i) || jQuery(e).hasClass('dark') && !jQuery('.star.gray', e).css('color').match(/^(?:#B4B4B4|rgba?\s*\(180,\s*180,\s*180(?:,\s*0?\.8)?\))$/i))) {
 					jQuery(e).data('stars-gray', jQuery('.star.gray', e).css('color'));
+					star_color = true;
 				}
 				
 				if (jQuery('.temporary', jQuery('.all-stars', e)).length) {
 					jQuery('.temporary', jQuery('.all-stars', e)).remove();
 				}
 			}
-
+			
 			if (star_color && (typeof jQuery(e).data('stars') == 'string' && jQuery(e).data('stars').length && !jQuery(e).data('stars').match(/^#(?:F7B\d0\d|E7711B)$/i) || typeof jQuery(e).data('stars-gray') == 'string' && jQuery(e).data('stars-gray').length && !jQuery(e).data('stars-gray').match(/^#(?:A4A4A4|C1C1C1|C9C9C9)$/i))) {
 				if (star_css && (typeof jQuery(e).data('stars-gray') != 'string' || typeof jQuery(e).data('stars-gray') == 'string' && jQuery(e).data('stars-gray') == 'css') && !jQuery('.star.gray', jQuery('.all-stars', e)).length) {
 					jQuery('.all-stars', e).append('<span class="temporary" style="display: none;">.</span>');
