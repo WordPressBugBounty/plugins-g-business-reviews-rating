@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "g-business-reviews-rating/reviews",
+	"version": "6.0",
+	"title": "Reviews and Rating – Google Reviews",
+	"category": "widgets",
+	"icon": "star-filled",
+	"description": "Display your Google reviews and overall rating.",
+	"keywords": ["google", "reviews", "rating"],
+	"textdomain": "g-business-reviews-rating",
+	"supports": {
+		"html": false,
+		"multiple": true,
+		"align": ["wide", "full"]
+	},
+	"attributes": {
+		"placeId": { "type": "string", "default": "" },
+		"theme": { "type": "string", "default": "" },
+		"language": { "type": "string", "default": "" },
+		"sort": { "type": "string", "default": "" },
+		"limit": { "type": "number", "default": 5 },
+		"offset": { "type": "number", "default": 0 },
+		"ratingMin": { "type": "number", "default": 1 },
+		"ratingMax": { "type": "number", "default": 5 },
+		"excerpt": { "type": "number", "default": 0 },
+		"more": { "type": "string", "default": "" },
+		"displayDate": { "type": "boolean", "default": true },
+		"summary": { "type": "boolean", "default": true },
+		"displayName": { "type": "boolean", "default": true },
+		"displayIcon": { "type": "boolean", "default": true },
+		"displayVicinity": { "type": "boolean", "default": true },
+		"displayRating": { "type": "boolean", "default": true },
+		"displayStars": { "type": "boolean", "default": true },
+		"displayCount": { "type": "boolean", "default": true },
+		"displayAvatar": { "type": "boolean", "default": true },
+		"reviewsLink": { "type": "boolean", "default": false },
+		"writeReviewLink": { "type": "boolean", "default": false },
+		"attribution": { "type": "boolean", "default": true }
+	},
+	"example": {
+		"attributes": {
+			"limit": 3
+		}
+	},
+	"editorScript": "google-business-reviews-rating-block",
+	"editorStyle": "google-business-reviews-rating-block-editor"
+}

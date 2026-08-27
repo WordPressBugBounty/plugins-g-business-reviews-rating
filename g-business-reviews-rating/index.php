@@ -7,50 +7,60 @@ if (!defined('ABSPATH'))
 
 class google_business_reviews_rating
 {
-	private
-		$dashboard = NULL,
-		$data = array(),
-		$result = array(),
-		$result_valid = array(),
-		$places = array(),
-		$reviews = array(),
-		$reviews_filtered = array(),
-		$relative_times = array(),
-		$languages = array(),
-		$reviews_themes = array(),
-		$color_schemes = array(),
-		$review_sort = NULL,
-		$review_sort_asc = NULL,
-		$review_sort_option = NULL,
-		$review_sort_options = array(),
-		$default_html_tags = array(),
-		$updates = array(),
-		$business_types = array(),
-		$price_ranges = array(),
-		$instance_count = NULL,
-		$request_count = NULL,
-		$settings_updated = FALSE,
-		$retrieved_data_valid = NULL,
-		$retrieved_data_exists = NULL,
-		$place_id = NULL,
-		$api_key = NULL,
-		$section = NULL,
+	const OPTION_PREFIX = 'google_business_reviews_rating_',
+		PLUGIN_ALIAS = 'google_business_reviews_rating',
+		VERSION = '6.0';
+	protected
+		bool $settings_updated = FALSE,
 		$show_reviews = FALSE,
-		$count_reviews_all = NULL,
-		$count_reviews_active = NULL,
-		$icon_image_id = NULL,
-		$icon_image_url = NULL,
-		$logo_image_id = NULL,
-		$logo_image_url = NULL,
 		$administrator = FALSE,
 		$local_images = FALSE,
 		$editor = FALSE,
 		$demo = FALSE;
+	protected
+		?bool $dashboard = NULL,
+		$review_sort_asc = NULL,
+		$retrieved_data_valid = NULL,
+		$retrieved_data_exists = NULL;
+	protected
+		array $data = [],
+		$result = [],
+		$result_valid = [],
+		$places = [],
+		$reviews = [],
+		$reviews_filtered = [],
+		$relative_times = [],
+		$languages = [],
+		$reviews_themes = [],
+		$color_schemes = [],
+		$review_sort_options = [],
+		$default_html_tags = [],
+		$accepted_html_tags = [],
+		$updates = [],
+		$business_types = [],
+		$price_ranges = [];
+	protected
+		?int $instance_count = NULL,
+		$request_count = NULL,
+		$count_reviews_all = NULL,
+		$count_reviews_active = NULL,
+		$icon_image_id = NULL,
+		$logo_image_id = NULL;
+	protected
+		?string $review_sort = NULL,
+		$place_id = NULL,
+		$api_key = NULL,
+		$section = NULL,
+		$icon_image_url = NULL,
+		$logo_image_url = NULL;
+	protected
+		$api_version = NULL,
+		$review_sort_option = NULL;
 	
+	/* Class contructor that starts everything */
+
 	public function __construct()
 	{
-		// Class contructor that starts everything
-
 		$this->dashboard = (is_admin() || defined('DOING_CRON'));
 		$this->instance_count = NULL;
 		$this->request_count = 0;
@@ -60,203 +70,204 @@ class google_business_reviews_rating
 		$this->editor = FALSE;
 		$this->review_sort = NULL;
 		$this->review_sort_asc = NULL;
-		$this->default_html_tags = array('h2', 'p', 'p', 'ul', 'li', 'ul', 'li', 'p', 'p', 'p');
-		$this->updates = array(
-			NULL => 'Never Synchronize',
+		$this->default_html_tags = ['h2', 'p', 'p', 'ul', 'li', 'ul', 'li', 'p', 'p', 'p'];
+		$this->accepted_html_tags = ['a', 'abbr', 'address', 'article', 'aside', 'b', 'blockquote', 'br', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'figcaption', 'figure', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'i', 'img', 'ins', 'kbd', 'li', 'main', 'mark', 'nav', 'ol', 'p', 'picture', 'pre', 'q', 's', 'samp', 'section', 'small', 'span', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr', 'u', 'ul', 'var'];
+		$this->updates = [
+			'' => 'Never Synchronize',
 			168 => 'Synchronize Weekly',
 			24 => 'Synchronize Daily',
 			6 => 'Synchronize Every 6 Hours',
 			1 => 'Synchronize Hourly'
-		);
-		$this->review_sort_options = array(
-			'relevance_desc' => array(
+		];
+		$this->review_sort_options = [
+			'relevance_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => NULL,
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'relevance_asc' => array(
+			],
+			'relevance_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => NULL,
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'date_desc' => array(
+			],
+			'date_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'time',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'date_asc' => array(
+			],
+			'date_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'time',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'rating_desc' => array(
+			],
+			'rating_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'rating',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'rating_asc' => array(
+			],
+			'rating_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'rating',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'author_name_asc' => array(
+			],
+			'author_name_asc' => [
 				'name' => NULL,
-				'min_max_values' => array('A', 'Z'),
+				'min_max_values' => ['A', 'Z'],
 				'field' => 'author_name',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'author_name_desc' => array(
+			],
+			'author_name_desc' => [
 				'name' => NULL,
-				'min_max_values' => array('Z', 'A'),
+				'min_max_values' => ['Z', 'A'],
 				'field' => 'author_name',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'review_words_asc' => array(
+			],
+			'review_words_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'text',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'review_words_desc' => array(
+			],
+			'review_words_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'text',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'review_characters_asc' => array(
+			],
+			'review_characters_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'text',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'review_characters_desc' => array(
+			],
+			'review_characters_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'text',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'id_asc' => array(
+			],
+			'id_asc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'id',
 				'asc' => TRUE,
 				'static' => FALSE
-			),
-			'id_desc' => array(
+			],
+			'id_desc' => [
 				'name' => NULL,
-				'min_max_values' => array(NULL, NULL),
+				'min_max_values' => [NULL, NULL],
 				'field' => 'id',
 				'asc' => FALSE,
 				'static' => FALSE
-			),
-			'shuffle' => array(
+			],
+			'shuffle' => [
 				'name' => NULL,
 				'static' => TRUE
-			),
-			'shuffle_variable' => array(
+			],
+			'shuffle_variable' => [
 				'name' => NULL,
 				'static' => FALSE
-			)
-		);
-		$this->relative_times = array(
-			'hour' => array(
+			]
+		];
+		$this->relative_times = [
+			'hour' => [
 				'text' => NULL,
 				'min_time' => NULL,
 				'max_time' => 2 * HOUR_IN_SECONDS,
 				'divider' => HOUR_IN_SECONDS,
 				'singular' => TRUE
-			),
-			'hours' => array(
+			],
+			'hours' => [
 				'text' => NULL,
 				'min_time' => 2 * HOUR_IN_SECONDS,
-				'max_time' => (11 * HOUR_IN_SECONDS),
+				'max_time' => DAY_IN_SECONDS,
 				'divider' => HOUR_IN_SECONDS,
 				'singular' => FALSE
-			),
-			'day' => array(
+			],
+			'day' => [
 				'text' => NULL,
-				'min_time' => (11 * HOUR_IN_SECONDS),
-				'max_time' => (1.5 * DAY_IN_SECONDS),
+				'min_time' => DAY_IN_SECONDS,
+				'max_time' => 2 * DAY_IN_SECONDS,
 				'divider' => NULL,
 				'singular' => TRUE
-			),
-			'days' => array(
+			],
+			'days' => [
 				'text' => NULL,
-				'min_time' => (1.5 * DAY_IN_SECONDS),
-				'max_time' => (3.5 * DAY_IN_SECONDS),
+				'min_time' => 2 * DAY_IN_SECONDS,
+				'max_time' => 4 * DAY_IN_SECONDS,
 				'divider' => DAY_IN_SECONDS,
 				'singular' => FALSE
-			),
-			'within_week' => array(
+			],
+			'within_week' => [
 				'text' => NULL,
-				'min_time' => (3.5 * DAY_IN_SECONDS),
-				'max_time' => (6.5 * DAY_IN_SECONDS),
+				'min_time' => 4 * DAY_IN_SECONDS,
+				'max_time' => WEEK_IN_SECONDS,
 				'divider' => NULL,
 				'singular' => TRUE
-			),
-			'week' => array(
+			],
+			'week' => [
 				'text' => NULL,
-				'min_time' => (6.5 * DAY_IN_SECONDS),
-				'max_time' => (13.5 * DAY_IN_SECONDS),
+				'min_time' => WEEK_IN_SECONDS,
+				'max_time' => 2 * WEEK_IN_SECONDS,
 				'divider' => NULL,
 				'singular' => TRUE
-			),
-			'weeks' => array(
+			],
+			'weeks' => [
 				'text' => NULL,
-				'min_time' => (13.5 * DAY_IN_SECONDS),
-				'max_time' => (29.5 * DAY_IN_SECONDS),
-				'divider' => (WEEK_IN_SECONDS),
+				'min_time' => 2 * WEEK_IN_SECONDS,
+				'max_time' => MONTH_IN_SECONDS,
+				'divider' => WEEK_IN_SECONDS,
 				'singular' => FALSE
-			),
-			'month' => array(
+			],
+			'month' => [
 				'text' => NULL,
-				'min_time' => (29.5 * DAY_IN_SECONDS),
-				'max_time' => (58 * DAY_IN_SECONDS),
+				'min_time' => MONTH_IN_SECONDS,
+				'max_time' => 2 * MONTH_IN_SECONDS,
 				'divider' => NULL,
 				'singular' => TRUE
-			),
-			'months' => array(
+			],
+			'months' => [
 				'text' => NULL,
-				'min_time' => (58 * DAY_IN_SECONDS),
-				'max_time' => (350 * DAY_IN_SECONDS),
-				'divider' => (30.5 * DAY_IN_SECONDS),
+				'min_time' => 2 * MONTH_IN_SECONDS,
+				'max_time' => YEAR_IN_SECONDS,
+				'divider' => MONTH_IN_SECONDS,
 				'singular' => FALSE
-			),
-			'year' => array(
+			],
+			'year' => [
 				'text' => NULL,
-				'min_time' => (350 * DAY_IN_SECONDS),
-				'max_time' => (700 * DAY_IN_SECONDS),
+				'min_time' => YEAR_IN_SECONDS,
+				'max_time' => 2 * YEAR_IN_SECONDS,
 				'divider' => NULL,
 				'singular' => TRUE
-			),
-			'years' => array(
+			],
+			'years' => [
 				'text' => NULL,
-				'min_time' => (700 * DAY_IN_SECONDS),
+				'min_time' => 2 * YEAR_IN_SECONDS,
 				'max_time' => NULL,
-				'divider' => (365.25 * DAY_IN_SECONDS),
+				'divider' => YEAR_IN_SECONDS,
 				'singular' => FALSE
-			)
-		);
+			]
+		];
 
-		$this->color_schemes = array(
+		$this->color_schemes = [
 			'cranberry' => NULL,
 			'coral' => NULL,
 			'pumpkin' => NULL,
@@ -271,39 +282,389 @@ class google_business_reviews_rating
 			'copper' => NULL,
 			'coffee' => NULL,
 			'contrast' => NULL
-		);
+		];
 		
-		$this->admin_init();
-		$this->wp_init();
-
-		add_action('init', array($this, 'loaded'));
+		add_action('init', [$this, 'loaded']);
 
 		return TRUE;
 	}
-	
-	public static function activate($reset = FALSE)
+
+	/* Stub — overridden by google_business_reviews_rating_frontend */
+
+	public function structured_data($return = FALSE, array $data = [])
 	{
-		// Activate plugin
-				
-		if (!current_user_can('activate_plugins'))
+		return NULL;
+	}
+
+	/* Stubs — overridden by google_business_reviews_rating_sync */
+
+	protected function set_data($force = NULL, ?string $api_key = NULL, ?string $place_id = NULL): bool
+	{
+		return FALSE;
+	}
+
+	protected function retrieve_data(string $format = 'array', bool $force = FALSE)
+	{
+		return [];
+	}
+
+	/* Stub — overridden by google_business_reviews_rating_dashboard */
+
+	protected function settings(bool $set_languages = FALSE): bool
+	{
+		return FALSE;
+	}
+
+	protected function get_option(string $key, $default = '')
+	{
+		return \get_option(self::OPTION_PREFIX . $key, $default);
+	}
+
+	protected function get_array_option(string $key): array
+	{
+		$value = $this->get_option($key, []);
+
+		return (is_array($value)) ? $value : [];
+	}
+
+	protected function update_option(string $key, $value, ?string $autoload = NULL): bool
+	{
+		return ($autoload === NULL)
+			? \update_option(self::OPTION_PREFIX . $key, $value)
+			: \update_option(self::OPTION_PREFIX . $key, $value, $autoload);
+	}
+
+	protected function delete_option(string $key): bool
+	{
+		return \delete_option(self::OPTION_PREFIX . $key);
+	}
+
+	/* Keeps one step of API history so a changeover can be dated and presented */
+
+	protected static function set_api_history(): bool
+	{
+		$version = \get_option(self::OPTION_PREFIX . 'api_version', NULL);
+		$history = \get_option(self::OPTION_PREFIX . 'api_history', NULL);
+		$history = (is_array($history)) ? $history : [];
+
+		if (array_key_exists('version', $history) && $history['version'] == $version)
 		{
-			return;
+			return FALSE;
 		}
 
-		$maybe_unserialize_unicode_issue = array('shamrock' => 'Here is a lucky shamrock 🍀');
-		set_transient(__CLASS__ . '_maybe_unserialize_test', $maybe_unserialize_unicode_issue, 4);
-		$maybe_unserialize_unicode_issue_check = get_transient(__CLASS__ . '_maybe_unserialize_test');
-		delete_transient(__CLASS__ . '_maybe_unserialize_test');
+		$previous = NULL;
+
+		if (array_key_exists('version', $history))
+		{
+			unset($history['previous']);
+			$previous = $history;
+		}
+
+		\update_option(self::OPTION_PREFIX . 'api_history', [
+			'version' => (is_numeric($version)) ? intval($version) : NULL,
+			'endpoint' => (is_numeric($version)) ? 'https://places.googleapis.com/v' . intval($version) . '/places/' : 'https://maps.googleapis.com/maps/api/place/details/json',
+			'added' => time(),
+			'previous' => $previous,
+		], 'no');
+
+		return TRUE;
+	}
+
+	/* Resolves against this file so subdirectory callers agree */
+
+	protected static function custom_styles_file(): string
+	{
+		return plugin_dir_path(__FILE__) . 'wp/css/custom.css';
+	}
+
+	/* Resolves against this file so the folder can be named anything */
+
+	public static function plugin_url(string $path): string
+	{
+		return plugins_url($path, __FILE__);
+	}
+
+	/* Falls back to the pre-6.0 reviews_theme key */
+
+	protected function get_theme(): ?string
+	{
+		$theme = $this->get_option('theme', NULL);
+
+		if (is_string($theme) && $theme != NULL)
+		{
+			return $theme;
+		}
+
+		$theme = $this->get_option('reviews_theme', NULL);
+
+		return (is_string($theme) && $theme != NULL) ? $theme : NULL;
+	}
+
+	/* NULL when unset, an empty array when set but nothing matched */
+
+	protected function get_place_ids($place_identifier): ?array
+	{
+		if (!is_string($place_identifier) || trim($place_identifier) == NULL)
+		{
+			return NULL;
+		}
+
+		$places = (!empty($this->places)) ? $this->places : $this->get_array_option('places');
+		$known = [];
+		$default_place_id = $this->get_option('place_id', NULL);
+
+		if (is_string($default_place_id) && $default_place_id != NULL)
+		{
+			$known[] = $default_place_id;
+		}
+
+		foreach ($places as $a)
+		{
+			if (is_array($a) && isset($a['place_id']) && is_string($a['place_id']) && !in_array($a['place_id'], $known, TRUE))
+			{
+				$known[] = $a['place_id'];
+			}
+		}
+
+		if (preg_match('/^(?:all|any|\*)$/i', trim($place_identifier)))
+		{
+			return $known;
+		}
+
+		$ret = [];
+
+		foreach (preg_split('/,\s*/', trim($place_identifier), 30, PREG_SPLIT_NO_EMPTY) as $reference)
+		{
+			$reference = wp_strip_all_tags($reference, TRUE);
+
+			if (preg_match('/^(?:p(?:lace)?(?:[_-]?id)?)?[_-]?(\d+)$/i', $reference, $m))
+			{
+				$index = intval($m[1]) - 1;
+
+				if (isset($known[$index]) && !in_array($known[$index], $ret, TRUE))
+				{
+					$ret[] = $known[$index];
+				}
+
+				continue;
+			}
+
+			if (in_array($reference, $known, TRUE) && !in_array($reference, $ret, TRUE))
+			{
+				$ret[] = $reference;
+			}
+		}
+
+		return $ret;
+	}
+
+	/* Scored locally; Places (New) has no review sort */
+
+	protected function get_relevance_score(array $review): float
+	{
+		$words = 0;
+		$text = (isset($review['text']) && is_string($review['text'])) ? $review['text'] : '';
+
+		if ($text != NULL && preg_match_all('/[\pL\pN\pPd]+/u', $text, $m))
+		{
+			$words = count($m[0]);
+		}
+
+		/* Scripts without word spacing would otherwise count as one or two words */
+
+		if ($text != NULL && preg_match('/[\x{3040}-\x{30FF}\x{3400}-\x{4DBF}\x{4E00}-\x{9FFF}\x{F900}-\x{FAFF}\x{AC00}-\x{D7AF}\x{0E00}-\x{0E7F}]/u', $text))
+		{
+			$words = max($words, mb_strlen(preg_replace('/\s+/u', '', $text)) / 2);
+		}
+
+		$age = (isset($review['time']) && is_numeric($review['time'])) ? max(0, time() - intval($review['time'])) : 2 * YEAR_IN_SECONDS;
+
+		/* Square root so a moderate review scores close to a long one; beyond 150 words is noise */
+
+		$substance = sqrt(min($words, 150) / 150);
+		$recency = max(0, 1 - $age / (2 * YEAR_IN_SECONDS));
+		$locale = preg_replace('/^[^a-z]*([a-z]{2}).*$/', '$1', mb_strtolower(strval(get_option('WPLANG', ''))));
+		$review_language = (isset($review['original_language']) && is_string($review['original_language']) && $review['original_language'] != NULL) ? $review['original_language'] : ((isset($review['language']) && is_string($review['language'])) ? $review['language'] : '');
+		$language = (is_string($locale) && $locale != NULL && $review_language != NULL && preg_match('/^' . preg_quote($locale, '/') . '/i', $review_language)) ? 1 : 0;
+		$author = (isset($review['profile_photo_url']) && $review['profile_photo_url'] != NULL || isset($review['author_url']) && $review['author_url'] != NULL) ? 1 : 0;
+		$rating = (isset($review['rating']) && is_numeric($review['rating'])) ? intval($review['rating']) / 5 : 0;
+
+		return $substance * 0.5 + $recency * 0.34 + $language * 0.1 + $author * 0.05 + $rating * 0.01;
+	}
+
+	/* Slots reviews with no order into the existing sequence by score, leaving manual positions alone */
+
+	protected function set_relevance_insert(): bool
+	{
+		$scores = [];
+		$sequence = [];
+		$pending = [];
+
+		foreach ($this->reviews as $key => $a)
+		{
+			if (!is_array($a))
+			{
+				continue;
+			}
+
+			$scores[$key] = $this->get_relevance_score($a);
+
+			if (isset($a['order']) && is_numeric($a['order']))
+			{
+				$sequence[$key] = intval($a['order']);
+				continue;
+			}
+
+			$pending[$key] = $scores[$key];
+		}
+
+		if (empty($pending))
+		{
+			return FALSE;
+		}
+
+		asort($sequence, SORT_NUMERIC);
+		arsort($pending, SORT_NUMERIC);
+		$ordered = array_keys($sequence);
+
+		foreach ($pending as $key => $score)
+		{
+			$position = 0;
+
+			foreach ($ordered as $index => $ordered_key)
+			{
+				if ($scores[$ordered_key] >= $score)
+				{
+					$position = $index + 1;
+				}
+			}
+
+			array_splice($ordered, $position, 0, [$key]);
+		}
+
+		$position = 1;
+
+		foreach ($ordered as $key)
+		{
+			$this->reviews[$key]['order'] = $position;
+			$position++;
+		}
+
+		return TRUE;
+	}
+
+	/* Seeds order for manual arranging */
+
+	protected function set_relevance_order(): bool
+	{
+		if (empty($this->reviews))
+		{
+			return FALSE;
+		}
+
+		$scores = [];
+
+		foreach ($this->reviews as $key => $a)
+		{
+			$scores[$key] = (is_array($a)) ? $this->get_relevance_score($a) : 0;
+		}
+
+		arsort($scores, SORT_NUMERIC);
+		$position = 1;
+
+		foreach (array_keys($scores) as $key)
+		{
+			$this->reviews[$key]['order'] = $position;
+			$position++;
+		}
+
+		return TRUE;
+	}
+
+	/* Adds author_id and re-keys by place where the data allows */
+
+	protected function set_review_identity(): bool
+	{
+		if (empty($this->reviews))
+		{
+			return FALSE;
+		}
+
+		$max_id = 0;
+
+		foreach ($this->reviews as $a)
+		{
+			if (is_array($a) && isset($a['id']) && is_numeric($a['id']) && intval($a['id']) > $max_id)
+			{
+				$max_id = intval($a['id']);
+			}
+		}
+
+		$reviews = [];
+		$changed = FALSE;
+
+		foreach ($this->reviews as $key => $a)
+		{
+			if (!is_array($a))
+			{
+				$reviews[$key] = $a;
+				continue;
+			}
+
+			if (!isset($a['author_id']) && isset($a['author_url']) && is_string($a['author_url']) && preg_match('/(\d{20,120})/', $a['author_url'], $m))
+			{
+				$a['author_id'] = $m[1];
+				$changed = TRUE;
+			}
+
+			if (!isset($a['id']) || !is_numeric($a['id']))
+			{
+				$max_id++;
+				$a['id'] = $max_id;
+				$changed = TRUE;
+			}
+
+			$new_key = (isset($a['author_id']) && isset($a['place_id']) && is_string($a['place_id']) && $a['place_id'] != NULL) ? $a['place_id'] . '_' . $a['author_id'] : $key;
+
+			if ($new_key != $key && !array_key_exists($new_key, $reviews))
+			{
+				$reviews[$new_key] = $a;
+				$changed = TRUE;
+				continue;
+			}
+
+			$reviews[$key] = $a;
+		}
+
+		$this->reviews = $reviews;
+
+		return $changed;
+	}
+
+	/* Activate plugin */
+
+	public static function activate(bool $reset = FALSE): ?bool
+	{
+		if (!current_user_can('activate_plugins'))
+		{
+			return NULL;
+		}
+
+		/* Some databases mangle 4-byte UTF-8 on a serialize round-trip */
+
+		$maybe_unserialize_unicode_issue = ['shamrock' => 'Here is a lucky shamrock 🍀'];
+		set_transient(self::OPTION_PREFIX . 'maybe_unserialize_test', $maybe_unserialize_unicode_issue, 4);
+		$maybe_unserialize_unicode_issue_check = get_transient(self::OPTION_PREFIX . 'maybe_unserialize_test');
+		delete_transient(self::OPTION_PREFIX . 'maybe_unserialize_test');
 		$additional_array_sanitization = ($maybe_unserialize_unicode_issue !== $maybe_unserialize_unicode_issue_check);
 		
-		if (is_bool(get_option(__CLASS__ . '_place_id')))
+		if (get_option(self::OPTION_PREFIX . 'place_id', '') == NULL)
 		{
-			$plugin_data = (function_exists('get_file_data')) ? get_file_data(plugin_dir_path(__FILE__) . 'g-business-reviews-rating.php', array('Version' => 'Version'), FALSE) : array();
+			$plugin_data = (function_exists('get_file_data')) ? get_file_data(plugin_dir_path(__FILE__) . 'g-business-reviews-rating.php', ['Version' => 'Version'], FALSE) : [];
 			$version = (array_key_exists('Version', $plugin_data)) ? $plugin_data['Version'] : NULL;
 			
 			if (!is_bool($reset) || is_bool($reset) && !$reset)
 			{
-				set_transient(__CLASS__ . '_welcome', time(), 30);
 				self::log('install', $version);
 			}
 			else
@@ -311,110 +672,119 @@ class google_business_reviews_rating
 				self::log('reset', $version);
 			}
 			
-			update_option(__CLASS__ . '_initial_version', $version, 'no');
-			update_option(__CLASS__ . '_place_id', NULL, 'no');
-			update_option(__CLASS__ . '_api_key', NULL, 'no');
-			update_option(__CLASS__ . '_language', NULL, 'no');
-			update_option(__CLASS__ . '_demo', FALSE, 'yes');
-			update_option(__CLASS__ . '_update', NULL, 'no');
-			update_option(__CLASS__ . '_review_limit', NULL, 'yes');
-			update_option(__CLASS__ . '_review_sort', NULL, 'yes');
-			update_option(__CLASS__ . '_review_sort_admin', NULL, 'no');
-			update_option(__CLASS__ . '_rating_min', NULL, 'yes');
-			update_option(__CLASS__ . '_rating_max', NULL, 'yes');
-			update_option(__CLASS__ . '_review_text_min', NULL, 'yes');
-			update_option(__CLASS__ . '_review_text_max', NULL, 'yes');
-			update_option(__CLASS__ . '_review_text_excerpt_length', 235, 'yes');
-			update_option(__CLASS__ . '_reviews_theme', NULL, 'yes');
-			update_option(__CLASS__ . '_view', NULL, 'yes');
-			update_option(__CLASS__ . '_color_scheme', NULL, 'yes');
-			update_option(__CLASS__ . '_javascript', TRUE, 'yes');
-			update_option(__CLASS__ . '_stylesheet', TRUE, 'yes');
-			update_option(__CLASS__ . '_icon', NULL, 'no');
-			update_option(__CLASS__ . '_logo', NULL, 'no');
-			update_option(__CLASS__ . '_telephone', NULL, 'no');
-			update_option(__CLASS__ . '_business_type', NULL, 'no');
-			update_option(__CLASS__ . '_price_range', NULL, 'no');
-			update_option(__CLASS__ . '_places', NULL, 'yes');
-			update_option(__CLASS__ . '_structured_data', FALSE, 'yes');
-			update_option(__CLASS__ . '_retrieval', NULL, 'no');
-			update_option(__CLASS__ . '_retrieval_fields', array('formatted_address', 'icon', 'id', 'name', 'rating', 'reviews', 'url', 'user_ratings_total', 'vicinity'), 'no');
-			update_option(__CLASS__ . '_retrieval_sort', 'most_relevant', 'no');
-			update_option(__CLASS__ . '_retrieval_translate', FALSE, 'no');
-			update_option(__CLASS__ . '_result', NULL, 'no');
-			update_option(__CLASS__ . '_result_valid', NULL, 'no');
-			update_option(__CLASS__ . '_reviews', NULL, 'no');
-			update_option(__CLASS__ . '_section', NULL, 'no');
-			update_option(__CLASS__ . '_editor', TRUE, 'no');
-			update_option(__CLASS__ . '_local_images', FALSE, 'yes');
-			update_option(__CLASS__ . '_custom_styles', NULL, 'yes');
-			update_option(__CLASS__ . '_meta_box_limit', 5, 'no');
-			update_option(__CLASS__ . '_log', NULL, 'no');
-			update_option(__CLASS__ . '_notifications', NULL, 'no');
-			update_option(__CLASS__ . '_related_plugins', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'initial_version', $version, 'no');
+			update_option(self::OPTION_PREFIX . 'place_id', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'api_key', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'api_version', 1, 'no');
+			self::set_api_history();
+			update_option(self::OPTION_PREFIX . 'language', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'demo', FALSE, 'yes');
+			update_option(self::OPTION_PREFIX . 'update', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'review_limit', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'review_sort', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'review_sort_admin', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'rating_min', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'rating_max', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'review_text_min', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'review_text_max', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'review_text_excerpt_length', 235, 'yes');
+			update_option(self::OPTION_PREFIX . 'reviews_theme', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'theme', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'view', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'color_scheme', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'javascript', TRUE, 'yes');
+			update_option(self::OPTION_PREFIX . 'stylesheet', TRUE, 'yes');
+			update_option(self::OPTION_PREFIX . 'icon', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'logo', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'telephone', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'business_type', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'price_range', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'places', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'structured_data', FALSE, 'yes');
+			update_option(self::OPTION_PREFIX . 'retrieval', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'retrieval_fields', ['displayName', 'formattedAddress', 'googleMapsUri', 'iconMaskBaseUri', 'id', 'shortFormattedAddress', 'rating', 'reviews', 'userRatingCount'], 'no');
+			update_option(self::OPTION_PREFIX . 'retrieval_sort', 'most_relevant', 'no');
+			update_option(self::OPTION_PREFIX . 'retrieval_translate', FALSE, 'no');
+			update_option(self::OPTION_PREFIX . 'result', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'result_valid', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'reviews', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'section', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'editor', TRUE, 'no');
+			update_option(self::OPTION_PREFIX . 'local_images', FALSE, 'yes');
+			update_option(self::OPTION_PREFIX . 'custom_styles', NULL, 'yes');
+			update_option(self::OPTION_PREFIX . 'meta_box_limit', 5, 'no');
+			update_option(self::OPTION_PREFIX . 'log', NULL, 'no');
+			update_option(self::OPTION_PREFIX . 'notifications', [
+				'review' => [
+					'shown' => [],
+					'action' => NULL,
+					'about' => []
+				],
+				'shortcode' => [
+					'count' => 0,
+					'scanned' => NULL
+				]
+			], 'no');
+			update_option(self::OPTION_PREFIX . 'related_plugins', NULL, 'no');
 		}
 		else
 		{
 			self::log('activate');
 		}
 		
-		update_option(__CLASS__ . '_additional_array_sanitization', $additional_array_sanitization, 'yes');
+		update_option(self::OPTION_PREFIX . 'additional_array_sanitization', $additional_array_sanitization, 'yes');
 		
-		if (!wp_next_scheduled(__CLASS__ . '_sync'))
-		{
-			require_once(plugin_dir_path(__FILE__) . 'cron.php');
-		}
-		
+		require_once(plugin_dir_path(__FILE__) . 'cron.php');
+		google_business_reviews_rating_cron::cron_scheduler();
+
+		(new static())->refresh_relative_time_descriptions();
+
 		return TRUE;
 	}
-	
-	public static function deactivate()
+
+	/* Deactivate the plugin */
+
+	public static function deactivate(): ?bool
 	{
-		// Deactivate the plugin
-		
 		if (!current_user_can('activate_plugins'))
 		{
-			return;
+			return NULL;
 		}
 		
-		delete_transient(__CLASS__ . '_reviews_shuffled');
-		delete_transient(__CLASS__ . '_avatars_downloaded');
-		wp_cache_delete('structured_data', __CLASS__);
-		wp_cache_delete('result', __CLASS__);
-		wp_cache_delete('result_valid', __CLASS__);
-		wp_cache_delete('result_demo', __CLASS__);
-		wp_cache_delete('reviews_shuffled', __CLASS__);
-		wp_cache_delete('reviews', __CLASS__);
-		wp_cache_delete('reviews_demo', __CLASS__);
+		delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+		delete_transient(self::OPTION_PREFIX . 'avatars_downloaded');
+		wp_cache_delete('structured_data', self::OPTION_PREFIX);
+		wp_cache_delete('result', self::OPTION_PREFIX);
+		wp_cache_delete('result_valid', self::OPTION_PREFIX);
+		wp_cache_delete('result_demo', self::OPTION_PREFIX);
+		wp_cache_delete('reviews_shuffled', self::OPTION_PREFIX);
+		wp_cache_delete('reviews', self::OPTION_PREFIX);
+		wp_cache_delete('reviews_demo', self::OPTION_PREFIX);
 		
-		update_option(__CLASS__ . '_result', NULL, 'no');
-		update_option(__CLASS__ . '_result_valid', NULL, 'no');
+		update_option(self::OPTION_PREFIX . 'result', NULL, 'no');
+		update_option(self::OPTION_PREFIX . 'result_valid', NULL, 'no');
 
 		self::log('deactivate');
 
 		require_once(plugin_dir_path(__FILE__) . 'cron.php');
-		
-		$cron = new google_business_reviews_rating_cron();
-		$cron->deactivate();
-		
+		google_business_reviews_rating_cron::deactivate();
+
 		return TRUE;
 	}
 	
-	public static function uninstall()
-	{
-		// Uninstall plugin
+	/* Uninstall plugin */
 
-		if (!current_user_can('activate_plugins', __CLASS__))
+	public static function uninstall(): ?bool
+	{
+		if (!current_user_can('activate_plugins', self::PLUGIN_ALIAS))
 		{
-			return;
+			return NULL;
 		}
 
 		require_once(plugin_dir_path(__FILE__) . 'cron.php');
-		
-		$cron = new google_business_reviews_rating_cron();
-		$cron->deactivate();
+		google_business_reviews_rating_cron::deactivate();
 
-		$reviews = get_option(__CLASS__ . '_reviews');
+		$reviews = get_option(self::OPTION_PREFIX . 'reviews', '');
 
 		if (is_array($reviews) && function_exists('wp_get_upload_dir'))
 		{
@@ -445,63 +815,69 @@ class google_business_reviews_rating
 			}
 		}
 		
-		delete_transient(__CLASS__ . '_reviews_shuffled');
-		delete_transient(__CLASS__ . '_avatars_downloaded');
-		delete_transient(__CLASS__ . '_welcome');
-		delete_transient(__CLASS__ . '_force');
-		delete_option('widget_' . __CLASS__);
-		delete_option(__CLASS__ . '_initial_version');
-		delete_option(__CLASS__ . '_place_id');
-		delete_option(__CLASS__ . '_api_key');
-		delete_option(__CLASS__ . '_language');
-		delete_option(__CLASS__ . '_demo');
-		delete_option(__CLASS__ . '_editor');
-		delete_option(__CLASS__ . '_force');
-		delete_option(__CLASS__ . '_update');
-		delete_option(__CLASS__ . '_review_limit');
-		delete_option(__CLASS__ . '_review_sort');
-		delete_option(__CLASS__ . '_review_sort_admin');
-		delete_option(__CLASS__ . '_rating_min');
-		delete_option(__CLASS__ . '_rating_max');
-		delete_option(__CLASS__ . '_review_text_min');
-		delete_option(__CLASS__ . '_review_text_max');
-		delete_option(__CLASS__ . '_review_text_excerpt_length');
-		delete_option(__CLASS__ . '_reviews_theme');
-		delete_option(__CLASS__ . '_view');
-		delete_option(__CLASS__ . '_color_scheme');
-		delete_option(__CLASS__ . '_javascript');
-		delete_option(__CLASS__ . '_stylesheet');
-		delete_option(__CLASS__ . '_icon');
-		delete_option(__CLASS__ . '_logo');
-		delete_option(__CLASS__ . '_telephone');
-		delete_option(__CLASS__ . '_business_type');
-		delete_option(__CLASS__ . '_places');
-		delete_option(__CLASS__ . '_price_range');
-		delete_option(__CLASS__ . '_structured_data');
-		delete_option(__CLASS__ . '_settings');
-		delete_option(__CLASS__ . '_retrieval');
-		delete_option(__CLASS__ . '_retrieval_fields');
-		delete_option(__CLASS__ . '_retrieval_sort');
-		delete_option(__CLASS__ . '_retrieval_translate');
-		delete_option(__CLASS__ . '_result');
-		delete_option(__CLASS__ . '_result_valid');
-		delete_option(__CLASS__ . '_reviews');
-		delete_option(__CLASS__ . '_local_images');
-		delete_option(__CLASS__ . '_custom_styles');
-		delete_option(__CLASS__ . '_additional_array_sanitization');
-		delete_option(__CLASS__ . '_meta_box_limit');
-		delete_option(__CLASS__ . '_log');
-		delete_option(__CLASS__ . '_notifications');
-		delete_option(__CLASS__ . '_related_plugins');
-		delete_option(__CLASS__ . '_section');
+		delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+		delete_transient(self::OPTION_PREFIX . 'avatars_downloaded');
+		delete_transient(self::OPTION_PREFIX . 'force');
+		delete_option('widget_' . self::PLUGIN_ALIAS);
+		delete_option(self::OPTION_PREFIX . 'initial_version');
+		delete_option(self::OPTION_PREFIX . 'welcome');
+		delete_option(self::OPTION_PREFIX . 'place_id');
+		delete_option(self::OPTION_PREFIX . 'api_key');
+		delete_option(self::OPTION_PREFIX . 'api_version');
+		delete_option(self::OPTION_PREFIX . 'api_history');
+		delete_option(self::OPTION_PREFIX . 'language');
+		delete_option(self::OPTION_PREFIX . 'demo');
+		delete_option(self::OPTION_PREFIX . 'editor');
+		delete_option(self::OPTION_PREFIX . 'force');
+		delete_option(self::OPTION_PREFIX . 'update');
+		delete_option(self::OPTION_PREFIX . 'review_limit');
+		delete_option(self::OPTION_PREFIX . 'review_sort');
+		delete_option(self::OPTION_PREFIX . 'review_sort_admin');
+		delete_option(self::OPTION_PREFIX . 'rating_min');
+		delete_option(self::OPTION_PREFIX . 'rating_max');
+		delete_option(self::OPTION_PREFIX . 'review_text_min');
+		delete_option(self::OPTION_PREFIX . 'review_text_max');
+		delete_option(self::OPTION_PREFIX . 'review_text_excerpt_length');
+		delete_option(self::OPTION_PREFIX . 'reviews_theme');
+		delete_option(self::OPTION_PREFIX . 'theme');
+		delete_option(self::OPTION_PREFIX . 'view');
+		delete_option(self::OPTION_PREFIX . 'color_scheme');
+		delete_option(self::OPTION_PREFIX . 'javascript');
+		delete_option(self::OPTION_PREFIX . 'stylesheet');
+		delete_option(self::OPTION_PREFIX . 'icon');
+		delete_option(self::OPTION_PREFIX . 'logo');
+		delete_option(self::OPTION_PREFIX . 'telephone');
+		delete_option(self::OPTION_PREFIX . 'business_type');
+		delete_option(self::OPTION_PREFIX . 'places');
+		delete_option(self::OPTION_PREFIX . 'price_range');
+		delete_option(self::OPTION_PREFIX . 'structured_data');
+		delete_option(self::OPTION_PREFIX . 'settings');
+		delete_option(self::OPTION_PREFIX . 'retrieval');
+		delete_option(self::OPTION_PREFIX . 'retrieval_fields');
+		delete_option(self::OPTION_PREFIX . 'retrieval_sort');
+		delete_option(self::OPTION_PREFIX . 'retrieval_translate');
+		delete_option(self::OPTION_PREFIX . 'result');
+		delete_option(self::OPTION_PREFIX . 'result_valid');
+		delete_option(self::OPTION_PREFIX . 'reviews');
+		delete_option(self::OPTION_PREFIX . 'local_images');
+		delete_option(self::OPTION_PREFIX . 'custom_styles');
+		delete_option(self::OPTION_PREFIX . 'additional_array_sanitization');
+		delete_option(self::OPTION_PREFIX . 'meta_box_limit');
+		delete_option(self::OPTION_PREFIX . 'log');
+		delete_option(self::OPTION_PREFIX . 'notifications');
+		delete_option(self::OPTION_PREFIX . 'related_plugins');
+		delete_option(self::OPTION_PREFIX . 'section');
+
+		delete_metadata('user', 0, self::OPTION_PREFIX . 'section', '', TRUE);
+		delete_metadata('user', 0, self::OPTION_PREFIX . 'color_scheme', '', TRUE);
 
 		return TRUE;
 	}
 	
-	public static function upgrade($object, $options)
+	/* Upgrade plugin */
+
+	public static function upgrade($object, array $options): bool
 	{
-		// Upgrade plugin
-		
 		if (!isset($options['action']) || isset($options['action']) && $options['action'] != 'update' || !isset($options['type']) || isset($options['type']) && $options['type'] != 'plugin' || !isset($options['plugins']) || isset($options['plugins']) && !is_array($options['plugins']))
 		{
 			return TRUE;
@@ -516,45 +892,124 @@ class google_business_reviews_rating
 				continue;
 			}
 			
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('structured_data', __CLASS__);
-			wp_cache_delete('result', __CLASS__);
-			wp_cache_delete('result_valid', __CLASS__);
-			wp_cache_delete('result_demo', __CLASS__);
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
-			wp_cache_delete('reviews_demo', __CLASS__);
+			delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+			wp_cache_delete('structured_data', self::OPTION_PREFIX);
+			wp_cache_delete('result', self::OPTION_PREFIX);
+			wp_cache_delete('result_valid', self::OPTION_PREFIX);
+			wp_cache_delete('result_demo', self::OPTION_PREFIX);
+			wp_cache_delete('reviews_shuffled', self::OPTION_PREFIX);
+			wp_cache_delete('reviews', self::OPTION_PREFIX);
+			wp_cache_delete('reviews_demo', self::OPTION_PREFIX);
 			
-			delete_option(__CLASS__ . '_force');
-			
-			if (is_numeric(get_option(__CLASS__ . '_local_images', 1)))
-			{
-				update_option(__CLASS__ . '_local_images', FALSE, 'no');
-			}
-			
-			if (is_numeric(get_option(__CLASS__ . '_retrieval_sort', 1)))
-			{
-				update_option(__CLASS__ . '_retrieval_sort', 'most_relevant', 'no');
-			}
-			
-			if (!is_array(get_option(__CLASS__ . '_retrieval_fields', NULL)))
-			{
-				update_option(__CLASS__ . '_retrieval_fields', array('formatted_address', 'icon', 'id', 'name', 'rating', 'reviews', 'url', 'user_ratings_total', 'vicinity'), 'no');
-			}
-			
-			if (is_numeric(get_option(__CLASS__ . '_retrieval_translate', 1)))
-			{
-				update_option(__CLASS__ . '_retrieval_translate', FALSE, 'no');
-			}
-			
-			$allow_editor = get_option(__CLASS__ . '_editor');
+			delete_option(self::OPTION_PREFIX . 'force');
 
-			if ($allow_editor != get_option(__CLASS__ . '_editor', 'x'))
+			if (get_option(self::OPTION_PREFIX . 'theme', NULL) == NULL && get_option(self::OPTION_PREFIX . 'reviews_theme', NULL) != NULL)
 			{
-				update_option(__CLASS__ . '_editor', TRUE, 'no');
+				update_option(self::OPTION_PREFIX . 'theme', get_option(self::OPTION_PREFIX . 'reviews_theme', NULL), 'yes');
 			}
 
-			$custom_styles = get_option(__CLASS__ . '_custom_styles');
+			if (!is_numeric(get_option(self::OPTION_PREFIX . 'api_version', NULL)))
+			{
+				update_option(self::OPTION_PREFIX . 'api_version', NULL, 'no');
+			}
+
+			self::set_api_history();
+
+			if (is_numeric(get_option(self::OPTION_PREFIX . 'local_images', 1)))
+			{
+				update_option(self::OPTION_PREFIX . 'local_images', FALSE, 'no');
+			}
+			
+			if (is_numeric(get_option(self::OPTION_PREFIX . 'retrieval_sort', 1)))
+			{
+				update_option(self::OPTION_PREFIX . 'retrieval_sort', 'most_relevant', 'no');
+			}
+			
+			if (!is_array(get_option(self::OPTION_PREFIX . 'retrieval_fields', NULL)))
+			{
+				if (is_numeric(get_option(self::OPTION_PREFIX . 'api_version', NULL)))
+				{
+					update_option(self::OPTION_PREFIX . 'retrieval_fields', ['displayName', 'formattedAddress', 'googleMapsUri', 'iconMaskBaseUri', 'id', 'shortFormattedAddress', 'rating', 'reviews', 'userRatingCount'], 'no');
+				}
+				else
+				{
+					update_option(self::OPTION_PREFIX . 'retrieval_fields', ['formatted_address', 'icon', 'id', 'name', 'rating', 'reviews', 'url', 'user_ratings_total', 'vicinity'], 'no');
+				}
+			}
+			
+			if (is_numeric(get_option(self::OPTION_PREFIX . 'retrieval_translate', 1)))
+			{
+				update_option(self::OPTION_PREFIX . 'retrieval_translate', FALSE, 'no');
+			}
+			
+			$allow_editor = get_option(self::OPTION_PREFIX . 'editor', '');
+
+			if ($allow_editor != get_option(self::OPTION_PREFIX . 'editor', 'x'))
+			{
+				update_option(self::OPTION_PREFIX . 'editor', TRUE, 'no');
+			}
+
+			$notifications = get_option(self::OPTION_PREFIX . 'notifications', NULL);
+
+			if (!is_array($notifications) || !isset($notifications['review']) || !is_array($notifications['review']))
+			{
+				$notifications = [
+					'review' => [
+						'shown' => [],
+						'action' => NULL,
+						'about' => []
+					],
+					'shortcode' => [
+						'count' => 0,
+						'scanned' => NULL
+					]
+				];
+
+				$log = get_option(self::OPTION_PREFIX . 'log', []);
+
+				if (is_array($log))
+				{
+					$log_remaining = [];
+
+					foreach ($log as $entry)
+					{
+						if (!is_array($entry) || !isset($entry['type']) || !is_string($entry['type']))
+						{
+							$log_remaining[] = $entry;
+							continue;
+						}
+
+						$time = (isset($entry['time']) && is_numeric($entry['time'])) ? intval($entry['time']) : NULL;
+
+						if ($entry['type'] == 'notification rate' && $time != NULL)
+						{
+							$notifications['review']['shown'][] = $time;
+							continue;
+						}
+
+						if (preg_match('/^notification rate (later|dismiss|done)$/', $entry['type'], $action_matches))
+						{
+							$notifications['review']['action'] = $action_matches[1];
+							continue;
+						}
+
+						if ($entry['type'] == 'notification rate now')
+						{
+							continue;
+						}
+
+						$log_remaining[] = $entry;
+					}
+
+					update_option(self::OPTION_PREFIX . 'log', $log_remaining, 'no');
+				}
+
+				update_option(self::OPTION_PREFIX . 'notifications', $notifications, 'no');
+			}
+
+			(new static())->refresh_relative_time_descriptions();
+
+			$custom_styles = get_option(self::OPTION_PREFIX . 'custom_styles', '');
 			
 			if ($custom_styles == NULL)
 			{
@@ -562,11 +1017,11 @@ class google_business_reviews_rating
 			}
 			
 			$fp = FALSE;
-			$custom_styles_file = plugin_dir_path(__FILE__) . 'wp/css/custom.css';
+			$custom_styles_file = self::custom_styles_file();
 
 			if (!is_file($custom_styles_file))
 			{
-				if (!is_writable(plugin_dir_path(__FILE__) . 'wp/css/'))
+				if (!is_writable(dirname($custom_styles_file)))
 				{
 					return TRUE;
 				}
@@ -607,19 +1062,19 @@ class google_business_reviews_rating
 		return TRUE;
 	}
 	
-	private function reset()
+	/* Reset the plugin to a fresh installation */
+
+	protected function reset(): bool
 	{
-		// Reset the plugin to a fresh installation
-		
 		if (!current_user_can('activate_plugins'))
 		{
 			return FALSE;
 		}
 
-		$this->data = array();
-		$this->result = array();
-		$this->reviews = array();
-		$this->reviews_filtered = array();
+		$this->data = [];
+		$this->result = [];
+		$this->reviews = [];
+		$this->reviews_filtered = [];
 		
 		if (!self::deactivate())
 		{
@@ -636,54 +1091,54 @@ class google_business_reviews_rating
 			return FALSE;
 		}
 		
-		delete_transient(__CLASS__ . '_welcome');
-		
 		return TRUE;
 	}
 
-	public function loaded()
+	/* Initiate the text translations */
+
+	public function loaded(): bool
 	{
-		// Initiate the text translations
+		if ($this->dashboard)
+		{
+			$this->updates = [
+				'' => __('Never Synchronize', 'g-business-reviews-rating'),
+				168 => __('Synchronize Weekly', 'g-business-reviews-rating'),
+				24 => __('Synchronize Daily', 'g-business-reviews-rating'),
+				6 => __('Synchronize Every 6 Hours', 'g-business-reviews-rating'),
+				1 => __('Synchronize Hourly', 'g-business-reviews-rating')
+			];
+			$this->review_sort_options['relevance_desc']['name'] = __('Relevance Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['relevance_desc']['min_max_values'] = [__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')];
+			$this->review_sort_options['relevance_asc']['name'] = __('Relevance Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['relevance_asc']['min_max_values'] = [__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')];
+			$this->review_sort_options['date_desc']['name'] = __('Date Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['date_desc']['min_max_values'] = [__('New', 'g-business-reviews-rating'), __('Old', 'g-business-reviews-rating')];
+			$this->review_sort_options['date_asc']['name'] = __('Date Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['date_asc']['min_max_values'] = [__('Old', 'g-business-reviews-rating'), __('New', 'g-business-reviews-rating')];
+			$this->review_sort_options['rating_desc']['name'] = __('Rating Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['rating_desc']['min_max_values'] = [__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')];
+			$this->review_sort_options['rating_asc']['name'] = __('Rating Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['rating_asc']['min_max_values'] = [__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')];
+			$this->review_sort_options['author_name_asc']['name'] = __('Author’s Name Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['author_name_asc']['min_max_values'] = ['A', 'Z'];
+			$this->review_sort_options['author_name_desc']['name'] = __('Author’s Name Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['author_name_desc']['min_max_values'] = ['Z', 'A'];
+			$this->review_sort_options['review_words_asc']['name'] = __('Review Word Count Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['review_words_asc']['min_max_values'] = [__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')];
+			$this->review_sort_options['review_words_desc']['name'] = __('Review Word Count Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['review_words_desc']['min_max_values'] = [__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')];
+			$this->review_sort_options['review_characters_asc']['name'] = __('Review Character Count Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['review_characters_asc']['min_max_values'] = [__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')];
+			$this->review_sort_options['review_characters_desc']['name'] = __('Review Character Count Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['review_characters_desc']['min_max_values'] = [__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')];
+			$this->review_sort_options['id_asc']['name'] = __('ID Ascending', 'g-business-reviews-rating');
+			$this->review_sort_options['id_asc']['min_max_values'] = [__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating')];
+			$this->review_sort_options['id_desc']['name'] = __('ID Descending', 'g-business-reviews-rating');
+			$this->review_sort_options['id_desc']['min_max_values'] = [__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating')];
+			$this->review_sort_options['shuffle']['name'] = __('Random Shuffle Static', 'g-business-reviews-rating');
+			$this->review_sort_options['shuffle_variable']['name'] = __('Random Shuffle Variable', 'g-business-reviews-rating');
+		}
 
-		load_plugin_textdomain('g-business-reviews-rating', FALSE, basename(dirname(__FILE__)) . '/languages');
-
-		$this->updates = array(
-			NULL => __('Never Synchronize', 'g-business-reviews-rating'),
-			168 => __('Synchronize Weekly', 'g-business-reviews-rating'),
-			24 => __('Synchronize Daily', 'g-business-reviews-rating'),
-			6 => __('Synchronize Every 6 Hours', 'g-business-reviews-rating'),
-			1 => __('Synchronize Hourly', 'g-business-reviews-rating')
-		);
-		$this->review_sort_options['relevance_desc']['name'] = __('Relevance Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['relevance_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
-		$this->review_sort_options['relevance_asc']['name'] = __('Relevance Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['relevance_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
-		$this->review_sort_options['date_desc']['name'] = __('Date Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['date_desc']['min_max_values'] = array(__('New', 'g-business-reviews-rating'), __('Old', 'g-business-reviews-rating'));
-		$this->review_sort_options['date_asc']['name'] = __('Date Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['date_asc']['min_max_values'] = array(__('Old', 'g-business-reviews-rating'), __('New', 'g-business-reviews-rating'));
-		$this->review_sort_options['rating_desc']['name'] = __('Rating Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['rating_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
-		$this->review_sort_options['rating_asc']['name'] = __('Rating Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['rating_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
-		$this->review_sort_options['author_name_asc']['name'] = __('Author’s Name Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['author_name_asc']['min_max_values'] = array('A', 'Z');
-		$this->review_sort_options['author_name_desc']['name'] = __('Author’s Name Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['author_name_desc']['min_max_values'] = array('Z', 'A');
-		$this->review_sort_options['review_words_asc']['name'] = __('Review Word Count Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['review_words_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
-		$this->review_sort_options['review_words_desc']['name'] = __('Review Word Count Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['review_words_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
-		$this->review_sort_options['review_characters_asc']['name'] = __('Review Character Count Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['review_characters_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
-		$this->review_sort_options['review_characters_desc']['name'] = __('Review Character Count Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['review_characters_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
-		$this->review_sort_options['id_asc']['name'] = __('ID Ascending', 'g-business-reviews-rating');
-		$this->review_sort_options['id_asc']['min_max_values'] = array(__('Low', 'g-business-reviews-rating'), __('High', 'g-business-reviews-rating'));
-		$this->review_sort_options['id_desc']['name'] = __('ID Descending', 'g-business-reviews-rating');
-		$this->review_sort_options['id_desc']['min_max_values'] = array(__('High', 'g-business-reviews-rating'), __('Low', 'g-business-reviews-rating'));
-		$this->review_sort_options['shuffle']['name'] = __('Random Shuffle Static', 'g-business-reviews-rating');
-		$this->review_sort_options['shuffle_variable']['name'] = __('Random Shuffle Variable', 'g-business-reviews-rating');
 		$this->relative_times['hour']['text'] = __('just now', 'g-business-reviews-rating');
 		/* translators: %u: number of hours, days, weeks, months or years and should remain untouched */
 		$this->relative_times['hours']['text'] = __('%u hours ago', 'g-business-reviews-rating');
@@ -703,22 +1158,36 @@ class google_business_reviews_rating
 		
 		if (!$this->translation_exists())
 		{
-			$language_code = preg_replace('/^[^a-z]*([a-z]{2}l?).*$/', '$1', mb_strtolower(get_option('WPLANG')));
+			$language_code = preg_replace('/^[^a-z]*([a-z]{2}l?).*$/', '$1', mb_strtolower(get_option('WPLANG', '')));
 			
 			switch ($language_code)
 			{
+			case 'ar':
+				$this->relative_times['hour']['text'] = 'الآن';
+				$this->relative_times['hours']['text'] = 'قبل %u (ساعات|ساعة)';
+				$this->relative_times['day']['text'] = 'قبل يوم واحد';
+				$this->relative_times['days']['text'] = 'قبل %u أيام';
+				$this->relative_times['within_week']['text'] = 'خلال الأسبوع الماضي';
+				$this->relative_times['week']['text'] = 'قبل أسبوع';
+				$this->relative_times['weeks']['text'] = 'قبل %u أسابيع';
+				$this->relative_times['month']['text'] = 'قبل شهر';
+				$this->relative_times['months']['text'] = 'قبل %u (أشهر|شهراً)';
+				$this->relative_times['year']['text'] = 'قبل سنة';
+				$this->relative_times['years']['text'] = 'قبل %u (سنوات|سنة)';
+				break;
+			case 'cs':
 			case 'cz':
-                $this->relative_times['hour']['text'] = 'právě teď';
-                $this->relative_times['hours']['text'] = 'před %u hodinami';
-                $this->relative_times['day']['text'] = 'před jedním dnem';
-                $this->relative_times['days']['text'] = 'před %u dny';
-                $this->relative_times['within_week']['text'] = 'tento týden';
-                $this->relative_times['week']['text'] = 'před týdnem';
-                $this->relative_times['weeks']['text'] = 'před %u týdny';
-                $this->relative_times['month']['text'] = 'před měsícem';
-                $this->relative_times['months']['text'] = 'před %u měsíci';
-                $this->relative_times['year']['text'] = 'před rokem';
-                $this->relative_times['years']['text'] = 'před %u lety';
+				$this->relative_times['hour']['text'] = 'právě teď';
+				$this->relative_times['hours']['text'] = 'před %u hodinami';
+				$this->relative_times['day']['text'] = 'před jedním dnem';
+				$this->relative_times['days']['text'] = 'před %u dny';
+				$this->relative_times['within_week']['text'] = 'tento týden';
+				$this->relative_times['week']['text'] = 'před týdnem';
+				$this->relative_times['weeks']['text'] = 'před %u týdny';
+				$this->relative_times['month']['text'] = 'před měsícem';
+				$this->relative_times['months']['text'] = 'před %u měsíci';
+				$this->relative_times['year']['text'] = 'před rokem';
+				$this->relative_times['years']['text'] = 'před %u lety';
 				break;
 			case 'da':
 				$this->relative_times['hour']['text'] = 'nu';
@@ -824,6 +1293,7 @@ class google_business_reviews_rating
 				$this->relative_times['year']['text'] = 'un anno fa';
 				$this->relative_times['years']['text'] = '%u anni fa';
 				break;
+			case 'he':
 			case 'iw':
 				$this->relative_times['hour']['text'] = 'עַכשָׁיו';
 				$this->relative_times['hours']['text'] = 'לפני %u שעות';
@@ -849,6 +1319,7 @@ class google_business_reviews_rating
 				$this->relative_times['months']['text'] = '%u か月前';
 				$this->relative_times['year']['text'] = '%u 年前';
 				$this->relative_times['years']['text'] = '%u 年前';
+				break;
 			case 'nl':
 				$this->relative_times['hour']['text'] = 'net nu';
 				$this->relative_times['hours']['text'] = '%u uur geleden';
@@ -901,10 +1372,39 @@ class google_business_reviews_rating
 				$this->relative_times['year']['text'] = 'пре годину дана';
 				$this->relative_times['years']['text'] = 'пре %u година';
 				break;
+			case 'zh':
+				if (preg_match('/^zh[_-](?:tw|hk)/i', get_option('WPLANG', '')))
+				{
+					$this->relative_times['hour']['text'] = '剛剛';
+					$this->relative_times['hours']['text'] = '%u 小時前';
+					$this->relative_times['day']['text'] = '%u 天前';
+					$this->relative_times['days']['text'] = '%u 天前';
+					$this->relative_times['within_week']['text'] = '過去 %u 週內';
+					$this->relative_times['week']['text'] = '%u 週前';
+					$this->relative_times['weeks']['text'] = '%u 週前';
+					$this->relative_times['month']['text'] = '%u 個月前';
+					$this->relative_times['months']['text'] = '%u 個月前';
+					$this->relative_times['year']['text'] = '%u 年前';
+					$this->relative_times['years']['text'] = '%u 年前';
+					break;
+				}
+
+				$this->relative_times['hour']['text'] = '刚刚';
+				$this->relative_times['hours']['text'] = '%u 小时前';
+				$this->relative_times['day']['text'] = '%u 天前';
+				$this->relative_times['days']['text'] = '%u 天前';
+				$this->relative_times['within_week']['text'] = '过去 %u 周内';
+				$this->relative_times['week']['text'] = '%u 周前';
+				$this->relative_times['weeks']['text'] = '%u 周前';
+				$this->relative_times['month']['text'] = '%u 个月前';
+				$this->relative_times['months']['text'] = '%u 个月前';
+				$this->relative_times['year']['text'] = '%u 年前';
+				$this->relative_times['years']['text'] = '%u 年前';
+				break;
 			}
 		}
 
-		$this->color_schemes = array(
+		$this->color_schemes = [
 			'cranberry' => __('Cranberry', 'g-business-reviews-rating'),
 			'coral' => __('Coral', 'g-business-reviews-rating'),
 			'pumpkin' => __('Pumpkin', 'g-business-reviews-rating'),
@@ -919,316 +1419,168 @@ class google_business_reviews_rating
 			'copper' => __('Copper', 'g-business-reviews-rating'),
 			'coffee' => __('Coffee', 'g-business-reviews-rating'),
 			'contrast' => __('High Contrast', 'g-business-reviews-rating')
-		);
+		];
+
+		add_action('update_option_WPLANG', [$this, 'refresh_relative_time_descriptions']);
 
 		return TRUE;
 	}
 
-	public function admin_init()
+/* Check setup uses valid data and returning a result */
+
+	protected function valid(string $check = 'status'): bool
 	{
-		// Initiate the plugin in the dashboard
-		
-		if (!$this->dashboard)
-		{
-			return TRUE;
-		}
-		
-		$this->demo = get_option(__CLASS__ . '_demo');
-		$this->settings_updated = ($this->dashboard && isset($_REQUEST['settings-updated']) && (is_bool($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] || is_string($_REQUEST['settings-updated']) && preg_match('/^(?:true|1)$/i', $_REQUEST['settings-updated'])));
-		
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_additional_array_sanitization', array('type' => 'boolean'));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_api_key', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_api_key')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_place_id', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_place_id')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_place_delete', array('type' => 'array', 'sanitize_callback' => array($this, 'delete_places')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_language', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_retrieval_sort', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_retrieval_sort')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_retrieval_translate', array('type' => 'boolean'));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_demo', array('type' => 'boolean', 'sanitize_callback' => array($this, 'sanitize_demo')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_update', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_review_limit', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_review_sort', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_rating_min', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_rating_max', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_review_text_min', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_review_text_max', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_review_text_excerpt_length', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_reviews_theme', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_view', array('type' => 'number'));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_color_scheme', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_icon', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_logo', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_telephone', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_business_type', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_price_range', array('type' => 'string', 'sanitize_callback' => array($this, 'sanitize_input')));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_structured_data', array('type' => 'number'));
-		register_setting(__CLASS__ . '_settings', __CLASS__ . '_local_images', array('type' => 'boolean'));
-		
-		add_action('admin_init', array($this, 'admin_welcome'));
-		add_action('admin_menu', array($this, 'admin_menu'));
-		add_action('admin_enqueue_scripts', array($this, 'admin_css_load'));
-		add_action('admin_enqueue_scripts', array($this, 'admin_js_load'));
-		add_action('wp_ajax_'.__CLASS__.'_admin_ajax', array($this, 'admin_ajax'));
-		add_action('admin_notices', array($this, 'admin_notices'));
-		add_action('wp_dashboard_setup', array($this, 'dashboard_widget'));
-		add_action('widgets_init', function() { register_widget('google_business_reviews_rating_widget'); });
-
-		add_filter('plugin_action_links', array(__CLASS__, 'admin_add_action_links'), 10, 5);
-		add_filter('plugin_row_meta', array(__CLASS__, 'admin_add_plugin_meta'), 10, 2);
-		
-		if (!$this->set_data())
-		{
-			return TRUE;
-		}
-		
-		$this->set_reviews();
-		$this->set_icon();
-		$this->set_logo();
-
-		return TRUE;
-	}
-	
-	public function wp_init()
-	{
-		// Initiate the plugin in the front-end
-		
-		$this->demo = get_option(__CLASS__ . '_demo');
-		$stylesheet = get_option(__CLASS__ . '_stylesheet', TRUE);
-		$javascript = get_option(__CLASS__ . '_javascript', TRUE);
-		$structured_data = get_option(__CLASS__ . '_structured_data', 0);
-
-		add_shortcode(__CLASS__, array($this, 'wp_display'));
-		add_shortcode('reviews_rating', array($this, 'wp_display'));
-		add_shortcode('reviews_rating_single', array($this, 'wp_display'));
-		add_shortcode('reviews_rating_links', array($this, 'wp_display'));
-		add_shortcode('reviews_rating_link', array($this, 'wp_display'));
-		add_shortcode('links_google_business', array($this, 'wp_display'));
-		add_shortcode('link_google_business', array($this, 'wp_display'));
-		add_action('widgets_init', function() { register_widget('google_business_reviews_rating_widget'); });
-		
-		if (is_bool($stylesheet) && $stylesheet || is_numeric($stylesheet) && $stylesheet > 0 || is_string($stylesheet) && $stylesheet != NULL)
-		{
-			add_action('wp_enqueue_scripts', array($this, 'wp_css_load'));
-		}
-		
-		if (is_bool($javascript) && $javascript || is_numeric($javascript) && $javascript > 0 || is_string($javascript) && $javascript != NULL)
-		{
-			add_action('wp_enqueue_scripts', array($this, 'wp_js_load'));
-		}
-		
-		if (is_bool($structured_data) && $structured_data || is_numeric($structured_data) && ($structured_data >= 1 || $structured_data <= -1))
-		{
-			add_action('wp_head', array($this, 'structured_data'));
-		}
-
-		return TRUE;
-	}
-	
-	public function admin_menu()
-	{
-		// Set the menu item
-
-		$allow_editor = get_option(__CLASS__ . '_editor');
-
-		if ($allow_editor != get_option(__CLASS__ . '_editor', 'x'))
-		{
-			$allow_editor = TRUE;
-			update_option(__CLASS__ . '_editor', $allow_editor, 'no');
-		}
-
-		$this->administrator = (current_user_can('manage_options', __CLASS__));
-		$this->editor = (!$this->administrator && $allow_editor && current_user_can('edit_published_posts', __CLASS__));
-		
-		if (!$this->editor && !$this->administrator)
-		{
-			return TRUE;
-		}
-
-		if ($this->administrator)
-		{
-			$pages = array(array('add_options_page', __('Reviews and Rating - Google Reviews', 'g-business-reviews-rating'), __('Reviews and Rating - Google Reviews', 'g-business-reviews-rating'), 'manage_options', __CLASS__ . '_settings', array($this, 'admin_settings')));
-		}
-		else
-		{
-			$icon = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHBhdGggZmlsbD0iI0EwQTVBQSIgZD0iTTIxNi4wNyAxNDIuMDQ2IDI1Ni40NDEgMTEzaC00OS44OTRsLTE1LjM1My00Ny4zMDRMMTc1Ljg0MSAxMTNoLTQ5Ljg5NGw0MC4zNzEgMjkuMDQ2LTE1LjM1OSA0Ny4xNzUgNDAuMjM1LTI5LjMxNyA0MC4yMzYgMjkuMzU0em0tOTUuNzk5LTE4LjEzNGMwLTMuNjI0LS41NTgtNy45MTItMS4zOTQtMTAuOTEySDYydjIzaDMyLjYyMWMtMS4zMDYgNi4zNDktNC4zODkgMTEuNzE5LTguODA1IDE1LjY4OGwtNC4wNDMgMy4xNDljLTUuNDc3IDMuMzU3LTEyLjMyNyA1LjE1My0yMC4wNTEgNS4xNTMtMTYuMTA3IDAtMjkuNjkyLTEwLjQxNS0zNC40MzYtMjQuODk5LTEuMTY4LTMuNTY4LTEuODA5LTcuMzc4LTEuODA5LTExLjM0NSAwLTMuOTg2LjY0Ny03LjgxNCAxLjgyNi0xMS4zOTYgNC43NTktMTQuNDU4IDE4LjMzMS0yNC44NDkgMzQuNDE5LTI0Ljg0OSA4LjY0MyAwIDE2LjQ1IDMuMDY3IDIyLjU4MyA4LjA4NWwxNy44NDQtMTcuODQ0Yy0xMC44NzMtOS40NzktMjQuODE0LTE1LjMzNC00MC40MjctMTUuMzM0LTI0LjI0IDAtNDUuMDcxIDEzLjg4Mi01NS4wNDggMzQuMTY2LTQuMDIzIDguMTgtNi4yODkgMTcuMzk2LTYuMjg5IDI3LjE3MSAwIDkuNzY4IDIuMjYzIDE4Ljk3OSA2LjI4MSAyNy4xNTQgOS45NzQgMjAuMjk0IDMwLjgxIDM0LjE4MyA1NS4wNTYgMzQuMTgzIDEzLjkxNyAwIDI3LjI0Ni00LjYxIDM3LjY2OS0xMy4yNzYuMDEtLjAwNy4wMjItLjAxMi4wMzEtLjAxOSA0LjQyMy0zLjMyNSA4LjUyOS04Ljk1OSA4LjUyOS04Ljk1OSA3LjYyOS05LjkyNSAxMi4zMi0yMi45MzIgMTIuMzItMzguOTE2eiIvPgo8L3N2Zz4=';
-			$pages = array(array('add_menu_page', __('Google Reviews', 'g-business-reviews-rating'), __('Google Reviews', 'g-business-reviews-rating'), 'edit_published_posts', __CLASS__, array($this, 'admin_settings'), $icon, 51));
-		}
-		
-		foreach ($pages as $p)
-		{
-			$function = $p[0];
-			array_shift($p);
-			call_user_func_array($function, $p);
-			continue;
-		}
-		
-		return TRUE;
-	}
-	
-	public function sync()
-	{
-		// Handle synchronization from CRON job
-		
-		if (!defined('DOING_CRON') || defined('DOING_CRON') && !DOING_CRON)
-		{
-			return FALSE;
-		}
-
-		$this->place_id = get_option(__CLASS__ . '_place_id');
-
-		if ($this->place_id == NULL || get_option(__CLASS__ . '_api_key') == NULL)
-		{
-			return FALSE;
-		}
-
-		$this->local_images = get_option(__CLASS__ . '_local_images', FALSE);
-
-		if ($this->local_images && !is_numeric(get_transient(__CLASS__ . '_avatars_downloaded')))
-		{
-			$this->reviews = get_option(__CLASS__ . '_reviews', array());
-
-			if (is_array($this->reviews))
-			{
-				$avatars_added = array();
-
-				foreach ($this->reviews as $key => $a)
-				{
-					if (count($avatars_added) >= 10)
-					{
-						break;
-					}
-
-					if (isset($a['avatar']) && is_string($a['avatar']))
-					{
-						continue;
-					}
-
-					list($profile_photo_url, $avatar) = $this->set_avatar($a, $key);
-					$this->reviews[$key]['profile_photo_url'] = $profile_photo_url;
-					$this->reviews[$key]['avatar'] = $avatar;
-					$avatars_added[] = $avatar;
-				}
-
-				if (!empty($avatars_added))
-				{
-					delete_transient(__CLASS__ . '_reviews_shuffled');
-					wp_cache_delete('reviews_shuffled', __CLASS__);
-					wp_cache_delete('reviews', __CLASS__);
-					update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-				}
-				else
-				{
-					set_transient(__CLASS__ . '_avatars_downloaded', time(), MONTH_IN_SECONDS);
-				}
-			}
-		}
-		
-		$update = get_option(__CLASS__ . '_update', NULL);
-		$modifier = (get_option(__CLASS__ . '_retrieval_sort', 'most_relevant') == NULL) ? 0.5 : 1;
-		$retrieval = get_option(__CLASS__ . '_retrieval', array());
-		$last_retrieval = (isset($retrieval['requests']) && is_array($retrieval['requests'])) ? end($retrieval['requests']) : array();
-
-		if (!is_numeric($update))
-		{
-			return FALSE;
-		}
-
-		switch ($update)
-		{
-		case 168:
-			if (!empty($last_retrieval) && isset($last_retrieval['place_id']) && $last_retrieval['place_id'] == $this->place_id && isset($last_retrieval['time']) && ((defined('DISABLE_WP_CRON') && DISABLE_WP_CRON && (time() - $last_retrieval['time']) < 14514900 * $modifier) || ((!defined('DISABLE_WP_CRON') || defined('DISABLE_WP_CRON') && !DISABLE_WP_CRON) && (time() - $last_retrieval['time']) < 14514300 * $modifier)))
-			{
-				return FALSE;
-			}
-			
-			$this->set_data(TRUE);
-			break;
-		case 24:
-			if (!empty($last_retrieval) && isset($last_retrieval['place_id']) && $last_retrieval['place_id'] == $this->place_id && isset($last_retrieval['time']) && ((defined('DISABLE_WP_CRON') && DISABLE_WP_CRON && (time() - $last_retrieval['time']) < 86100 * $modifier) || ((!defined('DISABLE_WP_CRON') || defined('DISABLE_WP_CRON') && !DISABLE_WP_CRON) && (time() - $last_retrieval['time']) < 72000 * $modifier)))
-			{
-				return FALSE;
-			}
-			
-			$this->set_data(TRUE);
-			break;
-		case 6:
-			if (!empty($last_retrieval) && isset($last_retrieval['place_id']) && $last_retrieval['place_id'] == $this->place_id && isset($last_retrieval['time']) && ((defined('DISABLE_WP_CRON') && DISABLE_WP_CRON && (time() - $last_retrieval['time']) < 21300 * $modifier) || ((!defined('DISABLE_WP_CRON') || defined('DISABLE_WP_CRON') && !DISABLE_WP_CRON) && (time() - $last_retrieval['time']) < 19800 * $modifier)))
-			{
-				return FALSE;
-			}
-			
-			$this->set_data(TRUE);
-			break;
-		case 1:
-			if (!empty($last_retrieval) && isset($last_retrieval['place_id']) && $last_retrieval['place_id'] == $this->place_id && isset($last_retrieval['time']) && ((defined('DISABLE_WP_CRON') && DISABLE_WP_CRON && (time() - $last_retrieval['time']) < 3300) || ((!defined('DISABLE_WP_CRON') || defined('DISABLE_WP_CRON') && !DISABLE_WP_CRON) && (time() - $last_retrieval['time']) < 2700)))
-			{
-				return FALSE;
-			}
-			
-			$this->set_data(TRUE);
-			break;
-		default:
-			return FALSE;
-		}
-		
-		return TRUE;
-	}
-	
-	private function admin_current()
-	{
-		// Check if the plugin is showing in the Dashboard
-
-		if (!current_user_can('edit_published_posts', __CLASS__))
-		{
-			return FALSE;
-		}
-		
-		if (isset($_GET['page']) && is_string($_GET['page']) && preg_match('/^(?:google[\s_-]?(?:my[\s_-]?)?business|gmb)[\s_-]?reviews?[\s_-]?rating(?:[\s_-]?settings?)?$/i', $_GET['page']))
-		{
-			return TRUE;
-		}
-
-		$page = get_current_screen();
-
-		return (isset($page->id) && $page->id == 'dashboard');
-	}
-	
-	private function valid($check = 'status')
-	{
-		// Check setup uses valid data and returning a result
-		
 		if ($this->demo)
 		{
 			return TRUE;
 		}
 		
-		$api_key = get_option(__CLASS__ . '_api_key');
-		$place_id = get_option(__CLASS__ . '_place_id');
+		$api_key = $this->get_option('api_key');
+		$api_version = $this->get_option('api_version', NULL);
+		$place_id = $this->get_option('place_id');
 		
-		if ((!is_string($api_key) || is_string($api_key) && mb_strlen($api_key) < 10) || (!is_string($place_id) || is_string($place_id) && mb_strlen($place_id) < 10))
+		if ((!is_string($api_key) || is_string($api_key) && mb_strlen($api_key) < 10) || (!is_string($place_id) || is_string($place_id) && mb_strlen($place_id) < 10) || $api_version != NULL && !preg_match('/^\d+(?:\.\d+){0,3}$/', strval($api_version)))
 		{
 			return FALSE;
 		}
 
-		switch ($check)
+		switch ($api_version)
 		{
-		case 'api':
-		case 'api_key':
-		case 'restriction':
-		case 'restrictions':
-			return (!empty($this->data) && isset($this->data['status']) && preg_match('/^REQUEST_DENIED$/i', $this->data['status']) && preg_match('/referr?er\s+restrictions?/i', $this->data['error_message']));
-		case 'billing':
-			return (!empty($this->data) && isset($this->data['status']) && preg_match('/^REQUEST_DENIED$/i', $this->data['status']) && preg_match('/billing/i', $this->data['error_message']));
+		case 1:
+			$error_code = (isset($this->data['error']['code']) && is_numeric($this->data['error']['code'])) ? intval($this->data['error']['code']) : NULL;
+			$error_status = (isset($this->data['error']['status']) && is_string($this->data['error']['status']) && preg_match('/^[A-Z_]+$/i', $this->data['error']['status'])) ? $this->data['error']['status'] : NULL;
+			$error_message = (isset($this->data['error']['message']) && is_string($this->data['error']['message'])) ? $this->data['error']['message'] : NULL;
+
+			switch ($check)
+			{
+			case 'api':
+			case 'api_key':
+			case 'restriction':
+			case 'restrictions':
+				return (!empty($this->data) && isset($this->data['error']) && is_string($error_status) && preg_match('/^REQUEST_DENIED$/i', $error_status) && is_string($error_message) && preg_match('/referr?er\s+restrictions?/i', $error_message));
+			case 'billing':
+				return (!empty($this->data) && isset($this->data['error']) && is_string($error_status) && preg_match('/^REQUEST_DENIED$/i', $error_status) && is_string($error_message) && preg_match('/billing/i', $error_message));
+			default:
+				break;
+			}
+
+			return (!empty($this->data) && isset($this->data['id']) && $this->data['id'] != NULL && ($error_code == NULL || is_numeric($error_code) && $error_code >= 200 && $error_code < 300));
 		default:
-			break;
+			$error_status = (isset($this->data['status']) && is_string($this->data['status']) && preg_match('/^[A-Z_]+$/i', $this->data['status'])) ? $this->data['status'] : NULL;
+			$error_message = (isset($this->data['error_message']) && is_string($this->data['error_message']) && preg_match('/^[A-Z_]+$/i', $this->data['error_message'])) ? $this->data['error_message'] : NULL;
+
+			switch ($check)
+			{
+			case 'api':
+			case 'api_key':
+			case 'restriction':
+			case 'restrictions':
+				return (!empty($this->data) && isset($this->data['status']) && is_string($error_status) && preg_match('/^REQUEST_DENIED$/i', $error_status) && is_string($error_message) && preg_match('/referr?er\s+restrictions?/i', $error_message));
+			case 'billing':
+				return (!empty($this->data) && isset($this->data['status']) && is_string($error_status) && preg_match('/^REQUEST_DENIED$/i', $error_status) && is_string($error_message) && preg_match('/billing/i', $error_message));
+			default:
+				break;
+			}
+			
+			return (!empty($this->data) && isset($this->data['status']) && is_string($error_status) && preg_match('/^OK$/i', $error_status));
 		}
-		
-		return (!empty($this->data) && isset($this->data['status']) && preg_match('/^OK$/i', $this->data['status']));
+
+		return FALSE;
 	}
-	
-	public function retrieved_data_check($current = FALSE)
+
+	/* Build and return the structured data JSON string, or NULL if unavailable */
+
+	public function get_structured_data_json(array $data = []): ?string
 	{
-		// Check to display retrieved data
-		
+		if ($this->demo)
+		{
+			return NULL;
+		}
+
+		if (!is_array($this->data) || empty($this->data))
+		{
+			$this->set_data();
+
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && (!isset($this->data['reviews']) || !is_array($this->data['reviews'])) || $this->api_version == NULL && (!isset($this->data['result']) || !is_array($this->data['result'])))
+			{
+				return NULL;
+			}
+		}
+
+		if (!$this->valid() || $this->reviews_count(NULL, TRUE) < 1 || ($this->api_version != NULL && intval($this->api_version) >= 1 && (!array_key_exists('displayName', $this->data) || !isset($this->data['displayName']['text']) || $this->data['displayName']['text'] == NULL)) || $this->api_version == NULL && (!isset($this->data['result']['name']) || $this->data['result']['name'] == NULL))
+		{
+			return NULL;
+		}
+
+		$name = $this->get_data('name');
+		$logo = $this->get_data('logo');
+		$address = $this->get_data('address');
+		$rating = (is_numeric($this->get_data('rating'))) ? round(floatval($this->get_data('rating')), 1) : 0;
+		$rating_count = (is_numeric($this->get_data('rating_count'))) ? intval($this->get_data('rating_count')) : 0;
+		$telephone = $this->get_option('telephone', FALSE);
+		$business_type = ($this->get_option('business_type') != NULL) ? $this->get_option('business_type') : FALSE;
+		$price_range = is_numeric($this->get_option('price_range', NULL)) ? str_repeat('$', $this->get_option('price_range')) : FALSE;
+
+		extract($data, EXTR_OVERWRITE);
+
+		$schema = [
+			'@context'    => 'http://schema.org',
+			'@type'       => 'LocalBusiness',
+			'name'        => ($name != NULL) ? $name : FALSE,
+			'address'     => ($address != NULL) ? $address : FALSE,
+			'image'       => ($logo != NULL) ? $logo : FALSE,
+			'url'         => get_site_url(),
+			'telephone'   => ($telephone != NULL) ? $telephone : FALSE,
+			'additionalType' => ($business_type != NULL) ? $business_type : FALSE,
+			'priceRange'  => ($price_range != NULL) ? $price_range : FALSE,
+			'AggregateRating' => [
+				'@type'        => 'AggregateRating',
+				'itemReviewed' => ($name != NULL) ? $name : FALSE,
+				'bestRating'   => 5,
+				'worstRating'  => 1,
+				'ratingValue'  => (is_numeric($rating)) ? $rating : FALSE,
+				'ratingCount'  => (is_numeric($rating_count)) ? $rating_count : 0
+			],
+			'review' => []
+		];
+
+		foreach ($this->reviews as $a)
+		{
+			if (!$a['status'])
+			{
+				continue;
+			}
+
+			if (count($schema['review']) >= 5)
+			{
+				break;
+			}
+
+			$schema['review'][] = [
+				'@type'  => 'Review',
+				'author' => [
+					'@type' => 'Person',
+					'name'  => ($a['author_name'] != NULL) ? $a['author_name'] : FALSE
+				],
+				'datePublished' => (function_exists('wp_date')) ? wp_date("Y-m-d", $a['time']) : gmdate("Y-m-d", $a['time']),
+				'description'   => (mb_strlen($a['text']) > 1) ? wp_strip_all_tags($a['text']) : FALSE,
+				'name'          => ($name != NULL) ? $name : FALSE,
+				'reviewRating'  => [
+					'@type'       => 'Rating',
+					'bestRating'  => 5,
+					'ratingValue' => $a['rating'],
+					'worstRating' => 1
+				]
+			];
+		}
+
+		return json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	}
+
+	/* Check to display retrieved data */
+
+	public function retrieved_data_check(bool $current = FALSE): bool
+	{
 		if ($this->demo)
 		{
 			return TRUE;
@@ -1244,1847 +1596,28 @@ class google_business_reviews_rating
 			return $this->retrieved_data_exists;
 		}
 		
-		$this->retrieved_data_exists = (get_option('google_business_reviews_rating_place_id') != NULL && $this->get_data('boolean'));
+		$this->retrieved_data_exists = (get_option('google_business_reviews_rating_place_id', '') != NULL && $this->get_data('boolean'));
 		
 		return $this->retrieved_data_exists;
 	}
-	
-	public function admin_welcome()
+
+/* Return data from Google Places API, place data or an option value */
+
+	public function get_data(string $type = 'array', $place_id = NULL, bool $valid = FALSE)
 	{
-		// Set and process welcome page in the Dashboard
-
-		if (!get_transient(__CLASS__ . '_welcome'))
-		{
-			return;
-		}
-		
-		delete_transient(__CLASS__ . '_welcome');
-		
-		if (is_network_admin() || isset($_GET['activate-multi']) || get_option(__CLASS__ . '_place_id') != NULL || get_option(__CLASS__ . '_api_key') != NULL)
-		{
-			return;
-		}
-		
-		$this->section = 'welcome';
-		update_option(__CLASS__ . '_section', $this->section, 'no');
-		wp_safe_redirect(add_query_arg(array('page' => 'google_business_reviews_rating_settings'), admin_url('options-general.php')));
-
-		return;
-	}
-	
-	public function admin_settings()
-	{
-		// Set and process settings in the Dashboard
-
-		if (!$this->editor && !$this->administrator)
-		{
-			wp_die(__('You do not have sufficient permission to access this page.', 'g-business-reviews-rating'));
-		}
-		
-		$this->languages = array(
-			'af' => 'Afrikaans',
-			'sq' => 'Albanian',
-			'am' => 'Amharic',
-			'ar' => 'Arabic',
-			'hy' => 'Armenian',
-			'az' => 'Azerbaijani',
-			'eu' => 'Basque',
-			'be' => 'Belarusian',
-			'bn' => 'Bengali',
-			'bs' => 'Bosnian',
-			'bg' => 'Bulgarian',
-			'my' => 'Burmese',
-			'ca' => 'Catalan',
-			'zh' => 'Chinese',
-			'zh-CN' => 'Chinese (Simplified)',
-			'zh-HK' => 'Chinese (Hong Kong)',
-			'zh-TW' => 'Chinese (Traditional)',
-			'hr' => 'Croatian',
-			'cs' => 'Czech',
-			'da' => 'Danish',
-			'nl' => 'Dutch',
-			'en' => 'English',
-			'en-AU' => 'English (Australian)',
-			'en-GB' => 'English (Great Britain)',
-			'et' => 'Estonian',
-			'fa' => 'Farsi',
-			'fi' => 'Finnish',
-			'fil' => 'Filipino',
-			'fr' => 'French',
-			'fr-CA' => 'French (Canada)',
-			'gl' => 'Galician',
-			'ka' => 'Georgian',
-			'de' => 'German',
-			'el' => 'Greek',
-			'gu' => 'Gujarati',
-			'iw' => 'Hebrew',
-			'hi' => 'Hindi',
-			'hu' => 'Hungarian',
-			'is' => 'Icelandic',
-			'id' => 'Indonesian',
-			'it' => 'Italian',
-			'ja' => 'Japanese',
-			'kn' => 'Kannada',
-			'kk' => 'Kazakh',
-			'km' => 'Khmer',
-			'ko' => 'Korean',
-			'ky' => 'Kyrgyz',
-			'lo' => 'Lao',
-			'lv' => 'Latvian',
-			'lt' => 'Lithuanian',
-			'mk' => 'Macedonian',
-			'ms' => 'Malay',
-			'ml' => 'Malayalam',
-			'mr' => 'Marathi',
-			'mn' => 'Mongolian',
-			'ne' => 'Nepali',
-			'no' => 'Norwegian',
-			'pl' => 'Polish',
-			'pt' => 'Portuguese',
-			'pt-BR' => 'Portuguese (Brazil)',
-			'pt-PT' => 'Portuguese (Portugal)',
-			'pa' => 'Punjabi',
-			'ro' => 'Romanian',
-			'ru' => 'Russian',
-			'sr' => 'Serbian',
-			'si' => 'Sinhalese',
-			'sk' => 'Slovak',
-			'sl' => 'Slovenian',
-			'es' => 'Spanish',
-			'es-419' => 'Spanish (Latin America)',
-			'sw' => 'Swahili',
-			'sv' => 'Swedish',
-			'ta' => 'Tamil',
-			'te' => 'Telugu',
-			'th' => 'Thai',
-			'tr' => 'Turkish',
-			'uk' => 'Ukrainian',
-			'ur' => 'Urdu',
-			'uz' => 'Uzbek',
-			'vi' => 'Vietnamese',
-			'zu' => 'Zulu'
-		);
-		$this->reviews_themes = array(
-			'light' => __('Light Background', 'g-business-reviews-rating'),
-			'light fonts' => __('Light Background with Fonts', 'g-business-reviews-rating'),
-			'light tile' => __('Tiled, Light Background', 'g-business-reviews-rating'),
-			'light fonts tile' => __('Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light center' => __('Centered, Light Background', 'g-business-reviews-rating'),
-			'light center fonts' => __('Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light center tile' => __('Centered, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light center fonts tile' => __('Centered, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light narrow' => __('Narrow, Light Background', 'g-business-reviews-rating'),
-			'light narrow fonts' => __('Narrow, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light narrow tile' => __('Narrow, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light narrow fonts tile' => __('Narrow, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light center narrow' => __('Narrow, Centered, Light Background', 'g-business-reviews-rating'),
-			'light center narrow fonts' => __('Narrow, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light center narrow tile' => __('Narrow, Centered, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light center narrow fonts tile' => __('Narrow, Centered, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'dark' => __('Dark Background', 'g-business-reviews-rating'),
-			'dark fonts' => __('Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark tile' => __('Tiled, Dark Background', 'g-business-reviews-rating'),
-			'dark fonts tile' => __('Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark center' => __('Centered, Dark Background', 'g-business-reviews-rating'),
-			'dark center fonts' => __('Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark center tile' => __('Centered, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'dark center fonts tile' => __('Centered, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark narrow' => __('Narrow, Dark Background', 'g-business-reviews-rating'),
-			'dark narrow fonts' => __('Narrow, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark narrow tile' => __('Narrow, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'dark narrow fonts tile' => __('Narrow, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark center narrow' => __('Narrow, Centered, Dark Background', 'g-business-reviews-rating'),
-			'dark center narrow fonts' => __('Narrow, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'dark center narrow tile' => __('Narrow, Centered, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'dark center narrow fonts tile' => __('Narrow, Centered, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble' => __('Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'light bubble fonts' => __('Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble tile' => __('Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fonts tile' => __('Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill' => __('Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill fonts' => __('Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill tile' => __('Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill fonts tile' => __('Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble center' => __('Centered, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'light bubble center fonts' => __('Centered, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble center tile' => __('Centered, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble center fonts tile' => __('Centered, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill center' => __('Centered, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill center fonts' => __('Centered, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill center tile' => __('Centered, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill center fonts tile' => __('Centered, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble narrow' => __('Narrow, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'light bubble narrow fonts' => __('Narrow, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble narrow tile' => __('Narrow, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble narrow fonts tile' => __('Narrow, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill narrow' => __('Narrow, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill narrow fonts' => __('Narrow, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill narrow tile' => __('Narrow, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill narrow fonts tile' => __('Narrow, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble center narrow' => __('Narrow, Centered, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'light bubble center narrow fonts' => __('Narrow, Centered, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble center narrow tile' => __('Narrow, Centered, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble center narrow fonts tile' => __('Narrow, Centered, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill center narrow' => __('Narrow, Centered, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill center narrow fonts' => __('Narrow, Centered, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'light bubble fill center narrow tile' => __('Narrow, Centered, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'light bubble fill center narrow fonts tile' => __('Narrow, Centered, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'dark bubble' => __('Dark, Bubble Outline', 'g-business-reviews-rating'),
-			'dark bubble fonts' => __('Dark, Bubble Outline with Fonts', 'g-business-reviews-rating'),
-			'dark bubble tile' => __('Dark, Bubble Outline, Tiled', 'g-business-reviews-rating'),
-			'dark bubble fonts tile' => __('Dark, Bubble Outline, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill' => __('Dark, Bubble Filled', 'g-business-reviews-rating'),
-			'dark bubble fill fonts' => __('Dark, Bubble Filled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill tile' => __('Dark, Bubble Filled, Tiled', 'g-business-reviews-rating'),
-			'dark bubble fill fonts tile' => __('Dark, Bubble Filled, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble center' => __('Centered, Dark, Bubble Outline', 'g-business-reviews-rating'),
-			'dark bubble center fonts' => __('Centered, Dark, Bubble Outline with Fonts', 'g-business-reviews-rating'),
-			'dark bubble center tile' => __('Centered, Dark, Bubble Outline, Tiled', 'g-business-reviews-rating'),
-			'dark bubble center fonts tile' => __('Centered, Dark, Bubble Outline, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill center' => __('Centered, Dark, Bubble Filled', 'g-business-reviews-rating'),
-			'dark bubble fill center fonts' => __('Centered, Dark, Bubble Filled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill center tile' => __('Centered, Dark, Bubble Filled, Tiled', 'g-business-reviews-rating'),
-			'dark bubble fill center fonts tile' => __('Centered, Dark, Bubble Filled, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble narrow' => __('Narrow, Dark, Bubble Outline', 'g-business-reviews-rating'),
-			'dark bubble narrow fonts' => __('Narrow, Dark, Bubble Outline with Fonts', 'g-business-reviews-rating'),
-			'dark bubble narrow tile' => __('Narrow, Dark, Bubble Outline, Tiled', 'g-business-reviews-rating'),
-			'dark bubble narrow fonts tile' => __('Narrow, Dark, Bubble Outline, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill narrow' => __('Narrow, Dark, Bubble Filled', 'g-business-reviews-rating'),
-			'dark bubble fill narrow fonts' => __('Narrow, Dark, Bubble Filled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill narrow tile' => __('Narrow, Dark, Bubble Filled, Tiled', 'g-business-reviews-rating'),
-			'dark bubble fill narrow fonts tile' => __('Narrow, Dark, Bubble Filled, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble center narrow' => __('Narrow, Centered, Dark, Bubble Outline', 'g-business-reviews-rating'),
-			'dark bubble center narrow fonts' => __('Narrow, Centered, Dark, Bubble Outline with Fonts', 'g-business-reviews-rating'),
-			'dark bubble center narrow tile' => __('Narrow, Centered, Dark, Bubble Outline, Tiled', 'g-business-reviews-rating'),
-			'dark bubble center narrow fonts tile' => __('Narrow, Centered, Dark, Bubble Outline, Tiled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill center narrow' => __('Narrow, Centered, Dark, Bubble Filled', 'g-business-reviews-rating'),
-			'dark bubble fill center narrow fonts' => __('Narrow, Centered, Dark, Bubble Filled with Fonts', 'g-business-reviews-rating'),
-			'dark bubble fill center narrow tile' => __('Narrow, Centered, Dark, Bubble Filled, Tiled', 'g-business-reviews-rating'),
-			'dark bubble fill center narrow fonts tile' => __('Narrow, Centered, Dark, Bubble Filled, Tiled with Fonts', 'g-business-reviews-rating'),
-			'badge light' => __('Badge, Light Background', 'g-business-reviews-rating'),
-			'badge light fonts' => __('Badge, Light Background with Fonts', 'g-business-reviews-rating'),
-			'badge light narrow' => __('Narrow Badge, Light Background', 'g-business-reviews-rating'),
-			'badge light narrow fonts' => __('Narrow Badge, Light Background with Fonts', 'g-business-reviews-rating'),
-			'badge dark' => __('Badge, Dark Background', 'g-business-reviews-rating'),
-			'badge dark fonts' => __('Badge, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'badge dark narrow' => __('Narrow Badge, Dark Background', 'g-business-reviews-rating'),
-			'badge dark narrow fonts' => __('Narrow Badge, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'badge tiny light' => __('Tiny Badge, Light Background', 'g-business-reviews-rating'),
-			'badge tiny light fonts' => __('Tiny Badge, Light Background with Fonts', 'g-business-reviews-rating'),
-			'badge tiny dark' => __('Tiny Badge, Dark Background', 'g-business-reviews-rating'),
-			'badge tiny dark fonts' => __('Tiny Badge, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two' => __('Two Columns, Light Background', 'g-business-reviews-rating'),
-			'columns two tile' => __('Two Columns, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble' => __('Two Columns, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble tile' => __('Two Columns, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble fill' => __('Two Columns, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble fill tile' => __('Two Columns, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns two center' => __('Two Columns, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns two center tile' => __('Two Columns, Centered, Light Background, Tiled', 'g-business-reviews-rating'),
-			'columns two bubble center' => __('Two Columns, Bubble Outline, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble tile center' => __('Two Columns, Bubble Outline, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble fill center' => __('Two Columns, Bubble Filled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns two bubble fill tile center' => __('Two Columns, Bubble Filled, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns two fonts' => __('Two Columns, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts tile' => __('Two Columns, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble' => __('Two Columns, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble tile' => __('Two Columns, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble fill' => __('Two Columns, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble fill tile' => __('Two Columns, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts center' => __('Two Columns, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts center tile' => __('Two Columns, Centered, Light Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble center' => __('Two Columns, Bubble Outline, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble tile center' => __('Two Columns, Bubble Outline, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble fill center' => __('Two Columns, Bubble Filled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two fonts bubble fill tile center' => __('Two Columns, Bubble Filled, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark' => __('Two Columns, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark tile' => __('Two Columns, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble' => __('Two Columns, Bubble Outline, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble tile' => __('Two Columns, Bubble Outline, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble fill' => __('Two Columns, Bubble Filled, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble fill tile' => __('Two Columns, Bubble Filled, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark center' => __('Two Columns, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark center tile' => __('Two Columns, Centered, Dark Background, Tiled', 'g-business-reviews-rating'),
-			'columns two dark bubble center' => __('Two Columns, Bubble Outline, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble tile center' => __('Two Columns, Bubble Outline, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble fill center' => __('Two Columns, Bubble Filled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark bubble fill tile center' => __('Two Columns, Bubble Filled, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns two dark fonts' => __('Two Columns, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts tile' => __('Two Columns, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble' => __('Two Columns, Bubble Outline, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble tile' => __('Two Columns, Bubble Outline, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble fill' => __('Two Columns, Bubble Filled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble fill tile' => __('Two Columns, Bubble Filled, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts center' => __('Two Columns, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts center tile' => __('Two Columns, Centered, Dark Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble center' => __('Two Columns, Bubble Outline, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble tile center' => __('Two Columns, Bubble Outline, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble fill center' => __('Two Columns, Bubble Filled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns two dark fonts bubble fill tile center' => __('Two Columns, Bubble Filled, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three' => __('Three Columns, Light Background', 'g-business-reviews-rating'),
-			'columns three tile' => __('Three Columns, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble' => __('Three Columns, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble tile' => __('Three Columns, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble fill' => __('Three Columns, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble fill tile' => __('Three Columns, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns three center' => __('Three Columns, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns three center tile' => __('Three Columns, Centered, Light Background, Tiled', 'g-business-reviews-rating'),
-			'columns three bubble center' => __('Three Columns, Bubble Outline, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble tile center' => __('Three Columns, Bubble Outline, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble fill center' => __('Three Columns, Bubble Filled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns three bubble fill tile center' => __('Three Columns, Bubble Filled, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns three fonts' => __('Three Columns, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts tile' => __('Three Columns, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble' => __('Three Columns, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble tile' => __('Three Columns, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble fill' => __('Three Columns, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble fill tile' => __('Three Columns, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts center' => __('Three Columns, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts center tile' => __('Three Columns, Centered, Light Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble center' => __('Three Columns, Bubble Outline, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble tile center' => __('Three Columns, Bubble Outline, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble fill center' => __('Three Columns, Bubble Filled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three fonts bubble fill tile center' => __('Three Columns, Bubble Filled, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark' => __('Three Columns, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark tile' => __('Three Columns, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble' => __('Three Columns, Bubble Outline, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble tile' => __('Three Columns, Bubble Outline, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble fill' => __('Three Columns, Bubble Filled, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble fill tile' => __('Three Columns, Bubble Filled, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark center' => __('Three Columns, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark center tile' => __('Three Columns, Centered, Dark Background, Tiled', 'g-business-reviews-rating'),
-			'columns three dark bubble center' => __('Three Columns, Bubble Outline, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble tile center' => __('Three Columns, Bubble Outline, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble fill center' => __('Three Columns, Bubble Filled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark bubble fill tile center' => __('Three Columns, Bubble Filled, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns three dark fonts' => __('Three Columns, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts tile' => __('Three Columns, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble' => __('Three Columns, Bubble Outline, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble tile' => __('Three Columns, Bubble Outline, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble fill' => __('Three Columns, Bubble Filled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble fill tile' => __('Three Columns, Bubble Filled, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts center' => __('Three Columns, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts center tile' => __('Three Columns, Centered, Dark Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble center' => __('Three Columns, Bubble Outline, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble tile center' => __('Three Columns, Bubble Outline, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble fill center' => __('Three Columns, Bubble Filled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns three dark fonts bubble fill tile center' => __('Three Columns, Bubble Filled, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four' => __('Four Columns, Light Background', 'g-business-reviews-rating'),
-			'columns four tile' => __('Four Columns, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble' => __('Four Columns, Bubble Outline, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble tile' => __('Four Columns, Bubble Outline, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble fill' => __('Four Columns, Bubble Filled, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble fill tile' => __('Four Columns, Bubble Filled, Tiled, Light Background', 'g-business-reviews-rating'),
-			'columns four center' => __('Four Columns, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns four center tile' => __('Four Columns, Centered, Light Background, Tiled', 'g-business-reviews-rating'),
-			'columns four bubble center' => __('Four Columns, Bubble Outline, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble tile center' => __('Four Columns, Bubble Outline, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble fill center' => __('Four Columns, Bubble Filled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns four bubble fill tile center' => __('Four Columns, Bubble Filled, Tiled, Centered, Light Background', 'g-business-reviews-rating'),
-			'columns four fonts' => __('Four Columns, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts tile' => __('Four Columns, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble' => __('Four Columns, Bubble Outline, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble tile' => __('Four Columns, Bubble Outline, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble fill' => __('Four Columns, Bubble Filled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble fill tile' => __('Four Columns, Bubble Filled, Tiled, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts center' => __('Four Columns, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts center tile' => __('Four Columns, Centered, Light Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble center' => __('Four Columns, Bubble Outline, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble tile center' => __('Four Columns, Bubble Outline, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble fill center' => __('Four Columns, Bubble Filled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four fonts bubble fill tile center' => __('Four Columns, Bubble Filled, Tiled, Centered, Light Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark' => __('Four Columns, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark tile' => __('Four Columns, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble' => __('Four Columns, Bubble Outline, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble tile' => __('Four Columns, Bubble Outline, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble fill' => __('Four Columns, Bubble Filled, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble fill tile' => __('Four Columns, Bubble Filled, Tiled, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark center' => __('Four Columns, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark center tile' => __('Four Columns, Centered, Dark Background, Tiled', 'g-business-reviews-rating'),
-			'columns four dark bubble center' => __('Four Columns, Bubble Outline, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble tile center' => __('Four Columns, Bubble Outline, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble fill center' => __('Four Columns, Bubble Filled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark bubble fill tile center' => __('Four Columns, Bubble Filled, Tiled, Centered, Dark Background', 'g-business-reviews-rating'),
-			'columns four dark fonts' => __('Four Columns, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts tile' => __('Four Columns, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble' => __('Four Columns, Bubble Outline, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble tile' => __('Four Columns, Bubble Outline, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble fill' => __('Four Columns, Bubble Filled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble fill tile' => __('Four Columns, Bubble Filled, Tiled, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts center' => __('Four Columns, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts center tile' => __('Four Columns, Centered, Dark Background, Tiled with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble center' => __('Four Columns, Bubble Outline, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble tile center' => __('Four Columns, Bubble Outline, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble fill center' => __('Four Columns, Bubble Filled, Centered, Dark Background with Fonts', 'g-business-reviews-rating'),
-			'columns four dark fonts bubble fill tile center' => __('Four Columns, Bubble Filled, Tiled, Centered, Dark Background with Fonts', 'g-business-reviews-rating')
-		);
-		$this->business_types = array(
-			'AnimalShelter' => __('Animal Shelter', 'g-business-reviews-rating'),
-			'ArchiveOrganization' => __('Archive Organization', 'g-business-reviews-rating'),
-			'AutomotiveBusiness' => __('Automotive Business', 'g-business-reviews-rating'),
-			'ChildCare' => __('Child Care', 'g-business-reviews-rating'),
-			'Dentist' => __('Dentist', 'g-business-reviews-rating'),
-			'DryCleaningOrLaundry' => __('Dry Cleaning or Laundry', 'g-business-reviews-rating'),
-			'EmergencyService' => __('Emergency Service', 'g-business-reviews-rating'),
-			'EmploymentAgency' => __('Employment Agency', 'g-business-reviews-rating'),
-			'EntertainmentBusiness' => __('Entertainment Business', 'g-business-reviews-rating'),
-			'FinancialService' => __('Financial Service', 'g-business-reviews-rating'),
-			'FoodEstablishment' => __('Food Establishment', 'g-business-reviews-rating'),
-			'GovernmentOffice' => __('Government Office', 'g-business-reviews-rating'),
-			'HealthAndBeautyBusiness' => __('Health and Beauty Business', 'g-business-reviews-rating'),
-			'HomeAndConstructionBusiness' => __('Home and Construction Business', 'g-business-reviews-rating'),
-			'InternetCafe' => __('Internet Café', 'g-business-reviews-rating'),
-			'LegalService' => __('Legal Service', 'g-business-reviews-rating'),
-			'Library' => __('Library', 'g-business-reviews-rating'),
-			'LodgingBusiness' => __('Lodging Business', 'g-business-reviews-rating'),
-			'MedicalBusiness' => __('Medical Business', 'g-business-reviews-rating'),
-			'ProfessionalService' => __('Professional Service', 'g-business-reviews-rating'),
-			'RadioStation' => __('Radio Station', 'g-business-reviews-rating'),
-			'RealEstateAgent' => __('Real Estate Agent', 'g-business-reviews-rating'),
-			'RecyclingCenter' => __('Recycling Center', 'g-business-reviews-rating'),
-			'SelfStorage' => __('Self Storage', 'g-business-reviews-rating'),
-			'ShoppingCenter' => __('Shopping Center', 'g-business-reviews-rating'),
-			'SportsActivityLocation' => __('Sports Activity Location', 'g-business-reviews-rating'),
-			'Store' => __('Store', 'g-business-reviews-rating'),
-			'TelevisionStation' => __('Television Station', 'g-business-reviews-rating'),
-			'TouristInformationCenter' => __('Tourist Information Center', 'g-business-reviews-rating'),
-			'TravelAgency' => __('Travel Agency', 'g-business-reviews-rating')
-		);
-		$this->price_ranges = array(
-			1 => array(
-					'name' => __('Inexpensive $', 'g-business-reviews-rating'),
-					'symbol' => '$'
-				),
-			2 => array(
-					'name' => __('Moderate $$', 'g-business-reviews-rating'),
-					'symbol' => str_repeat('$', 2)
-				),
-			3 => array(
-					'name' => __('Expensive $$$', 'g-business-reviews-rating'),
-					'symbol' => str_repeat('$', 3)
-				),
-			4 => array(
-					'name' => __('Very Expensive $$$$', 'g-business-reviews-rating'),
-					'symbol' => str_repeat('$', 4)
-				)
-		);
-
-		$this->section = get_option(__CLASS__ . '_section');
-		$this->places = get_option(__CLASS__ . '_places');
-		$this->show_reviews = (!is_numeric(get_option(__CLASS__ . '_limit')) || is_numeric(get_option(__CLASS__ . '_limit')) && get_option(__CLASS__ . '_limit') > 0);
-		$this->count_reviews_all = $this->reviews_count();
-		$this->count_reviews_active = $this->reviews_count(NULL, TRUE);
-		
-		include(plugin_dir_path(__FILE__) . 'templates/settings.php');
-	}
-	
-	public function admin_notices()
-	{
-		// Handle Dashboard notices
-		
-		if (!current_user_can('manage_options', __CLASS__) || !$this->admin_current())
-		{
-			return;
-		}
-		
-		$html = '';
-		
-		if (is_string(get_option(__CLASS__ . '_api_key')) && is_string(get_option(__CLASS__ . '_place_id')))
-		{
-			$this->set_data();
-			
-			if (!isset($this->data['status']) || preg_match('/^OK$/i', $this->data['status']))
-			{
-				$html = '';
-			}
-			elseif (preg_match('/^REQUEST[\s_-]?DENIED$/i', $this->data['status']))
-			{
-				$html = '<div id="google-business-reviews-rating-settings-message" class="notice notice-error invisible is-dismissible">
-	<p>'
-				/* translators: %s refers to useful URLs to resolve errors and should remain untouched */
-				. sprintf(__('<strong>Error:</strong> Your Google API Key is not valid for this request and permission is denied. Please check your Google <a href="%s" target="_blank">API Key</a>.', 'g-business-reviews-rating'), 'https://developers.google.com/maps/documentation/javascript/get-api-key') . '</p>
-</div>
-';
-			}
-			elseif (preg_match('/^INVALID[\s_-]?REQUEST$/i', $this->data['status']))
-			{
-				$html = '<div id="google-business-reviews-rating-settings-message" class="notice notice-error invisible is-dismissible">
-	<p>'
-				/* translators: %s refers to useful URLs to resolve errors and should remain untouched */
-				. sprintf(__('<strong>Error:</strong> Google has returned an invalid request error. Please check your <a href="%s" target="_blank">Place ID</a>.', 'g-business-reviews-rating'), 'https://developers.google.com/places/place-id') . '</p>
-</div>
-';
-			}
-			elseif (preg_match('/^NOT[\s_-]?FOUND$/i', $this->data['status']))
-			{
-				$html = '<div id="google-business-reviews-rating-settings-message" class="notice notice-error invisible is-dismissible">
-	<p>'
-				/* translators: %s refers to useful URLs to resolve errors and should remain untouched */
-				. sprintf(__('<strong>Error:</strong> Google has not found data for the current Place ID. Please ensure you search for a specific business location; not a region or coordinates using the <a href="%s" target="_blank">Place ID Finder</a>.', 'g-business-reviews-rating'), 'https://developers.google.com/places/place-id') . '</p>
-</div>
-';
-			}
-			else
-			{
-				$html = '<div id="google-business-reviews-rating-settings-message" class="notice notice-error invisible is-dismissible">
-	<p>' . ((isset($this->data['error_message'])) ? preg_replace('/\s+rel="nofollow"/i', ' target="_blank"', '<strong>' . __('Error:', 'g-business-reviews-rating') . '</strong> ' . $this->data['error_message']) : __('<strong>Error:</strong> Unknown — Please check Retrieved data to find out more information.', 'g-business-reviews-rating')) . '</p>
-</div>
-';
-			}
-		}
-		
-		if ($html == '')
-		{
-			return;
-		}
-		
-		echo wp_kses($html, array('div' => array('id' => array(), 'class' => array()), 'span' => array('id' => array(), 'class' => array()), 'p' => array('id' => array(), 'class' => array()), 'a' => array('href' => array(), 'target' => array(), 'class' => array()), 'code' => array(), 'strong' => array(), 'em' => array()));
-	}
-	
-	public function admin_ajax()
-	{
-		// Handle AJAX requests from Dashboard
-		
-		$ret = array();
-		$allow_editor = get_option(__CLASS__ . '_editor', TRUE);
-		$this->administrator = (current_user_can('manage_options', __CLASS__));
-		$this->editor = (!$this->administrator && $allow_editor && current_user_can('edit_published_posts', __CLASS__));
-
-		if (!$this->dashboard || (!$this->editor && !$this->administrator))
-		{
-			echo json_encode($ret);
-			wp_die();
-		}
-		
-		$type = (isset($_POST['type']) && is_string($_POST['type'])) ? preg_replace('/[^\w_]/', '', mb_strtolower($this->sanitize_input($_POST['type']))) : NULL;
-		
-		if ($this->editor && !preg_match('/^(?:delete|language|remove|section|sort|status|submitted)$/', $type))
-		{
-			echo json_encode($ret);
-			wp_die();
-		}
-		
-		$section = (isset($_POST['section']) && is_string($_POST['section']) && !preg_match('/^(?:general|setup)$/i', $_POST['section'])) ? preg_replace('/[^\w_-]/', '', mb_strtolower($this->sanitize_input($_POST['section']))) : NULL;
-		$notification_action = (isset($_POST['notification_action']) && is_string($_POST['notification_action']) && mb_strlen($_POST['notification_action']) >= 2 && mb_strlen($_POST['notification_action']) <= 255) ? mb_strtolower($this->sanitize_input($_POST['notification_action'])) : NULL;
-		$review = (isset($_POST['review']) && is_string($_POST['review'])) ? preg_replace('/[^\w_]/', '', $this->sanitize_input($_POST['review'])) : NULL;
-		$reviews = (isset($_POST['reviews']) && is_array($_POST['reviews'])) ? array_unique(stripslashes_deep($_POST['reviews']), SORT_REGULAR) : array();
-		$order = (isset($_POST['order']) && is_array($_POST['order'])) ? array_unique(stripslashes_deep($_POST['order'])) : array();
-		$sort = (isset($_POST['sort']) && is_string($_POST['sort']) && is_string($section) && preg_match('/^reviews$/i', $section) && !preg_match('/^relevance(?:[_-]desc)?$/', $_POST['sort'])) ? preg_replace('/[^\w_-]/', '', mb_strtolower($this->sanitize_input($_POST['sort']))) : NULL;
-		$submitted = (isset($_POST['submitted']) && is_string($_POST['submitted']) && is_string($_POST['submitted'])) ? $this->sanitize_input($_POST['submitted']) : NULL;
-		$status = (isset($_POST['status']) && (is_bool($_POST['status']) && $_POST['status'] || is_string($_POST['status']) && preg_match('/^true$/i', $_POST['status'])));
-		$api_key = (isset($_POST['api_key']) && is_string($_POST['api_key']) && mb_strlen($_POST['api_key']) >= 10 && mb_strlen($_POST['api_key']) <= 255) ? $this->sanitize_input($_POST['api_key']) : NULL;
-		$place_id = (isset($_POST['place_id']) && is_string($_POST['place_id']) && mb_strlen($_POST['place_id']) >= 10 && mb_strlen($_POST['place_id']) <= 255) ? $this->sanitize_input($_POST['place_id']) : NULL;
-		$language = (isset($_POST['language']) && is_string($_POST['language']) && mb_strlen($_POST['language']) >= 2) ? $this->sanitize_input($_POST['language']) : NULL;
-		$retrieval_translate = (isset($_POST['retrieval_translate']) && (is_bool($_POST['retrieval_translate']) && $_POST['retrieval_translate'] || is_string($_POST['retrieval_translate']) && preg_match('/^(?:true|[1-9])$/i', $_POST['retrieval_translate'])));
-		$notifications = (isset($_POST['notifications']) && (is_bool($_POST['notifications']) && $_POST['notifications'] || is_string($_POST['notifications']) && preg_match('/^(?:true|[1-9])$/i', $_POST['notifications'])));
-		$remove_other_places = (isset($_POST['remove_other_places']) && (is_bool($_POST['remove_other_places']) && $_POST['remove_other_places'] || is_string($_POST['remove_other_places']) && preg_match('/^(?:true|[1-9])$/i', $_POST['remove_other_places'])));
-		$update = (isset($_POST['update']) && is_numeric($_POST['update'])) ? intval($_POST['update']) : NULL;
-		$ids = (isset($_POST['id']) && is_string($_POST['id'])) ? preg_split('/,\s*/', $this->sanitize_input($_POST['id'])) : array();
-		$id = (isset($ids[0])) ? $ids[0] : NULL;
-		$stylesheet = (isset($_POST['stylesheet']) && is_numeric($_POST['stylesheet']) && $_POST['stylesheet'] >= 0 && $_POST['stylesheet'] <= 2) ? intval($_POST['stylesheet']) : 1;
-		$javascript = (isset($_POST['javascript']) && is_numeric($_POST['javascript']) && $_POST['javascript'] >= 0 && $_POST['javascript'] <= 2) ? intval($_POST['javascript']) : 1;
-		$custom_styles = (isset($_POST['custom_styles']) && is_string($_POST['custom_styles']) && mb_strlen($_POST['custom_styles']) > 2 && !preg_match('/<\?(?:php|=)?/i', $_POST['custom_styles'])) ? $this->sanitize_input($_POST['custom_styles']) : NULL;
-		$roles_editor = (isset($_POST['roles_editor']) && (is_bool($_POST['roles_editor']) && $_POST['roles_editor'] || is_string($_POST['roles_editor']) && preg_match('/^(?:true|[1-9])$/i', $_POST['roles_editor'])));
-		$import_type = (isset($_POST['import_type']) && is_string($_POST['import_type']) && preg_match('/^(?:original|translation)$/i', $_POST['import_type'])) ? $this->sanitize_input($_POST['import_type']) : NULL;
-		$link = (isset($_POST['link']) && is_string($_POST['link']) && mb_strlen($_POST['link']) < 255) ? $this->sanitize_input($_POST['link']) : NULL;
-		$nonce = (isset($_POST['nonce']) && is_string($_POST['nonce']) && preg_match('/^[0-9a-f]{8,128}$/i', $_POST['nonce'])) ? $this->sanitize_input($_POST['nonce']) : NULL;
-
-		switch($type)
-		{
-		case 'section':
-			if ($this->editor)
-			{
-				$section = ($section == 'shortcodes' || $section == 'about' || $section == 'reviews') ? $section : 'reviews';
-			}
-
-			$this->section = $section;
-			update_option(__CLASS__ . '_section', $this->section, 'no');
-			$ret = array(
-				'success' => TRUE
-			);
-			break;
-		case 'notification_action':
-			if (preg_match('/^notification rate [a-z]{2,25}$/', $notification_action))
-			{
-				self::log($notification_action);
-				$logged = TRUE;
-			}
-
-			$ret = array(
-				'notification_action' => mb_strtolower($notification_action),
-				'link' => $link,
-				'success' => $logged
-			);
-			break;
-		case 'sort':
-			$clear = FALSE;
-			$existing_sort = get_option(__CLASS__ . '_review_sort_admin', NULL);
-			
-			if (is_string($existing_sort))
-			{
-				if (preg_match('/^(.+)[_-](asc|desc)$/', $sort, $m))
-				{
-					$existing_sort = $m[1];
-					$existing_sort_asc = (!isset($m[2]) || isset($m[2]) && ($m[2] == NULL || $m[2] != 'desc'));
-				}
-				else
-				{
-					$existing_sort_asc = (!preg_match('/^(?:date|relevance|retrieved|submitted|time)$/', $existing_sort));
-				}
-			}
-			else
-			{
-				$existing_sort = $existing_sort_asc = NULL;
-			}
-			
-			if (is_string($sort) && $sort != NULL)
-			{
-				if (preg_match('/^(.+)[_-](asc|desc)$/', $sort, $m))
-				{
-					$this->review_sort = $m[1];
-					$this->review_sort_asc = ($m[1] == $existing_sort) ? ($m[2] == 'asc') : (!preg_match('/^(?:date|relevance|retrieved|submitted|time)$/', $this->review_sort));
-					$clear = (($this->review_sort == 'id' || $this->review_sort == 'ids') && ($existing_sort == 'id' || $existing_sort == 'ids') && is_bool($existing_sort_asc) && $existing_sort_asc);
-				}
-				else
-				{
-					$this->review_sort = $sort;
-					$this->review_sort_asc = ($sort == $existing_sort) ? !$existing_sort_asc : (!preg_match('/^(?:date|relevance|retrieved|submitted|time)$/', $this->review_sort));
-				}
-				
-				$sort = $this->review_sort . '_' . (($this->review_sort_asc) ? 'asc' : 'desc');
-			}
-			
-			if ($clear || !$clear && (!is_string($sort) || $sort == NULL))
-			{
-				$sort = NULL;
-				$this->review_sort = NULL;
-				$this->review_sort_asc = FALSE;
-			}
-	
-			update_option(__CLASS__ . '_review_sort_admin', $sort, 'no');
-			$ret = array(
-				'ids' => $this->get_reviews('ids'),
-				'clear' => $clear,
-				'review_sort' => $this->review_sort,
-				'review_sort_asc' => $this->review_sort_asc,
-				'success' => TRUE
-			);
-			$this->review_sort = $sort;
-			break;
-		case 'welcome':
-			$this->section = get_option(__CLASS__ . '_section');
-
-			if ($this->section != 'welcome')
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce_' . $this->section))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			$this->sanitize_api_key($api_key);
-			$this->sanitize_place_id($place_id);
-			$this->section = NULL;
-			update_option(__CLASS__ . '_api_key', $this->api_key, 'no');
-			update_option(__CLASS__ . '_place_id', $this->place_id, 'no');
-			update_option(__CLASS__ . '_language', $language, 'no');
-			update_option(__CLASS__ . '_retrieval_translate', $retrieval_translate, 'no');
-			update_option(__CLASS__ . '_update', $update, 'no');
-			update_option(__CLASS__ . '_section', $this->section, 'no');
-
-			$ret = array(
-				'message' => __('Successfully set Google Places credentials.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'demo':
-			$this->section = get_option(__CLASS__ . '_section');
-
-			if ($this->section != 'welcome')
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce_' . $this->section))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->section = NULL;
-			$this->sanitize_demo(TRUE);
-			update_option(__CLASS__ . '_demo', $this->demo, 'yes');
-			update_option(__CLASS__ . '_section', $this->section, 'no');
-			
-			$ret = array(
-				'success' => TRUE
-			);
-			break;
-		case 'import':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'count' => 0,
-					'errors' => array(),
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if ($this->demo || empty($reviews))
-			{
-				$ret = array(
-					'count' => 0,
-					'errors' => array(),
-					'message' => __('No reviews imported.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->set_data();
-			$review_backup = (is_array($this->reviews)) ? $this->reviews : array();
-			$add = array();
-			$errors = array();
-			
-			foreach ($reviews as $i => $review)
-			{
-				if (!is_numeric($review['rating']))
-				{
-					if (!array_key_exists('rating', $errors))
-					{
-						$errors['rating'] = array();
-					}
-					
-					$errors['rating'][] = $i;
-					continue;
-				}
-				
-				if (!preg_match('/^.+[^\d](\d{20,120})(?:[^\d].*)?$/', $review['author_url'], $m))
-				{
-					if (!array_key_exists('author', $errors))
-					{
-						$errors['author'] = array();
-					}
-					
-					$errors['author'][] = $i;
-					continue;
-				}
-				
-				$author_url_id = $m[1];
-
-				foreach ($this->reviews as $key => $a)
-				{
-					if (!preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $a['author_url'], $m))
-					{
-						continue;
-					}
-					
-					if ($review['author_name'] == $a['author_name'] || $author_url_id == $m[1])
-					{
-						continue(2);
-					}
-				}
-			
-				$add[] = $i;
-			}
-			
-			$use_relative_time_description = (!$this->translation_exists(TRUE));
-			$max_id = (is_array($this->reviews) && !empty($this->reviews)) ? ((function_exists('array_column')) ? max(array_column($this->reviews, 'id')) : count($this->reviews)) : 0;
-			$count = 0;
-			
-			foreach ($add as $i)
-			{
-				$review = $this->sanitize_array($reviews[$i]);
-				$relevance = FALSE;
-				
-				if (!preg_match('/^(\d+)[^\d]+(\d+)[^\d]+(\d+)(?:[^\d].*)?$/', $review['time'], $t))
-				{
-					if (!array_key_exists('time', $errors))
-					{
-						$errors['time'] = array();
-					}
-					
-					$errors['time'][] = $i;
-					continue;
-				}
-				
-				$time = mktime(0, 0, 0, $t[2], $t[3], $t[1]);
-				$key = $time . '_' . $review['rating'] . '_' . md5($review['author_name'] . '_' . mb_substr($review['text'], 0, 100));
-				
-				if (array_key_exists($key, $this->reviews))
-				{
-					continue;
-				}
-				
-				$language = (array_key_exists('language', $review) && $review['text'] != NULL) ? $review['language'] : (((array_key_exists('translated', $review) && (!$review['translated'] || $review['translated'] && $import_type == 'translated')) && $review['text'] != NULL) ? preg_replace('/^(?:[^?]+)\?(?:hl=([0-9a-z]+)[0-9a-z-]*).+$/i', '$1', $review['author_url']) : NULL);
-				$author_url = preg_replace('/^([^?]+)(?:\?.+)?$/', '$1', $review['author_url']);
-				
-				if (is_array($order) && !empty($order))
-				{
-					foreach (array_values($order) as $i => $author_url_check)
-					{
-						if ($author_url == $author_url_check)
-						{
-							$relevance = $i + 1;
-							break;
-						}
-					}
-				}
-				
-				$a = array(
-					'id' => $max_id + $count + 1,
-					'place_id' => $this->place_id,
-					'order' => (is_numeric($relevance)) ? $relevance : $max_id + $count + 1,
-					'author_name' => $review['author_name'],
-					'author_url' => $author_url,
-					'language' => $language,
-					'rating' => round($review['rating']),
-					'relative_time_description' => $this->get_relative_time_description($time, $review['relative_time_description'], $use_relative_time_description),
-					'text' => ($review['text'] != NULL) ? $review['text'] : NULL,
-					'time' => $time,
-					'checked' => NULL,
-					'retrieved' => NULL,
-					'imported' => time(),
-					'time_estimate' => TRUE,
-					'status' => TRUE
-				);
-
-				if (!get_option(__CLASS__ . '_local_images', FALSE))
-				{
-					list($a['profile_photo_url']) = $this->set_avatar($review, $key);
-				}
-				else
-				{
-					list($a['profile_photo_url'], $a['avatar']) = $this->set_avatar($review, $key);
-				}
-
-				$this->reviews[$key] = $a;
-				$count++;
-			}
-			
-			if ($count < 1)
-			{
-				$message = array(__('No reviews imported', 'g-business-reviews-rating'));
-				
-				if (!empty($errors))
-				{
-					if (array_key_exists('author', $errors) && !empty($errors['author']))
-					{
-						/* translators: %u: number of reviews and should remain untouched; mid-sentence phrase */
-						$message[] = sprintf(_n('%u review did not have a valid author URL', '%u reviews did not have valid author URLs', count($errors['author']), 'g-business-reviews-rating'), count($errors['author']));
-					}
-					
-					if (array_key_exists('time', $errors) && !empty($errors['time']))
-					{
-						/* translators: %u: number of reviews and should remain untouched; mid-sentence phrase */
-						$message[] = sprintf(_n('%u review was missing a date', '%u reviews were missing dates', count($errors['time']), 'g-business-reviews-rating'), count($errors['time']));
-					}
-				}
-
-				$ret = array(
-					'count' => $count,
-					'errors' => $errors,
-					/* translators: separator character and spacing between multiple message elements; spacing is important */
-					'message' => implode(__('; ', 'g-business-reviews-rating'), $message),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			global $wpdb;
-
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
-			update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-			
-			$this->set_reviews(TRUE);
-			$this->count_reviews_all = $this->reviews_count();
-			$this->count_reviews_active = $this->reviews_count(NULL, TRUE);
-			
-			if (count($review_backup) >= $this->count_reviews_all)
-			{
-				$this->reviews = $review_backup;
-				update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-				update_option(__CLASS__ . '_additional_array_sanitization', TRUE, 'yes');
-				$this->set_reviews(TRUE);
-				$this->reviews_filtered = $this->reviews;
-				
-				if ($count > 10)
-				{
-					$ret = array(
-						'count' => $count,
-						'errors' => $errors,
-						/* translators: %u: number of reviews and should remain untouched */
-						'message' => sprintf(__('Review import failed. Please select a smaller number of reviews, less than %u.', 'g-business-reviews-rating'), $count),
-						'success' => FALSE
-					);
-					break;
-				}
-
-				$ret = array(
-					'count' => $count,
-					'errors' => $errors,
-					'message' => __('Review import failed.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			$review_verify = get_option(__CLASS__ . '_reviews');
-
-			if (is_array($review_verify) && count($review_verify) == count($this->reviews))
-			{
-				/*
-					Plugin Author Note: There is a fault with the WordPress function maybe_serialize() that causes all reviews to be reset. This check prevents that from happening.
-				*/
-				
-				$review_verify = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", __CLASS__ . '_reviews'));
-				$review_verify = (is_string($review_verify)) ? maybe_unserialize($review_verify) : array();
-			}
-
-			if (!is_array($review_verify) || is_array($review_verify) && count($review_verify) != count($this->reviews))
-			{
-				$this->reviews = $review_backup;
-				update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-				$this->set_reviews(TRUE);
-				$this->set_data(TRUE);
-				self::log('import failed', array('count' => $count, 'errors' => $errors));
-				
-				if ($count > 10)
-				{
-					$ret = array(
-						'count' => $count,
-						'errors' => $errors,
-						/* translators: %u: number of reviews and should remain untouched */
-						'message' => sprintf(__('Review import failed due the handling of serialized data by WordPress. Please select a smaller number of reviews, less than %u.', 'g-business-reviews-rating'), $count),
-						'success' => FALSE
-					);
-					break;
-				}
-				
-
-				$ret = array(
-					'count' => $count,
-					'errors' => $errors,
-					'message' => __('Review import failed due the handling of serialized data by WordPress.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->reviews_filtered = $this->reviews;
-			$this->section = 'reviews';
-			update_option(__CLASS__ . '_section', $this->section, 'no');
-			
-			/* translators: %u: number of reviews and should remain untouched */
-			$message = array(sprintf(_n('Successfully imported %u review.', 'Successfully imported %u reviews.', $count, 'g-business-reviews-rating'), $count));
-			
-			if (!empty($errors))
-			{
-				if (array_key_exists('author', $errors) && !empty($errors['author']))
-				{
-					/* translators: %u: number of reviews and should remain untouched; mid-sentence phrase */
-					$message[] = sprintf(_n('%u review did not have a valid author URL', '%u reviews did not have valid author URLs', count($errors['author']), 'g-business-reviews-rating'), count($errors['author']));
-				}
-				
-				if (array_key_exists('time', $errors) && !empty($errors['time']))
-				{
-					/* translators: %u: number of reviews and should remain untouched; mid-sentence phrase */
-					$message[] = sprintf(_n('%u review was missing a date', '%u reviews were missing dates', count($errors['time']), 'g-business-reviews-rating'), count($errors['time']));
-				}
-			}
-
-			if (!empty($errors))
-			{
-				self::log('import', array('count' => $count, 'errors' => $errors, 'message' => implode('; ', $message)));
-			}
-			else
-			{
-				self::log('import', array('count' => $count, 'message' => implode('; ', $message)));
-			}
-
-			$ret = array(
-				'count' => $count,
-				'errors' => $errors,
-				/* translators: separator character and spacing between multiple message elements; spacing is important */
-				'message' => implode(__('; ', 'g-business-reviews-rating'), $message),
-				'success' => TRUE
-			);
-			break;
-		case 'submitted':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'review' => NULL,
-					'submitted' => FALSE,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->set_data();
-
-			if ($this->demo || !array_key_exists($review, $this->reviews) || !isset($this->reviews[$review]['time_estimate']) || isset($this->reviews[$review]['time_estimate']) && !$this->reviews[$review]['time_estimate'] || !preg_match('/^(\d+)[^\d]+(\d+)[^\d]+(\d+)(?:[^\d].*)?$/', $submitted, $t))
-			{
-				$ret = array(
-					'review' => $review,
-					'submitted' => $submitted,
-					'success' => FALSE
-				);
-				break;	
-			}
-
-			global $wpdb;
-
-			$time = mktime(0, 0, 0, $t[2], $t[3], $t[1]);
-			$this->reviews[$review]['time'] = $time;
-			update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-			
-			$this->set_reviews(TRUE);
-			$this->reviews_filtered = $this->reviews;
-			$ret = array(
-				'review' => $review,
-				'submitted' => $submitted,
-				'time' => $time,
-				'success' => TRUE
-			);
-
-			break;
-		case 'language':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'review' => NULL,
-					'submitted' => FALSE,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->set_data();
-
-			if ($this->demo || !array_key_exists($review, $this->reviews) || $language != NULL && !preg_match('/^(\w{2}l?)(?:[_-](\w+))?$/', $language, $m))
-			{
-				$ret = array(
-					'review' => $review,
-					'language' => $language,
-					'success' => FALSE
-				);
-				break;	
-			}
-
-			global $wpdb;
-
-			$language = ($language != NULL) ? ((isset($m[2]) && $m[2] != NULL) ? $m[1] . '-' . $m[2] : $m[1]) : NULL;
-			$this->reviews[$review]['language'] = $language;
-			update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-			
-			$this->set_reviews(TRUE);
-			$this->reviews_filtered = $this->reviews;
-			$ret = array(
-				'review' => $review,
-				'language' => $language,
-				'success' => TRUE
-			);
-
-			break;
-		case 'icon-delete':
-		case 'icon_delete':
-		case 'icon-remove':
-		case 'icon_remove':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->delete_icon();
-			
-			$ret = array(
-				'id' => NULL,
-				'image' => NULL,
-				'success' => TRUE
-			);
-			break;	
-		case 'icon':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if (!is_numeric($id))
-			{
-				$this->delete_icon();
-				
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'success' => FALSE
-				);
-				break;	
-			}
-			
-			$this->set_icon($id);
-			
-			if (!is_string($this->icon_image_url) || is_string($this->icon_image_url) && mb_strlen($this->icon_image_url) < 5)
-			{
-				$this->delete_icon();
-				
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'success' => FALSE
-				);
-				
-				break;	
-			}
-			
-			$ret = array(
-				'id' => $this->icon_image_id,
-				'image' => preg_replace('/\s+(?:width|height)="\d*"/i', '', wp_get_attachment_image($this->icon_image_id, 'large', FALSE, array('id' => 'icon-image-preview-image'))),
-				'success' => TRUE
-			);
-			break;
-		case 'logo-delete':
-		case 'logo_delete':
-		case 'logo-remove':
-		case 'logo_remove':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->delete_logo();
-			
-			$ret = array(
-				'id' => NULL,
-				'image' => NULL,
-				'success' => TRUE
-			);
-			break;	
-		case 'logo':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!is_numeric($id))
-			{
-				$this->delete_logo();
-				
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'success' => FALSE
-				);
-				break;	
-			}
-			
-			$this->set_logo($id);
-			
-			if (!is_string($this->logo_image_url) || is_string($this->logo_image_url) && mb_strlen($this->logo_image_url) < 5)
-			{
-				$this->delete_logo();
-				
-				$ret = array(
-					'id' => NULL,
-					'image' => NULL,
-					'success' => FALSE
-				);
-				
-				break;	
-			}
-			
-			$ret = array(
-				'id' => $this->logo_image_id,
-				'image' => preg_replace('/\s+(?:width|height)="\d*"/i', '', wp_get_attachment_image($this->logo_image_id, 'large', FALSE, array('id' => 'logo-image-preview-image'))),
-				'success' => TRUE
-			);
-			break;
-		case 'preview':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'html' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$ret = array(
-				'html' => $this->admin_preview(),
-				'status' => $status,
-				'success' => TRUE
-			);
-			break;
-		case 'structured-data':
-		case 'structured_data':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'data' => NULL,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$data = array();
-			
-			if (preg_match('/.+\.(?:jpe?g|png|svg|gif|webp)$/i', $this->logo_image_url))
-			{
-				$data['logo'] = $this->logo_image_url;
-			}
-			
-			if (isset($_POST['telephone']) && is_string($_POST['telephone']) && preg_match('/^[\d _()\[\].+-]+$/', $_POST['telephone']))
-			{
-				$data['telephone'] = $this->sanitize_input($_POST['telephone']);
-			}
-			
-			if (isset($_POST['business_type']) && is_string($_POST['business_type']) && preg_match('/^[\w\s_-]{1,64}$/i', $_POST['business_type']))
-			{
-				$data['business_type'] = $this->sanitize_input($_POST['business_type']);
-			}
-			
-			if (isset($_POST['price_range']))
-			{
-				$data['price_range'] = (is_numeric($_POST['price_range'])) ? intval($_POST['price_range']) : NULL;
-			}
-			
-			$ret = array(
-				'data' => $this->structured_data('json', $data),
-				'success' => TRUE
-			);
-			break;
-		case 'status':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'review' => NULL,
-					'status' => FALSE,
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->set_data();
-
-			if (!array_key_exists($review, $this->reviews) || isset($this->reviews[$review]['status']) && $this->reviews[$review]['status'] == $status)
-			{
-				$ret = array(
-					'review' => $review,
-					'status' => $status,
-					'success' => FALSE
-				);
-				break;	
-			}
-
-			global $wpdb;
-
-			$this->reviews[$review]['status'] = $status;
-			$this->reviews_filtered = $this->reviews;
-			wp_cache_set((($this->demo) ? 'reviews_demo' : 'reviews'), $this->reviews, __CLASS__, HOUR_IN_SECONDS);
-	
-			if (!$this->demo)
-			{
-				update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-			}
-	
-			$ret = array(
-				'review' => $review,
-				'status' => $status,
-				'success' => TRUE
-			);
-			break;
-		case 'styles-scripts':
-		case 'styles_scripts':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if ($stylesheet == get_option(__CLASS__ . '_stylesheet') && $javascript == get_option(__CLASS__ . '_javascript') && $custom_styles == get_option(__CLASS__ . '_custom_styles'))
-			{
-				$ret = array(
-					'success' => TRUE
-				);
-			}
-			
-			update_option(__CLASS__ . '_stylesheet', $stylesheet, 'yes');
-			update_option(__CLASS__ . '_javascript', $javascript, 'yes');
-
-			if ($custom_styles == get_option(__CLASS__ . '_custom_styles'))
-			{
-				$ret = array(
-					'message' => __('Successfully saved style and script preference.', 'g-business-reviews-rating'),
-					'success' => TRUE
-				);
-			}
-						
-			update_option(__CLASS__ . '_custom_styles', $custom_styles, 'yes');
-			$fp = FALSE;
-			$file = plugin_dir_path(__FILE__) . 'wp/css/custom.css';
-
-			if (!is_file($file))
-			{
-				if (!is_writable(plugin_dir_path(__FILE__) . 'wp/css/'))
-				{
-					$ret = array(
-						/* translators: %s: file directory and should remain untouched */
-						'message' => sprintf(__('Cannot create a new file in plugin directory: %s', 'g-business-reviews-rating'), './wp/css/'),
-						'success' => FALSE
-					);
-					break;
-				}
-				
-				$fp = fopen($file, 'w');
-				
-				if (!$fp || !is_file($file))
-				{
-					if ($fp)
-					{
-						fclose($fp);
-					}
-					
-					$ret = array(
-						/* translators: %s: file name and should remain untouched */
-						'message' => sprintf(__('Cannot create a new file: %s', 'g-business-reviews-rating'), './wp/css/custom.css'),
-						'success' => FALSE
-					);
-					break;
-				}
-			}
-			
-			if (!is_writable($file))
-			{
-				$ret = array(
-					/* translators: %s: file name and should remain untouched */
-					'message' => sprintf(__('File at: %s is not writable.', 'g-business-reviews-rating'), './wp/css/custom.css'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if (!$fp)
-			{
-				$fp = fopen($file, 'w');
-			}
-				
-			if (!$fp)
-			{
-				$ret = array(
-					/* translators: %s: file name and should remain untouched */
-					'message' => sprintf(__('Cannot write new data to file at: %s', 'g-business-reviews-rating'), './wp/css/custom.css'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if ($custom_styles != NULL && !fwrite($fp, $custom_styles))
-			{
-				fclose($fp);
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			fclose($fp);
-			
-			$ret = array(
-				'message' => __('Successfully updated styles and scripts.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'clear':
-		case 'cache':
-		case 'clear-cache':
-		case 'clear_cache':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('structured_data', __CLASS__);
-			wp_cache_delete('result', __CLASS__);
-			wp_cache_delete('result_valid', __CLASS__);
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
-			$this->data = array();
-			$this->result = array();
-
-			if (!$this->set_data(TRUE))
-			{
-				if (!is_array($this->result) || !is_array($this->data) || empty($this->result) || empty($this->data))
-				{
-					$ret = array(
-						'message' => __('Unable to reset data.', 'g-business-reviews-rating'),
-						'success' => FALSE
-					);
-					break;
-				}
-
-				if (!is_array(get_option(__CLASS__ . 'result', FALSE)))
-				{
-					if (!get_option(__CLASS__ . '_additional_array_sanitization', FALSE))
-					{
-						$ret = array(
-							'message' => __('Unable to save data, consider enabling additional sanitization of retrieved data.', 'g-business-reviews-rating'),
-							'success' => FALSE
-						);
-						break;
-					}
-					
-					$ret = array(
-						'message' => __('Unable to save data.', 'g-business-reviews-rating'),
-						'success' => FALSE
-					);
-					break;
-				}
-
-				$ret = array(
-					'message' => __('Unable to clear cache.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			$this->section = NULL;
-			update_option(__CLASS__ . '_section', $this->section, 'no');
-			self::log('cache cleared');
-
-			$ret = array(
-				'message' => __('Cache cleared.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'delete':
-		case 'remove':
-			if (!current_user_can('delete_published_posts', __CLASS__))
-			{
-				$ret = array(
-					'message' => __('You do not have sufficient permission to perform this action.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			$this->set_data();
-			
-			if ($this->demo || !array_key_exists($review, $this->reviews) || isset($this->reviews[$review]['time_estimate']) && !$this->reviews[$review]['time_estimate'] && isset($this->reviews[$review]['removable']) && !$this->reviews[$review]['removable'])
-			{
-				$ret = array(
-					'review' => $review,
-					'success' => FALSE
-				);
-				break;	
-			}
-
-			global $wpdb;
-
-			if (isset($this->reviews[$review]['avatar']) && $this->reviews[$review]['avatar'] != NULL)
-			{
-				$upload_directory = wp_get_upload_dir();
-				
-				if (isset($upload_directory['basedir']) && is_string($upload_directory['basedir']))
-				{
-					$upload_directory_plugin = $upload_directory['basedir'] . '/gmbrr';
-				}
-				elseif (isset($upload_directory['path']) && is_string($upload_directory['path']))
-				{
-					$upload_directory_plugin = preg_replace('#^(.+?)(?:/\d+/\d+)/?$#', '$1', $upload_directory['path']) . '/gmbrr';
-				}
-
-				if (is_dir($upload_directory_plugin) && is_file($upload_directory_plugin . '/' . $this->reviews[$review]['avatar']))
-				{
-					@unlink($upload_directory_plugin . '/' . $this->reviews[$review]['avatar']);
-				}
-			}
-
-			unset($this->reviews[$review]);
-			update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
-			
-			$this->set_reviews(TRUE);
-			$this->reviews_filtered = $this->reviews;
-			$ret = array(
-				'review' => $review,
-				'success' => TRUE
-			);
-			break;
-		case 'roles':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!is_bool($roles_editor))
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-
-			update_option(__CLASS__ . '_editor', $roles_editor, 'no');
-
-			$ret = array(
-				'roles' => $roles_editor,
-				'message' => ($roles_editor) ? __('Permission for editors is enabled.', 'g-business-reviews-rating') : __('Permission for editors is disabled.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'reset_notifications':
-			if (!$notifications)
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if (!$this->notification_reset())
-			{
-				$ret = array(
-					'success' => TRUE
-				);
-				break;
-			}
-
-			$ret = array(
-				'message' => __('Notifications successfully reset.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'remove_other_places':
-			if (!$remove_other_places || $this->place_id == NULL)
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (empty($this->places))
-			{
-				$this->places = get_option(__CLASS__ . '_places', array());
-			}
-			
-			if (count($this->places) < 2)
-			{
-				$ret = array(
-					'success' => FALSE
-				);
-				break;
-			}
-
-			foreach ($this->places as $a)
-			{
-				if (!isset($a['place_id']) || $a['place_id'] == $this->place_id)
-				{
-					continue;
-				}
-
-				$this->delete_place($a['place_id']);
-			}
-
-			$this->set_reviews(TRUE);
-			$this->count_reviews_all = $this->reviews_count();
-			$this->count_reviews_active = $this->reviews_count(NULL, TRUE);
-
-			if ($notifications)
-			{
-				$this->notification_reset();
-			}
-
-			update_option(__CLASS__ . '_section', NULL, 'no');
-			$ret = array(
-				'message' => __('Places successfully cleared.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'reset_reviews':
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if ($remove_other_places && $this->place_id != NULL)
-			{
-				if (empty($this->places))
-				{
-					$this->places = get_option(__CLASS__ . '_places', array());
-				}
-				
-				if (count($this->places) >= 2)
-				{
-					foreach ($this->places as $a)
-					{
-						if (!isset($a['place_id']) || $a['place_id'] == $this->place_id)
-						{
-							continue;
-						}
-	
-						$this->delete_place($a['place_id']);
-					}
-				}
-			}
-
-			if ($notifications)
-			{
-				$this->notification_reset();
-			}
-
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
-			update_option(__CLASS__ . '_reviews', NULL, 'no');
-			update_option(__CLASS__ . '_section', NULL, 'no');
-			$this->set_data(TRUE);
-
-			if ($remove_other_places && $this->place_id != NULL)
-			{
-				$ret = array(
-					'message' => __('Places cleared and review archive successfully reset.', 'g-business-reviews-rating'),
-					'success' => TRUE
-				);
-				break;
-			}
-
-			$ret = array(
-				'message' => __('Review archive successfully reset.', 'g-business-reviews-rating'),
-				'success' => TRUE
-			);
-			break;
-		case 'reset':
-			if (!current_user_can('activate_plugins', __CLASS__))
-			{
-				$ret = array(
-					'message' => __('You do not have sufficient permission to perform this action.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-
-			if (!wp_verify_nonce($nonce, 'gmbrr_nonce'))
-			{
-				$ret = array(
-					'message' => __('Your session has expired, please refresh this page.', 'g-business-reviews-rating'),
-					'success' => FALSE
-				);
-				break;
-			}
-			
-			if ($notifications)
-			{
-				$this->notification_reset();
-			}
-			
-			$ret = array(
-				'message' => __('Plugin successfully reset.', 'g-business-reviews-rating'),
-				'success' => $this->reset()
-			);
-			break;
-		default:
-			break;
-		}
-
-		echo json_encode($ret);
-		wp_die();
-	}
-	
-	public static function admin_add_action_links($links, $file)
-	{
-		// Add action link in Dashboard Plugin list
-		
-		if (!preg_match('#^([^/]+).*$#', $file, $m1) || !preg_match('#^([^/]+).*$#', plugin_basename(__FILE__), $m2) || $m1[1] != $m2[1])
-		{
-			return $links;
-		}
-		
-		$new_links = array('settings' => '<a href="' . admin_url('options-general.php?page=google_business_reviews_rating_settings') . '">' . esc_html__('Settings', 'g-business-reviews-rating') . '</a>');
-		$links = array_merge($new_links, $links);
-
-		return $links;
-	}
-	
-	public static function admin_add_plugin_meta($links, $file)
-	{
-		// Add support link in Dashboard Plugin list
-		
-		if (!preg_match('#^([^/]+).*$#', $file, $m1) || !preg_match('#^([^/]+).*$#', plugin_basename(__FILE__), $m2) || $m1[1] != $m2[1])
-		{
-			return $links;
-		}
-		
-		$new_links = array(
-			'reviews' => '<a href="https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post" title="' . esc_attr__('Like our plugin? Please leave a review!', 'g-business-reviews-rating') . '" style="color: #ffb900; line-height: 90%; font-size: 1.3em; letter-spacing: -0.12em; position: relative; top: 0.08em;">★★★★★</a>',
-			'support' => '<a href="https://designextreme.com/wordpress/gmbrr/" target="_blank" title="' . esc_attr__('Support', 'g-business-reviews-rating') . '">' . esc_html__('Support', 'g-business-reviews-rating') . '</a>'
-		);
-		$links = array_merge($links, $new_links);
-				
-		return $links;
-	}
-
-	public function admin_css_load()
-	{
-		// Load style sheet in the Dashboard
-
-		$current_screen = get_current_screen();
-		
-		if (!$this->admin_current() && $current_screen->base != 'dashboard')
-		{
-			return;
-		}
-		
-		wp_register_style(__CLASS__ . '_admin_css', plugins_url('g-business-reviews-rating/admin/css/css.css'));
-		wp_register_style(__CLASS__ . '_wp_css', plugins_url('g-business-reviews-rating/wp/css/css.css'));
-		wp_enqueue_style(__CLASS__ . '_admin_css');
-		wp_enqueue_style(__CLASS__ . '_wp_css');
-		wp_enqueue_media();
-	}
-	
-	public function admin_js_load()
-	{
-		// Load Javascript in the Dashboard
-
-		$current_screen = get_current_screen();
-		
-		if (!$this->admin_current() && $current_screen->base != 'dashboard')
-		{
-			return;
-		}
-
-		wp_register_script(__CLASS__ . '_admin_js', plugins_url('g-business-reviews-rating/admin/js/js.js'));
-		wp_localize_script(__CLASS__ . '_admin_js', __CLASS__ . '_admin_ajax', array('url' => admin_url('admin-ajax.php'), 'action' => 'google_business_reviews_rating_admin_ajax'));
-		wp_register_script(__CLASS__ . '_wp_js', plugins_url('g-business-reviews-rating/wp/js/js.js'), array('jquery'));
-		wp_enqueue_script(__CLASS__ . '_admin_js');
-		wp_enqueue_script(__CLASS__ . '_wp_js');
-	}
-	
-	public function wp_css_load()
-	{
-		// Load style sheet in the front-end
-		
-		$mode = get_option(__CLASS__ . '_stylesheet', TRUE);
-		$compressed = (is_numeric($mode) && $mode == 2 || is_string($mode) && ($mode == 'compress' || $mode == 'compressed' || $mode == 'min'));
-		
-		wp_register_style(__CLASS__ . '_wp_css', ($compressed) ? plugins_url('g-business-reviews-rating/wp/css/css.min.css') : plugins_url('g-business-reviews-rating/wp/css/css.css'));
-		wp_enqueue_style(__CLASS__ . '_wp_css');
-		
-		if (is_file(plugin_dir_path(__FILE__) . 'wp/css/custom.css') && filesize(plugin_dir_path(__FILE__) . 'wp/css/custom.css') > 20)
-		{
-			wp_register_style(__CLASS__ . '_wp_custom_css', plugins_url('g-business-reviews-rating/wp/css/custom.css'));
-			wp_enqueue_style(__CLASS__ . '_wp_custom_css');
-		}
-	}
-	
-	public function wp_js_load()
-	{
-		// Load Javascript in the front-end
-		
-		$mode = get_option(__CLASS__ . '_javascript', TRUE);
-		$compressed = (is_numeric($mode) && $mode == 2 || is_string($mode) && ($mode == 'compress' || $mode == 'compressed' || $mode == 'min'));
-		
-		wp_register_script(__CLASS__ . '_wp_js', ($compressed) ? plugins_url('g-business-reviews-rating/wp/js/js.min.js') : plugins_url('g-business-reviews-rating/wp/js/js.js'), array('jquery'));
-		wp_enqueue_script(__CLASS__ . '_wp_js');
-	}
-	
-	public function get_data($type = 'array', $place_id = NULL, $valid = FALSE)
-	{
-		// Return data from Google Places API, place data or an option value
-		
-		$data = array();
+		$data = [];
 		$ret = NULL;		
-		$retrieved_data_formats = array('boolean', 'html', 'json', 'array', NULL);
+		$retrieved_data_formats = ['boolean', 'html', 'json', 'array', NULL];
+
+		if (!isset($this->api_version))
+		{
+			$this->api_version = $this->get_option('api_version', NULL);
+		}
+
+		if (is_array($place_id))
+		{
+			$place_id = (!empty($place_id)) ? reset($place_id) : NULL;
+		}
 
 		if (is_null($place_id) || !is_string($place_id) || is_string($place_id) && mb_strlen($place_id) < 16)
 		{
@@ -3095,7 +1628,7 @@ class google_business_reviews_rating
 		{
 			if (empty($this->places))
 			{
-				$this->places = ($place_id != $this->place_id) ? get_option(__CLASS__ . '_places', array()) : array();
+				$this->places = ($place_id != $this->place_id) ? $this->get_array_option('places') : [];
 			}
 			
 			if (empty($this->data))
@@ -3112,22 +1645,22 @@ class google_business_reviews_rating
 	
 			if ($this->dashboard && !$valid)
 			{
-				$this->api_key = ($this->api_key != NULL) ? $this->api_key : get_option(__CLASS__ . '_api_key', NULL);
-				$this->place_id = ($this->place_id != NULL) ? $this->place_id : get_option(__CLASS__ . '_place_id', NULL);
+				$this->api_key = ($this->api_key != NULL) ? $this->api_key : $this->get_option('api_key', NULL);
+				$this->place_id = ($this->place_id != NULL) ? $this->place_id : $this->get_option('place_id', NULL);
 				$data = $this->retrieve_data($type);
 			}
 			
 			if (($this->dashboard && $valid) || (!$this->dashboard && !$valid && (!isset($data['status'])) || isset($data['status']) && !preg_match('/^OK$/i', $data['status'])))
 			{
-				$data = get_option(__CLASS__ . '_result_valid', array());
+				$data = $this->get_option('result_valid', []);
 			}
 			elseif (!is_array($data))
 			{
-				$data = ($valid) ? get_option(__CLASS__ . '_result_valid', NULL) : get_option(__CLASS__ . '_result', NULL);
+				$data = ($valid) ? $this->get_option('result_valid', NULL) : $this->get_option('result', NULL);
 				
 				if (!is_array($data))
 				{
-					$data = array();
+					$data = [];
 				}
 			}
 		}
@@ -3144,7 +1677,7 @@ class google_business_reviews_rating
 		case 'boolean':
 			if ($this->dashboard && $valid)
 			{
-				$data_check = get_option(__CLASS__ . '_result', array());
+				$data_check = $this->get_option('result', []);
 				$this->retrieved_data_valid = (empty($data_check) || empty($data) || serialize($data_check) == serialize($data));
 				$ret = $this->retrieved_data_valid;
 				break;
@@ -3157,6 +1690,7 @@ class google_business_reviews_rating
 ';
 			break;
 		case 'address':
+		case 'formattedAddress':
 		case 'formatted_address':
 			if (is_array($this->places))
 			{
@@ -3177,14 +1711,75 @@ class google_business_reviews_rating
 				}
 			}
 			
-			if (isset($this->data['result']['formatted_address']) && $this->data['result']['formatted_address'] != NULL)
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['formattedAddress']) && $this->data['formattedAddress'] != NULL)
+			{
+				$ret = $this->data['formattedAddress'];
+				break;
+			}
+
+			if ($this->api_version == NULL && isset($this->data['result']['formatted_address']) && $this->data['result']['formatted_address'] != NULL)
 			{
 				$ret = $this->data['result']['formatted_address'];
+				break;
 			}
 			
 			break;
 		case 'name':
+			if (is_array($this->places))
+			{
+				foreach ($this->places as $a)
+				{
+					if ($a['place_id'] != $place_id)
+					{
+						continue;
+					}
+					
+					if (!isset($a[$type]) || isset($a[$type]) && $a[$type] == NULL)
+					{
+						break;
+					}
+					
+					$ret = $a[$type];
+					break(2);
+				}
+			}
+
+			if ($this->api_version != NULL && intval($this->api_version) >= 1)
+			{
+				$ret = (isset($this->data['displayName']) && isset($this->data['displayName']['text']) && $this->data['displayName']['text'] != NULL) ? $this->data['displayName']['text'] : NULL;
+				break;
+			}
+
+			$ret = (isset($this->data['result'][$type])) ? $this->data['result'][$type] : NULL;
+			break;
 		case 'vicinity':
+			if (is_array($this->places))
+			{
+				foreach ($this->places as $a)
+				{
+					if ($a['place_id'] != $place_id)
+					{
+						continue;
+					}
+					
+					if (!isset($a[$type]) || isset($a[$type]) && $a[$type] == NULL)
+					{
+						break;
+					}
+					
+					$ret = $a[$type];
+					break(2);
+				}
+			}
+			
+			if ($this->api_version != NULL && intval($this->api_version) >= 1)
+			{
+				$ret = (isset($this->data['shortFormattedAddress']) && $this->data['shortFormattedAddress'] != NULL) ? $this->data['shortFormattedAddress'] : NULL;
+				break;
+			}
+			
+			$ret = (isset($this->data['result'][$type])) ? $this->data['result'][$type] : NULL;
+			break;
 		case 'rating':
 			if (is_array($this->places))
 			{
@@ -3205,20 +1800,34 @@ class google_business_reviews_rating
 				}
 			}
 			
-			if (isset($this->data['result'][$type]) && $this->data['result'][$type] != NULL)
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data[$type]) && $this->data[$type] != NULL)
+			{
+				$ret = $this->data[$type];
+				break;
+			}
+			
+			if ($this->api_version == NULL && isset($this->data['result'][$type]) && $this->data['result'][$type] != NULL)
 			{
 				$ret = $this->data['result'][$type];
 				break;
 			}
 			
-			if ($type != 'rating')
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['reviews']) && is_array($this->data['reviews']) && !empty($this->data['reviews']))
 			{
+				$ratings = [];
+				
+				foreach ($this->data['reviews'] as $a)
+				{
+					$ratings[] = $a['rating'];
+				}
+				
+				$ret = (!empty($ratings)) ? array_sum($ratings)/count($ratings) : 0;
 				break;
 			}
-			
-			if (isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
+
+			if ($this->api_version == NULL && isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
 			{
-				$ratings = array();
+				$ratings = [];
 				
 				foreach ($this->data['result']['reviews'] as $a)
 				{
@@ -3251,15 +1860,34 @@ class google_business_reviews_rating
 				}
 			}
 			
-			if (isset($this->data['result']['rating']) && $this->data['result']['rating'] != NULL)
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['rating']) && $this->data['rating'] != NULL)
+			{
+				$ret = (function_exists('number_format_i18n')) ? number_format_i18n($this->data['rating'], 1) : number_format($this->data['rating'], 1);
+				break;
+			}
+			
+			if ($this->api_version == NULL && isset($this->data['result']['rating']) && $this->data['result']['rating'] != NULL)
 			{
 				$ret = (function_exists('number_format_i18n')) ? number_format_i18n($this->data['result']['rating'], 1) : number_format($this->data['result']['rating'], 1);
 				break;
 			}
 						
-			if (isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['reviews']) && is_array($this->data['reviews']) && !empty($this->data['reviews']))
 			{
-				$ratings = array();
+				$ratings = [];
+				
+				foreach ($this->data['reviews'] as $a)
+				{
+					$ratings[] = $a['rating'];
+				}
+				
+				$ret = (!empty($ratings)) ? ((function_exists('number_format_i18n')) ? number_format_i18n(array_sum($ratings)/count($ratings), 1) : number_format(array_sum($ratings)/count($ratings), 1)) : 0;
+				break;
+			}
+						
+			if ($this->api_version == NULL && isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
+			{
+				$ratings = [];
 				
 				foreach ($this->data['result']['reviews'] as $a)
 				{
@@ -3291,7 +1919,11 @@ class google_business_reviews_rating
 				}
 			}
 			
-			if (isset($this->data['result']['user_ratings_total']) && $this->data['result']['user_ratings_total'] != NULL)
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['userRatingCount']) && $this->data['userRatingCount'] != NULL)
+			{
+				$ret = intval($this->data['userRatingCount']);
+			}
+			elseif ($this->api_version == NULL && isset($this->data['result']['user_ratings_total']) && $this->data['result']['user_ratings_total'] != NULL)
 			{
 				$ret = intval($this->data['result']['user_ratings_total']);
 			}
@@ -3307,7 +1939,13 @@ class google_business_reviews_rating
 				break;
 			}
 			
-			if (isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['reviews']) && is_array($this->data['reviews']))
+			{
+				$ret = count($this->data['reviews']);
+				break;
+			}
+
+			if ($this->api_version == NULL && isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']))
 			{
 				$ret = count($this->data['result']['reviews']);
 			}
@@ -3335,7 +1973,13 @@ class google_business_reviews_rating
 				}
 			}
 			
-			if (isset($this->data['result']['user_ratings_total']) && $this->data['result']['user_ratings_total'] != NULL)
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['userRatingCount']) && $this->data['userRatingCount'] != NULL)
+			{
+				$ret = (function_exists('number_format_i18n')) ? number_format_i18n($this->data['userRatingCount'], 0) : number_format($this->data['userRatingCount'], 0);
+				break;
+			}
+
+			if ($this->api_version == NULL && isset($this->data['result']['user_ratings_total']) && $this->data['result']['user_ratings_total'] != NULL)
 			{
 				$ret = (function_exists('number_format_i18n')) ? number_format_i18n($this->data['result']['user_ratings_total'], 0) : number_format($this->data['result']['user_ratings_total'], 0);
 				break;
@@ -3347,7 +1991,12 @@ class google_business_reviews_rating
 				break;
 			}
 			
-			if (isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
+			if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['reviews']) && is_array($this->data['reviews']) && !empty($this->data['reviews']))
+			{
+				$ret = (function_exists('number_format_i18n')) ? number_format_i18n(count($this->data['reviews']), 0) : number_format(count($this->data['reviews']), 0);
+			}
+
+			if ($this->api_version == NULL && isset($this->data['result']['reviews']) && is_array($this->data['result']['reviews']) && !empty($this->data['result']['reviews']))
 			{
 				$ret = (function_exists('number_format_i18n')) ? number_format_i18n(count($this->data['result']['reviews']), 0) : number_format(count($this->data['result']['reviews']), 0);
 			}
@@ -3360,8 +2009,9 @@ class google_business_reviews_rating
 				break;
 			}
 	
-			$this->logo_image_id = get_option(__CLASS__ . '_logo');
-	
+			$logo = $this->get_option('logo');
+			$this->logo_image_id = (is_numeric($logo)) ? intval($logo) : NULL;
+
 			if (is_numeric($this->logo_image_id))
 			{
 				$a = wp_get_attachment_image_src($this->logo_image_id, 'full');
@@ -3374,7 +2024,7 @@ class google_business_reviews_rating
 				}
 			}
 			
-			$seo_titles = get_option('wpseo_titles');
+			$seo_titles = get_option('wpseo_titles', '');
 			
 			if (is_array($seo_titles) && isset($seo_titles['company_logo']) && is_string($seo_titles['company_logo']))
 			{
@@ -3382,7 +2032,7 @@ class google_business_reviews_rating
 				break;
 			}
 			
-			// Intentional continue
+			/* Intentional */
 
 		case 'icon':
 			if ($this->icon_image_url != NULL)
@@ -3391,8 +2041,9 @@ class google_business_reviews_rating
 				break;
 			}
 	
-			$this->icon_image_id = get_option(__CLASS__ . '_icon');
-	
+			$icon = $this->get_option('icon');
+			$this->icon_image_id = (is_numeric($icon)) ? intval($icon) : NULL;
+
 			if (is_numeric($this->icon_image_id))
 			{
 				$a = wp_get_attachment_image_src($this->icon_image_id, 'full');
@@ -3404,8 +2055,14 @@ class google_business_reviews_rating
 					break;
 				}
 			}
-			
-			if (isset($this->data['result']['icon']) && $this->data['result']['icon'] != NULL)
+
+if ($this->api_version != NULL && intval($this->api_version) >= 1 && isset($this->data['iconMaskBaseUri']) && $this->data['iconMaskBaseUri'] != NULL)
+			{
+				$ret = $this->data['iconMaskBaseUri'] . '.svg';
+				break;
+			}
+
+			if ($this->api_version == NULL && isset($this->data['result']['icon']) && $this->data['result']['icon'] != NULL)
 			{
 				$ret = $this->data['result']['icon'];
 				break;
@@ -3430,7 +2087,7 @@ class google_business_reviews_rating
 				}
 			}
 			
-			$retrieval = get_option(__CLASS__ . '_retrieval');
+			$retrieval = $this->get_option('retrieval');
 			
 			if (is_array($retrieval) && isset($retrieval['requests']) && !empty($retrieval['requests']))
 			{
@@ -3452,827 +2109,31 @@ class google_business_reviews_rating
 		
 		return $ret;
 	}
-	
-	public function set_data($force = NULL, $api_key = NULL, $place_id = NULL)
+
+/* Update stored record of all reviews collected */
+
+	public function set_reviews(bool $force = FALSE): bool
 	{
-		// Set data from Google Places with cache check
+		if ($this->api_version == NULL)
+		{
+			$this->api_version = $this->get_option('api_version', NULL);
+		}
 		
-		if (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST || (!is_bool($force) || !$force) && ((defined('DOING_CRON') && DOING_CRON) || $this->dashboard && (isset($_POST['action']) && is_string($_POST['action']) && preg_match('/(?:[\b_-]|^)heartbeat(?:[\b_-]|$)/i', $_POST['action']) || isset($_POST['type']) && is_string($_POST['type']) && preg_match('/(?:[\b_-]|^)cache(?:[\b_-]|$)/i', $_POST['type']) || isset($_POST['log']) && $_POST['log'] != NULL)))
+		if (!$this->valid() || empty($this->data) || !empty($this->data) && ($this->api_version != NULL && intval($this->api_version) >= 1 && (!isset($this->data['reviews']) || !is_array($this->data['reviews'])) || $this->api_version == NULL && (!isset($this->data['result']['reviews']) || !is_array($this->data['result']['reviews']))))
 		{
 			return FALSE;
 		}
 		
-		if (!is_bool($force) || !$force)
-		{
-			$force_check = get_transient(__CLASS__ . '_force');
-			
-			if (is_string($force_check) && preg_match('#^(\d+(?:\.\d+)?)/0$#', $force_check, $m))
-			{
-				$force = ((time() - intval($m[1])) < 10);
-				delete_transient(__CLASS__ . '_force');
-			}
-		}
-
-		$this->api_key = ($api_key != NULL) ? $api_key : get_option(__CLASS__ . '_api_key');
-		$this->place_id = ($place_id != NULL) ? $place_id : get_option(__CLASS__ . '_place_id');		
-		
 		if (!$force)
 		{
-			if ($this->dashboard && $this->request_count == 0) 
-			{
-				$this->data = $this->retrieve_data();
-			}
-			
-			if (is_array($this->data) && !empty($this->data))
-			{
-				$this->set_reviews();
-				return TRUE;
-			}
-			
 			if (!$this->dashboard)
 			{
-				if ($this->demo)
-				{
-					$this->data = wp_cache_get('result_demo', __CLASS__);
-				}
-				elseif (wp_cache_get('result_valid', __CLASS__) != FALSE)
-				{
-					$this->data = wp_cache_get('result_valid', __CLASS__);
-				}
-				elseif (wp_cache_get('result', __CLASS__) != FALSE)
-				{
-					$this->data = wp_cache_get('result', __CLASS__);
-				}
-			}
-			
-			if (is_array($this->data) && !empty($this->data))
-			{
-				$this->set_reviews();
-				return TRUE;
-			}
-			
-			if ($this->demo)
-			{
-				$this->data = $this->retrieve_data();
-				$this->set_reviews();
-				return (is_array($this->data) && !empty($this->data));
-			}
-			
-			$this->data = ($this->retrieved_data_valid) ? get_option(__CLASS__ . '_result', NULL) : get_option(__CLASS__ . '_result_valid', NULL);
-			
-			if ((!is_array($this->data) || is_array($this->data) && empty($this->data)) && $this->request_count == 0)
-			{
-				$this->request_count++;
-				$this->data = $this->retrieve_data();
-				
-				if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-				{
-					return FALSE;
-				}
-				
-				update_option(__CLASS__ . '_result', $this->data, 'no');
-				wp_cache_add('result', $this->data, __CLASS__, HOUR_IN_SECONDS);
-				$this->set_reviews();
-				return TRUE;
-			}
-			
-			$this->set_reviews();
-			return TRUE;
-		}
-		
-		wp_cache_delete('structured_data', __CLASS__);
-		wp_cache_delete((($this->demo) ? 'result_demo' : 'result'), __CLASS__);
+				$cached = wp_cache_get((($this->demo) ? 'reviews_demo' : 'reviews'), self::OPTION_PREFIX);
 
-		if ($this->request_count > 2)
-		{
-			return FALSE;
-		}
-		
-		$this->data = $this->retrieve_data('array', TRUE);
-		
-		if ($this->demo)
-		{
-			wp_cache_add('result_demo', $this->data, __CLASS__, HOUR_IN_SECONDS);
-
-			$this->set_reviews();
-			
-			return TRUE;
-		}
-		
-		if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-		{
-			$this->data = $this->result;
-			
-			if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-			{
-				return FALSE;
-			}
-		}
-		
-		$this->set_reviews(TRUE);
-
-		return TRUE;
-	}
-	
-	public function retrieve_data($format = 'array', $force = FALSE)
-	{
-		// Collect data from Google Places as JSON string
-		
-		$ret = '';
-
-		if ($this->demo)
-		{
-			$this->result = json_decode(GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT, TRUE);
-
-			switch ($format)
-			{
-			case 'boolean':
-				return TRUE;
-			case 'html':
-				return '	<pre id="google-business-reviews-rating-data">' . esc_html(json_encode($this->result, JSON_PRETTY_PRINT)) . '</pre>
-';
-			case 'json':
-				return GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT;
-			case 'array':
-			default:
-				return $this->result;
-			}
-		}
-
-		if ($this->place_id == NULL || $this->api_key == NULL)
-		{
-			switch ($format)
-			{
-			case 'boolean':
-				return FALSE;
-			case 'html':
-				if ($this->place_id == NULL && $this->api_key == NULL)
+				if (is_array($cached))
 				{
-					$ret = '<p class="error">' . __('Error: Place ID and Google API Key are required.', 'g-business-reviews-rating') . '</p>';
+					$this->reviews = $cached;
 				}
-				elseif ($this->place_id == NULL)
-				{
-					$ret = '<p class="error">' . __('Error: Place ID is required.', 'g-business-reviews-rating') . '</p>';
-				}
-				elseif ($this->api_key == NULL)
-				{
-					$ret = '<p class="error">' . __('Error: Google API Key is required.', 'g-business-reviews-rating') . '</p>';
-				}
-				
-				if ($ret != '')
-				{
-					break;
-				}
-				
-				return '';
-			case 'json':
-				if ($this->place_id == NULL && $this->api_key == NULL)
-				{
-					$ret = json_encode(array(
-						'success' => FALSE,
-						'error' => __('Place ID and Google API Key are required.', 'g-business-reviews-rating')
-					));
-				}
-				elseif ($this->place_id == NULL)
-				{
-					$ret = json_encode(array(
-						'success' => FALSE,
-						'error' => __('Error: Place ID is required.', 'g-business-reviews-rating')
-					));
-				}
-				elseif ($this->api_key == NULL)
-				{
-					$ret = json_encode(array(
-						'success' => FALSE,
-						'error' => __('Error: Google API Key is required.', 'g-business-reviews-rating')
-					));
-				}
-				
-				if ($ret != '')
-				{
-					return $ret;
-				}
-				
-				return '';
-			case 'array':
-			default:
-				return array();
-			}
-		}
-		
-		$data_array = array();
-		$data_string = '';
-		$recheck = FALSE;
-		$retrieval = NULL;
-		$last_retrieval = NULL;
-
-		if ($this->request_count > 2)
-		{
-			$data_array = ($this->dashboard) ? get_option(__CLASS__ . '_result', NULL) : get_option(__CLASS__ . '_result_valid', NULL);
-			
-			if (!is_array($data_array))
-			{
-				$data_array = array();
-			}
-			
-			$this->result = $data_array;
-				
-			switch ($format)
-			{
-			case 'boolean':
-				return (is_array($this->result) && !empty($this->result));
-			case 'html':
-				if ($this->place_id == NULL && $this->api_key == NULL)
-				{
-					$ret = '<p class="error">' . __('Error: Place ID and Google API Key are required.', 'g-business-reviews-rating') . '</p>';
-				}
-				elseif ($this->place_id == NULL)
-				{
-					$ret = '<p class="error">' . __('Error: Place ID is required.', 'g-business-reviews-rating') . '</p>';
-				}
-				elseif ($this->api_key == NULL)
-				{
-					$ret = '<p class="error">' . __('Error: Google API Key is required.', 'g-business-reviews-rating') . '</p>';
-				}
-				
-				if ($ret != '')
-				{
-					break;
-				}
-
-				$data_string = json_encode($data_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-				$ret = '	<pre id="google-business-reviews-rating-data">' . esc_html($data_string) . '</pre>
-';
-				return $ret;
-			case 'json':
-				if (!is_array($data_array) || is_array($data_array) && empty($data_array))
-				{
-					$ret = json_encode(array(
-						'success' => FALSE,
-						'error' => __('Request count exceeded', 'g-business-reviews-rating')
-					));
-					return $ret;
-				}
-				
-				$data_string = json_encode($data_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-				
-				return $data_string;
-			case 'array':
-			default:
-				return $this->result;
-			}
-		}
-		
-		$fields = get_option(__CLASS__ . '_retrieval_fields', NULL);
-		$language = get_option(__CLASS__ . '_language', NULL);
-		$translate = (is_bool(get_option(__CLASS__ . '_retrieval_translate', NULL)) && get_option(__CLASS__ . '_retrieval_translate') || is_string(get_option(__CLASS__ . '_retrieval_translate')) && preg_match('/^(?:1|true)$/i', get_option(__CLASS__ . '_retrieval_translate')) || is_numeric(get_option(__CLASS__ . '_retrieval_translate')) && intval(get_option(__CLASS__ . '_retrieval_translate')) >= 1);
-		
-		if (!is_array($fields))
-		{
-			$fields = array('formatted_address', 'icon', 'id', 'name', 'rating', 'reviews', 'url', 'user_ratings_total', 'vicinity');
-			update_option(__CLASS__ . '_retrieval_fields', $fields, 'no');
-		}
-
-		if ($force)
-		{
-			$retrieval = get_option(__CLASS__ . '_retrieval');
-			
-			if (is_array($retrieval) && isset($retrieval['requests']) && is_array($retrieval['requests']) && count($retrieval) > 1)
-			{
-				$last_retrieval = end($retrieval['requests']);
-				$force = (!isset($last_retrieval['place_id']) || isset($last_retrieval['place_id']) && $last_retrieval['place_id'] != $this->place_id || (!isset($last_retrieval['time']) || isset($last_retrieval['time']) && (time() - $last_retrieval['time']) > 10));
-			}
-		}
-		
-		if (!$force && (!is_array($this->result) || is_array($this->result) && empty($this->result)))
-		{
-			$this->result = ($this->dashboard) ? get_option(__CLASS__ . '_result', NULL) : get_option(__CLASS__ . '_result_valid', NULL);
-		}
-		
-		if (!$force && is_array($this->result) && !empty($this->result))
-		{
-			$data_string = json_encode($this->result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-			$data_array = $this->result;
-		}
-		
-		if ($this->dashboard && !$force && !is_array($retrieval) && (!is_array($this->result) || is_array($this->result) && (empty($this->result) || !empty($this->result) && (!isset($this->result['status']) || $this->settings_updated && isset($this->result['status']) && !preg_match('/^OK$/i', $this->result['status'])))))
-		{
-			$retrieval = get_option(__CLASS__ . '_retrieval');
-			
-			if ($this->settings_updated && (!is_array($retrieval) || !isset($retrieval['requests']) || isset($retrieval['requests']) && count($retrieval['requests']) < 5))
-			{
-				$recheck = TRUE;
-			}
-			elseif (is_array($retrieval) && isset($retrieval['requests']) && is_array($retrieval['requests']))
-			{
-				$last_retrieval = end($retrieval['requests']);
-				$recheck = ((!isset($last_retrieval['place_id']) || isset($last_retrieval['place_id']) && $last_retrieval['place_id'] == $this->place_id) && (!isset($last_retrieval['time']) || isset($last_retrieval['time']) && (time() - $last_retrieval['time']) > 10));
-			}
-		}
-		
-		if ($recheck)
-		{
-			$this->request_count++;
-			
-			if (!$force && $format == 'array')
-			{
-				$this->set_data(TRUE);
-				return (is_array($this->result)) ? $this->result : array();
-			}			
-		}
-		
-		if ($force || $recheck)
-		{
-			if (!function_exists('wp_remote_get') || !function_exists('wp_remote_retrieve_body'))
-			{
-				switch ($format)
-				{
-				case 'boolean':
-					return FALSE;
-				case 'html':
-					$ret = '<p class="error">'
-						/* translators: %s: WordPress function name should remain untouched */
-						. sprintf(__('Error: Required remote collection function not available: <em>%s</em>', 'g-business-reviews-rating'), 'wp_remote_get()')
-						. '</p>';
-					break;
-				case 'json':
-					$ret = json_encode(array(
-						/* translators: %s: WordPress function name should remain untouched */
-						'success' => FALSE,
-						'error' => sprintf(__('Error: Required remote collection function not available: <em>%s</em>', 'g-business-reviews-rating'), 'wp_remote_get()')
-					));
-					break;
-				case 'array':
-				default:
-					$ret = array();
-					break;
-				}
-				
-				return $ret;
-			}
-			
-			$sort = $this->get_retrieval_sort(TRUE);
-			$url = 'https://maps.googleapis.com/maps/api/place/details/json'
-				. '?placeid=' . rawurlencode($this->place_id) 
-				. '&key=' . rawurlencode($this->api_key)
-				. '&fields=' . rawurlencode(implode(',', $fields))
-				. '&reviews_sort=' . rawurlencode($sort)
-				. '&reviews_no_translations=' . rawurlencode((!$translate) ? 'true' : 'false')
-				. (($language != NULL) ? '&language=' . rawurlencode($language) : '');
-			
-			if (version_compare(PHP_VERSION, '8.1') >= 0)
-			{
-				$data_string = wp_remote_retrieve_body(@wp_remote_get($url));
-			}
-			else
-			{
-				$data_string = wp_remote_retrieve_body(wp_remote_get($url));
-			}
-			
-			$data_array = ($data_string != NULL) ? $this->sanitize_array(json_decode($data_string, TRUE)) : NULL;
-
-			if (!is_array($data_array))
-			{
-				switch ($format)
-				{
-				case 'boolean':
-					return FALSE;
-				case 'html':
-					$ret = '<p class="error">'
-						/* translators: %s: WordPress function name should remain untouched */
-						. sprintf(__('Error: Required remote collection function not available: <em>%s</em>', 'g-business-reviews-rating'), $url)
-						. '</p>';
-					break;
-				case 'json':
-					$ret = json_encode(array(
-						'success' => FALSE,
-						/* translators: %s: WordPress function name should remain untouched */
-						'error' => sprintf(__('Error: Unable to collect remote data from URL: <em>%s</em>', 'g-business-reviews-rating'), $url)
-					));
-					break;
-				case 'array':
-				default:
-					$ret = array();
-					break;
-				}
-				
-				return $ret;
-			}
-			
-			$this->result = $data_array;
-			$this->places = get_option(__CLASS__ . '_places');
-
-			if (is_null($retrieval))
-			{
-				$retrieval = get_option(__CLASS__ . '_retrieval');
-			}
-			
-			if (!is_array($retrieval))
-			{
-				$retrieval = array(
-					'count' => 0,
-					'initial' => time(),
-					'requests' => array()
-				);
-			}
-			elseif (!is_array($retrieval['requests']))
-			{
-				$retrieval['requests'] = array();
-			}
-			elseif (count($retrieval['requests']) > 200)
-			{
-				$retrieval['requests'] = array_slice($retrieval['requests'], -200);
-			}
-			
-			$retrieval['requests'][] = array(
-				'time' => time(),
-				'place_id' => $this->place_id,
-				'status' => (isset($this->result['status'])) ? $this->result['status'] : NULL,
-				'name' => (isset($this->result['result']['name'])) ? $this->result['result']['name'] : NULL,
-				'icon' => (isset($this->result['result']['icon'])) ? $this->result['result']['icon'] : NULL,
-				'vicinity' => (isset($this->result['result']['vicinity'])) ? $this->result['result']['vicinity'] : NULL,
-				'rating' => (isset($this->result['result']['rating'])) ? $this->result['result']['rating'] : NULL,
-				'review_ids' => (isset($this->result['result']['reviews']) && is_array($this->result['result']['reviews'])) ? $this->get_review_ids($this->result['result']['reviews']) : NULL,
-				'rating_count' => (isset($this->result['result']['user_ratings_total'])) ? $this->result['result']['user_ratings_total'] : NULL,
-				'review_count' => (isset($this->result['result']['reviews']) && is_array($this->result['result']['reviews'])) ? count($this->result['result']['reviews']) : NULL,
-				'review_sort' => $sort,
-				'dashboard' => ($this->dashboard && (!defined('DOING_CRON') || defined('DOING_CRON') && !DOING_CRON)),
-				'sync' => (defined('DOING_CRON') && DOING_CRON),
-				'count' => $this->request_count
-			);
-			$retrieval['count'] = intval($retrieval['count']) + 1;
-			$retrieval = $this->sanitize_array($retrieval);
-			$this->request_count++;
-
-			update_option(__CLASS__ . '_retrieval', $retrieval, 'no');
-			update_option(__CLASS__ . '_result', $this->result, 'no');
-			wp_cache_add('result', $this->result, __CLASS__, HOUR_IN_SECONDS);
-			
-			if (isset($this->result['result']['reviews']) && is_array($this->result['result']['reviews']) && !empty($this->result['result']['reviews']))
-			{
-				$this->result_valid = $this->result;
-			}
-			
-			$this->retrieved_data_valid = (is_array($this->result_valid) && !empty($this->result_valid));
-				
-			if ($this->retrieved_data_valid)
-			{
-				update_option(__CLASS__ . '_result_valid', $this->result_valid, 'no');
-				wp_cache_add('result_valid', $this->result_valid, __CLASS__, HOUR_IN_SECONDS);
-			}
-			
-			$place_set_key = FALSE;
-			
-			if (!is_array($this->places))
-			{
-				$this->places = array();
-			}
-			else
-			{
-				sort($this->places);
-			}
-			
-			foreach (array_keys($this->places) as $i)
-			{
-				if ($this->places[$i]['place_id'] != $this->place_id)
-				{
-					if ($this->places[$i]['default'])
-					{
-						$this->places[$i]['default'] = FALSE;
-					}
-					
-					if (!array_key_exists('status', $this->places[$i]))
-					{
-						$this->places[$i]['status'] = ($this->places[$i]['name'] != NULL);
-					}
-					
-					continue;
-				}
-				
-				$place_set_key = $i;
-				break;
-			}
-			
-			if (!is_numeric($place_set_key))
-			{
-				$place_set_key = count($this->places);
-			}
-			
-			if (in_array('name', $fields) && array_key_exists($place_set_key, $this->places) && (!isset($this->result['result']['name']) || isset($this->result['result']['name']) && $this->result['result']['name'] == NULL))
-			{
-				$this->places[$place_set_key]['time'] = time();
-				$this->places[$place_set_key]['default'] = TRUE;
-				$this->places[$place_set_key]['status'] = FALSE;
-			}
-			else
-			{
-				if (count($fields) == 9)
-				{
-					$this->places[$place_set_key] = array(
-						'id' => (isset($this->result['result']['id'])) ? $this->result['result']['id'] : NULL,
-						'place_id' => $this->place_id,
-						'time' => time(),
-						'name' => (isset($this->result['result']['name'])) ? $this->result['result']['name'] : NULL,
-						'icon' => (isset($this->result['result']['icon'])) ? $this->result['result']['icon'] : NULL,
-						'vicinity' => (isset($this->result['result']['vicinity'])) ? $this->result['result']['vicinity'] : NULL,
-						'formatted_address' => (isset($this->result['result']['formatted_address'])) ? $this->result['result']['formatted_address'] : NULL,
-						'rating' => (isset($this->result['result']['rating'])) ? $this->result['result']['rating'] : NULL,
-						'rating_count' => (isset($this->result['result']['user_ratings_total'])) ? $this->result['result']['user_ratings_total'] : NULL,
-						'default' => TRUE,
-						'status' => (isset($this->result['result']['name']) && $this->result['result']['name'] != NULL)
-					);
-				}
-				else
-				{
-					$this->places[$place_set_key]['place_id'] = $this->place_id;
-					$this->places[$place_set_key]['time'] = time();
-					$this->places[$place_set_key]['default'] = TRUE;
-					
-					foreach ($fields as $k)
-					{
-						switch($k)
-						{
-						case 'formatted_address':
-						case 'icon':
-						case 'id':
-						case 'rating':
-						case 'vicinity':
-							if (!array_key_exists($k, $this->result['result']))
-							{
-								break;
-							}
-							$this->places[$place_set_key][$k] = $this->result['result'][$k];
-							break;
-						case 'user_ratings_total':
-							if (!array_key_exists($k, $this->result['result']))
-							{
-								break;
-							}
-							$this->places[$place_set_key]['rating_count'] = $this->result['result'][$k];
-							break;
-						case 'name':
-							if (!array_key_exists($k, $this->result['result']))
-							{
-								break;
-							}
-							$this->places[$place_set_key][$k] = $this->result['result'][$k];
-							$this->places[$place_set_key]['status'] = ($this->result['result'][$k] != NULL);
-							break;
-						}
-					}
-				}
-			}
-			
-			sort($this->places);
-			$this->places = $this->sanitize_array($this->places);
-			update_option(__CLASS__ . '_places', $this->places, 'yes');
-		}
-		
-		switch ($format)
-		{
-		case 'boolean':
-			return (is_array($data_array) && !empty($data_array));
-		case 'html':
-			if (!is_string($data_string) || is_string($data_string) && $data_string == NULL)
-			{
-				$ret = '	<p class="error">' . __('Error: Empty result.', 'g-business-reviews-rating') . '</p>';
-				return $ret;
-			}
-			
-			$ret = '	<pre id="google-business-reviews-rating-data">' . esc_html($data_string) . '</pre>
-';
-			break;
-		case 'json':
-			if (!is_array($data_array) || is_array($data_array) && empty($data_array))
-			{
-				$ret = json_encode(array(
-					'success' => FALSE,
-					'error' => __('Empty result', 'g-business-reviews-rating')
-				));
-				return $ret;
-			}
-			
-			return $data_string;
-		case 'array':
-		default:
-			return $data_array;
-		}
-		
-		return $ret;
-	}
-	
-	public function structured_data($return = FALSE, $data = array())
-	{
-		// Collect Structured Data to display on the home page
-		
-		$test = (is_bool($return) && $return);
-		$string = (is_string($return) && $return == 'json');
-		
-		if ($this->demo)
-		{
-			if ($test)
-			{
-				return FALSE;
-			}
-			
-			if ($string)
-			{
-				return NULL;
-			}
-			
-			echo '';
-			return;
-		}
-		
-		$show_in_page = get_option(__CLASS__ . '_structured_data', 0);
-		$show_in_page = (!$this->dashboard && (is_numeric($show_in_page) && ($show_in_page <= -1 || $show_in_page > 1 && function_exists('get_the_ID') && get_the_ID() == intval($show_in_page)) || (is_bool($show_in_page) && $show_in_page || is_numeric($show_in_page) && intval($show_in_page) == 1) && is_front_page()));
-		
-		if (!$return && !$string && empty($data) && !$show_in_page)
-		{
-			return;
-		}
-		
-		if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-		{
-			$this->set_data();
-
-			if (!isset($this->data['result']) || isset($this->data['result']) && !is_array($this->data['result']))
-			{
-				if ($test)
-				{
-					return FALSE;
-				}
-			
-				if ($string)
-				{
-					return NULL;
-				}
-				
-				echo '';
-				return;
-			}
-		}
-	
-		if (!$this->valid() || $this->reviews_count(NULL, TRUE) < 1 || !isset($this->data['result']['name']) || isset($this->data['result']['name']) && $this->data['result']['name'] == NULL)
-		{
-			if ($test)
-			{
-				return FALSE;
-			}
-		
-			if ($string)
-			{
-				return NULL;
-			}
-			
-			echo '';
-			return;
-		}
-		
-		if ($test)
-		{
-			return TRUE;
-		}
-		
-		if (!$string)
-		{
-			$structured_data = wp_cache_get('structured_data', __CLASS__);
-			if (is_string($structured_data) && mb_strlen($structured_data) > 20)
-			{
-				echo wp_kses($structured_data, array('script' => array('type' => 'application/ld+json')));
-				return;
-			}
-		}
-		
-		$name = $this->get_data('name');
-		$logo = $this->get_data('logo');
-		$address = $this->get_data('address');
-		$rating = $this->get_data('rating');
-		$rating_count = $this->get_data('rating_count');
-		$telephone = get_option(__CLASS__ . '_telephone', FALSE);
-		$business_type = (is_string(get_option(__CLASS__ . '_business_type'))) ? get_option(__CLASS__ . '_business_type') : FALSE;
-		$price_range = (is_numeric(get_option(__CLASS__ . '_price_range', NULL))) ? str_repeat('$', get_option(__CLASS__ . '_price_range')) : FALSE;
-		
-		extract($data, EXTR_OVERWRITE);
-
-		$data = array(
-			'@context' => 'http://schema.org',
-			'@type' => 'LocalBusiness',
-			'name' => ($name != NULL) ? $name : FALSE,
-			'address' => ($address != NULL) ? $address : FALSE,
-			'image' => ($logo != NULL) ? $logo : FALSE,
-			'url' => get_site_url(),
-			'telephone' => ($telephone != NULL) ? $telephone : FALSE,
-			'additionalType' => ($business_type != NULL) ? $business_type : FALSE,
-			'priceRange' => ($price_range != NULL) ? $price_range : FALSE,
-			'AggregateRating' => array(
-				'@type' => 'AggregateRating',
-				'itemReviewed' => ($name != NULL) ? $name : FALSE,
-				'ratingCount' => 5,
-				'ratingValue' => (is_numeric($rating)) ? floatval($rating) : FALSE,
-				'ratingCount' => (is_numeric($rating_count)) ? $rating_count : 0
-			),
-			'review' => array()
-		);
-		
-		foreach ($this->reviews as $a)
-		{
-			if (!$a['status'])
-			{
-				continue;
-			}
-			
-			if (count($data['review']) >= 5)
-			{
-				break;
-			}
-			
-			$data['review'][] = array(
-				'@type' => 'Review',
-				'author' => array(
-					'@type' => 'Person',
-					'name' => ($a['author_name'] != NULL) ? $a['author_name'] : FALSE
-				),
-				'datePublished' => (function_exists('wp_date')) ? wp_date("Y-m-d", $a['time']) : date("Y-m-d", $a['time']),
-				'description' => (mb_strlen($a['text']) > 1) ? strip_tags($a['text']) : FALSE,
-				'name' => ($name != NULL) ? $name : FALSE,
-				'reviewRating' => array(
-					'@type' => 'Rating',
-					'bestRating' => 5,
-					'ratingValue' => $a['rating'],
-					'worstRating' => 1
-				)
-			);
-		}
-		
-		$data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		$structured_data = '<script type="application/ld+json">' . PHP_EOL . '[ ' . $data . ' ]' . PHP_EOL . '</script>';
-		wp_cache_add('structured_data', $structured_data, __CLASS__, HOUR_IN_SECONDS);
-		
-		if ($string)
-		{
-			return $data;
-		}
-		
-		echo wp_kses($structured_data, array('script' => array('type' => 'application/ld+json')));
-		return;
-	}
-	
-	private function admin_preview($post = array())
-	{
-		// Handling front-end previews from the Dashboard
-		
-		if (empty($this->data))
-		{
-			$this->set_data();
-		}
-
-		if (!is_array($post) || is_array($post) && empty($post))
-		{
-			$post = $this->sanitize_input($_POST);
-		}
-		
-		$theme = (isset($post['theme'])) ? $post['theme'] : NULL;
-		$post['type'] = 'reviews';
-		$post['errors'] = TRUE;
-		$post['animate'] = FALSE;
-		$post['cursor'] = FALSE;
-		$post['draggable'] = FALSE;
-		$post['local_images'] = (isset($post['local_images']) && (is_bool($post['local_images']) && $post['local_images'] || is_string($post['local_images']) && preg_match('/^(?:t(?:rue)?|y?(?:es)?|1|on|show|local)$/i', $post['local_images'])));
-		$post['stylesheet'] = (!isset($post['stylesheet']) || isset($post['stylesheet']) && (is_bool($post['stylesheet']) && $post['stylesheet'] || is_numeric($post['stylesheet']) && $post['stylesheet'] > 0 || is_string($post['stylesheet']) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $post['stylesheet'])));
-		
-		if (preg_match('/\bthree\b/i', $theme) && (!is_numeric($post['limit']) || is_numeric($post['limit']) && $post['limit'] > 9))
-		{
-			$post['limit'] = 9;
-		}
-		elseif (preg_match('/\b(?:four|six)\b/i', $theme) && (!is_numeric($post['limit']) || is_numeric($post['limit']) && $post['limit'] > 12))
-		{
-			$post['limit'] = 12;
-		}
-		elseif (!preg_match('/\b(?:three|four|five)\b/i', $theme) && (!is_numeric($post['limit']) || is_numeric($post['limit']) && $post['limit'] > 10))
-		{
-			$post['limit'] = 10;
-		}
-		
-		$post['admin_preview'] = TRUE;
-
-		return $this->wp_display($post);
-	}
-	
-	public function set_reviews($force = FALSE)
-	{
-		// Update stored record of all reviews collected
-		
-		if (!$this->valid() || empty($this->data) || !empty($this->data) && isset($this->data['result']) && !isset($this->data['result']['reviews']) || isset($this->data['result']) && !is_array($this->data['result']['reviews']))
-		{
-			return FALSE;
-		}
-		
-		if (!$force)
-		{
-			if (!$this->dashboard && wp_cache_get((($this->demo) ? 'reviews_demo' : 'reviews'), __CLASS__) != FALSE)
-			{
-				$this->reviews = wp_cache_get((($this->demo) ? 'reviews_demo' : 'reviews'), __CLASS__);
 			}
 			
 			if (is_array($this->reviews) && !empty($this->reviews))
@@ -4281,118 +2142,301 @@ class google_business_reviews_rating
 				return TRUE;
 			}
 		}
-		
-		wp_cache_delete('structured_data', __CLASS__);
-		wp_cache_delete((($this->demo) ? 'reviews_demo' : 'reviews'), __CLASS__);
 
-		$this->reviews = (!$this->demo && is_array(get_option(__CLASS__ . '_reviews'))) ? get_option(__CLASS__ . '_reviews') : array();
-		$this->local_images = get_option(__CLASS__ . '_local_images', FALSE);
-		$retrieval_sort = get_option(__CLASS__ . '_retrieval_sort', 'most_relevant');
+wp_cache_delete('structured_data', self::OPTION_PREFIX);
+		wp_cache_delete((($this->demo) ? 'reviews_demo' : 'reviews'), self::OPTION_PREFIX);
+		
+		$this->settings(TRUE);
+		$this->reviews = (!$this->demo) ? $this->get_array_option('reviews') : [];
+
+		if (!$this->demo && $this->set_review_identity())
+		{
+			$this->update_option('reviews', $this->reviews, 'no');
+		}
+
+		$this->local_images = $this->get_option('local_images', FALSE);
+		$language = $this->get_option('language', NULL);
+		$translate = (is_bool($this->get_option('retrieval_translate', NULL)) && $this->get_option('retrieval_translate') || is_string($this->get_option('retrieval_translate')) && preg_match('/^(?:1|true)$/i', $this->get_option('retrieval_translate')) || is_numeric($this->get_option('retrieval_translate')) && intval($this->get_option('retrieval_translate')) >= 1);
+		$retrieval_sort = $this->get_option('retrieval_sort', 'most_relevant');
 		$retrieval_sort_current = $this->get_retrieval_sort();
 		$use_relative_time_description = (!$this->translation_exists(TRUE));
 		$relative_time_description_update = FALSE;
-		$max_id = (!empty($this->reviews) && function_exists('array_column')) ? max(array_column($this->reviews, 'id')) : count($this->reviews);
+		$max_id = 0;
+
+		foreach ($this->reviews as $a)
+		{
+			if (is_array($a) && isset($a['id']) && is_numeric($a['id']) && intval($a['id']) > $max_id)
+			{
+				$max_id = intval($a['id']);
+			}
+		}
 		$relevance = ($retrieval_sort_current != $retrieval_sort && $retrieval_sort_current == 'newest' && count($this->reviews) >= 5) ? 5 : 1;
 		$count = 1;
-		$checked_ids = array();
+		$checked_keys = [];
+		$reviews = ($this->api_version != NULL && $this->api_version >= 1) ? $this->data['reviews'] : (isset($this->data['result']['reviews']) ? $this->data['result']['reviews'] : []);
+
+		$this->reviews = array_filter($this->reviews,
+			function ($v, $k)
+			{
+				return (array_key_exists('rating', $v) && array_key_exists('time', $v) && array_key_exists('author_name', $v));
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
 		
-		foreach ($this->data['result']['reviews'] as $review)
+		foreach ($reviews as $review)
 		{
-			$a = array();
-			$key = $review['time'] . '_' . $review['rating'] . '_' . md5($review['author_name'] . '_' . mb_substr($review['text'], 0, 100));
+			$key = NULL;
 			
 			if (!$this->demo)
 			{
-				if (($force || $this->dashboard) && array_key_exists($key, $this->reviews))
+				switch ($this->api_version)
 				{
-					$this->reviews[$key]['relative_time_description'] = $this->get_relative_time_description($review['time'], $review['relative_time_description'], $use_relative_time_description);
-					$this->reviews[$key]['checked'] = time();
-					$this->reviews[$key]['order'] = $relevance;
-					$this->reviews[$key]['removable'] = FALSE;
-					$checked_ids[] = $this->reviews[$key]['id'];
-					$relevance++;
-					continue;
-				}
-				
-				foreach (array_keys($this->reviews) as $key_temp)
-				{
-					$author_url_id = (array_key_exists('author_url', $this->reviews[$key_temp]) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $this->reviews[$key_temp]['author_url'], $m)) ? $m[1] : NULL;
-					$author_check = ($author_url_id != NULL && array_key_exists('author_url', $review) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $review['author_url'], $m)) ? ($author_url_id == $m[1]) : ($author_url_id == NULL);
-		
-					if ($this->reviews[$key_temp]['author_name'] != $review['author_name'] || !$author_check)
+				case 1:
+					$author_id = (isset($review['authorAttribution']['uri']) && is_string($review['authorAttribution']['uri']) && preg_match('/(\d{20,120})/', $review['authorAttribution']['uri'], $m)) ? $m[1] : NULL;
+					$key = ($author_id != NULL && $this->place_id != NULL) ? $this->place_id . '_' . $author_id : (isset($review['publishTime']) ? (strtotime($review['publishTime']) ?: 0) : 0) . '_' . (isset($review['rating']) ? $review['rating'] : '') . '_' . md5(((isset($review['authorAttribution']['displayName']) && is_string($review['authorAttribution']['displayName'])) ? $review['authorAttribution']['displayName'] : '') . '_' . mb_substr(((isset($review['originalText']['text']) && is_string($review['originalText']['text'])) ? $review['originalText']['text'] : ''), 0, 100));
+
+					if (($force || $this->dashboard) && array_key_exists($key, $this->reviews))
 					{
-						continue;
+						$this->reviews[$key]['relative_time_description'] = (isset($review['publishTime']) && isset($review['relativePublishTimeDescription'])) ? $this->get_relative_time_description($review['publishTime'], $review['relativePublishTimeDescription'], $use_relative_time_description) : $this->get_relative_time_description((isset($review['publishTime'])) ? $review['publishTime'] : NULL, NULL, TRUE);
+						$this->reviews[$key]['checked'] = time();
+						$this->reviews[$key]['removable'] = FALSE;
+						$checked_keys[] = $this->reviews[$key]['id'];
+						$relevance++;
+						continue(2);
 					}
-	
-					$review = array_merge($this->reviews[$key_temp], $review);
-					unset($this->reviews[$key_temp]);
-	
-					$review['retrieved'] = time();
-					$review['time_estimate'] = FALSE;
-					$review['order'] = $relevance;
-					$review['removable'] = FALSE;
-					$this->reviews[$key] = $review;
-					$checked_ids[] = $review['id'];
+
+					foreach (array_keys($this->reviews) as $key_temp)
+					{
+						if (isset($this->reviews[$key_temp]['reference']) && $this->reviews[$key_temp]['reference'] != NULL)
+						{
+							if ($this->reviews[$key_temp]['reference'] != $review['name'])
+							{
+								continue;
+							}
+						}
+						else
+						{
+							$author_url_id = (array_key_exists('author_url', $this->reviews[$key_temp]) && $this->reviews[$key_temp]['author_url'] != NULL && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $this->reviews[$key_temp]['author_url'], $m)) ? $m[1] : NULL;
+							$author_check = ($author_url_id != NULL && !empty($review['authorAttribution']['uri']) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $review['authorAttribution']['uri'], $m)) ? ($author_url_id == $m[1]) : ($author_url_id == NULL);
+				
+							if ($this->reviews[$key_temp]['author_name'] != ($review['authorAttribution']['displayName'] ?? NULL) || !$author_check)
+							{
+								continue;
+							}
+						}
+
+						$key = $key_temp;
+						$this->reviews[$key] = [
+							'id' => (isset($this->reviews[$key_temp]['id']) && is_numeric($this->reviews[$key_temp]['id'])) ? $this->reviews[$key_temp]['id'] : $max_id + $count,
+							'author_id' => (isset($review['authorAttribution']['uri']) && is_string($review['authorAttribution']['uri']) && preg_match('/(\d{20,120})/', $review['authorAttribution']['uri'], $m)) ? $m[1] : NULL,
+							'reference' => (isset($review['name']) && is_string($review['name'])) ? $review['name'] : NULL,
+							'place_id' => $this->place_id,
+							'checked' => NULL,
+							'imported' => FALSE,
+							'time_estimate' => FALSE,
+							'status' => (isset($review['rating']) && is_numeric($review['rating']) && $review['rating'] >= 1 && $review['rating'] <= 5),
+							'profile_photo_url' => (isset($review['authorAttribution']['photoUri']) && is_string($review['authorAttribution']['photoUri'])) ? $review['authorAttribution']['photoUri'] : NULL,
+							'avatar' => NULL,
+							'author_name' => (isset($review['authorAttribution']['displayName']) && is_string($review['authorAttribution']['displayName'])) ? $review['authorAttribution']['displayName'] : NULL,
+							'author_url' => (isset($review['authorAttribution']['uri']) && is_string($review['authorAttribution']['uri'])) ? $review['authorAttribution']['uri'] : NULL,
+							'language' => (isset($review['originalText']['languageCode']) && is_string($review['originalText']['languageCode'])) ? $review['originalText']['languageCode'] : NULL,
+							'original_language' => (isset($review['originalText']['languageCode']) && is_string($review['originalText']['languageCode'])) ? $review['originalText']['languageCode'] : NULL,
+							'rating' => (isset($review['rating']) && is_numeric($review['rating']) && $review['rating'] >= 1 && $review['rating'] <= 5) ? intval($review['rating']) : NULL,
+							'text' => (isset($review['originalText']['text']) && is_string($review['originalText']['text'])) ? $review['originalText']['text'] : NULL,
+							'original_text' => NULL,
+							'review_url' => (isset($review['googleMapsUri']) && is_string($review['googleMapsUri'])) ? $review['googleMapsUri'] : NULL,
+							'time' => (isset($review['publishTime'])) ? (strtotime($review['publishTime']) ?: NULL) : NULL,
+							'visit_date' => (isset($review['visitDate']) && is_array($review['visitDate'])) ? ['year' => (isset($review['visitDate']['year']) && is_numeric($review['visitDate']['year'])) ? intval($review['visitDate']['year']) : NULL, 'month' => (isset($review['visitDate']['month']) && is_numeric($review['visitDate']['month'])) ? intval($review['visitDate']['month']) : NULL] : NULL,
+							'translated' => (isset($review['text']['languageCode']) && isset($review['originalText']['languageCode']) && $review['text']['languageCode'] != $review['originalText']['languageCode']),
+							'relative_time_description' => (isset($review['publishTime']) && isset($review['relativePublishTimeDescription'])) ? $this->get_relative_time_description($review['publishTime'], $review['relativePublishTimeDescription'], $use_relative_time_description) : $this->get_relative_time_description((isset($review['publishTime'])) ? $review['publishTime'] : NULL, NULL, TRUE),
+							'retrieved' => time(),
+							'order' => NULL,
+							'removable' => FALSE,
+						];
+
+						if ($language != NULL && $translate && isset($review['text']['languageCode']) && isset($review['originalText']['languageCode']) && $review['text']['languageCode'] != $review['originalText']['languageCode'])
+						{
+							if ($review['text']['languageCode'] == $language)
+							{
+								$this->reviews[$key]['text'] = (isset($review['text']['text']) && is_string($review['text']['text'])) ? $review['text']['text'] : NULL;
+								$this->reviews[$key]['language'] = $language;
+								$this->reviews[$key]['translated'] = TRUE;
+							}
+							elseif ($review['text']['languageCode'] == preg_replace('/^([a-z]{2}l?).*/i', '$1', $language))
+							{
+								$this->reviews[$key]['text'] = (isset($review['text']['text']) && is_string($review['text']['text'])) ? $review['text']['text'] : NULL;
+								$this->reviews[$key]['language'] = $language;
+								$this->reviews[$key]['translated'] = TRUE;
+							}
+						}
+
+						if ($this->reviews[$key]['text'] != NULL && isset($review['originalText']['text']) && is_string($review['originalText']['text']) && $review['originalText']['text'] != $this->reviews[$key]['text'])
+						{
+							$this->reviews[$key]['original_text'] = $review['originalText']['text'];
+						}
+
+						if ($this->reviews[$key]['text'] == NULL)
+						{
+							$this->reviews[$key]['language'] = NULL;
+						}
+
+						$checked_keys[] = $key_temp;
+						$relevance++;
+						continue(3);
+					}
+
+					$this->reviews[$key] = [
+						'id' => $max_id + $count,
+						'author_id' => $author_id,
+						'reference' => (isset($review['name']) && is_string($review['name'])) ? $review['name'] : NULL,
+						'place_id' => $this->place_id,
+						'checked' => NULL,
+						'imported' => FALSE,
+						'time_estimate' => FALSE,
+						'status' => (isset($review['rating']) && is_numeric($review['rating']) && $review['rating'] >= 1 && $review['rating'] <= 5),
+						'profile_photo_url' => (isset($review['authorAttribution']['photoUri']) && is_string($review['authorAttribution']['photoUri'])) ? $review['authorAttribution']['photoUri'] : NULL,
+						'avatar' => NULL,
+						'author_name' => (isset($review['authorAttribution']['displayName']) && is_string($review['authorAttribution']['displayName'])) ? $review['authorAttribution']['displayName'] : NULL,
+						'author_url' => (isset($review['authorAttribution']['uri']) && is_string($review['authorAttribution']['uri'])) ? $review['authorAttribution']['uri'] : NULL,
+						'language' => (isset($review['originalText']['languageCode']) && is_string($review['originalText']['languageCode'])) ? $review['originalText']['languageCode'] : NULL,
+						'original_language' => (isset($review['originalText']['languageCode']) && is_string($review['originalText']['languageCode'])) ? $review['originalText']['languageCode'] : NULL,
+						'rating' => (isset($review['rating']) && is_numeric($review['rating']) && $review['rating'] >= 1 && $review['rating'] <= 5) ? intval($review['rating']) : NULL,
+						'text' => (isset($review['originalText']['text']) && is_string($review['originalText']['text'])) ? $review['originalText']['text'] : NULL,
+						'original_text' => NULL,
+						'review_url' => (isset($review['googleMapsUri']) && is_string($review['googleMapsUri'])) ? $review['googleMapsUri'] : NULL,
+						'time' => (isset($review['publishTime'])) ? (strtotime($review['publishTime']) ?: NULL) : NULL,
+						'visit_date' => (isset($review['visitDate']) && is_array($review['visitDate'])) ? ['year' => (isset($review['visitDate']['year']) && is_numeric($review['visitDate']['year'])) ? intval($review['visitDate']['year']) : NULL, 'month' => (isset($review['visitDate']['month']) && is_numeric($review['visitDate']['month'])) ? intval($review['visitDate']['month']) : NULL] : NULL,
+						'translated' => (isset($review['text']['languageCode']) && isset($review['originalText']['languageCode']) && $review['text']['languageCode'] != $review['originalText']['languageCode']),
+						'relative_time_description' => (isset($review['publishTime']) && isset($review['relativePublishTimeDescription'])) ? $this->get_relative_time_description($review['publishTime'], $review['relativePublishTimeDescription'], $use_relative_time_description) : $this->get_relative_time_description((isset($review['publishTime'])) ? $review['publishTime'] : NULL, NULL, TRUE),
+						'retrieved' => time(),
+						'order' => NULL,
+						'removable' => FALSE,
+					];
+
+					if ($language != NULL && $translate && isset($review['text']['languageCode']) && isset($review['originalText']['languageCode']) && $review['text']['languageCode'] != $review['originalText']['languageCode'])
+					{
+						if ($review['text']['languageCode'] == $language)
+						{
+							$this->reviews[$key]['text'] = (isset($review['text']['text']) && is_string($review['text']['text'])) ? $review['text']['text'] : NULL;
+							$this->reviews[$key]['language'] = $language;
+							$this->reviews[$key]['translated'] = TRUE;
+						}
+						elseif ($review['text']['languageCode'] == preg_replace('/^([a-z]{2}l?).*/i', '$1', $language))
+						{
+							$this->reviews[$key]['text'] = (isset($review['text']['text']) && is_string($review['text']['text'])) ? $review['text']['text'] : NULL;
+							$this->reviews[$key]['language'] = $language;
+							$this->reviews[$key]['translated'] = TRUE;
+						}
+					}
+
+					if ($this->reviews[$key]['text'] != NULL && isset($review['originalText']['text']) && is_string($review['originalText']['text']) && $review['originalText']['text'] != $this->reviews[$key]['text'])
+					{
+						$this->reviews[$key]['original_text'] = $review['originalText']['text'];
+					}
+
+					if (!$this->get_option('local_images', FALSE))
+					{
+						list($this->reviews[$key]['profile_photo_url']) = $this->set_avatar($review, $key);
+					}
+					else
+					{
+						list($this->reviews[$key]['profile_photo_url'], $this->reviews[$key]['avatar']) = $this->set_avatar($review, $key);
+					}
+
+					$checked_keys[] = $key;
 					$relevance++;
-					continue(2);
+					$count++;
+					break;
+				default:
+					$author_id = (isset($review['author_url']) && is_string($review['author_url']) && preg_match('/(\d{20,120})/', $review['author_url'], $m)) ? $m[1] : NULL;
+					$key = ($author_id != NULL && $this->place_id != NULL) ? $this->place_id . '_' . $author_id : $review['time'] . '_' . $review['rating'] . '_' . md5($review['author_name'] . '_' . mb_substr(strval($review['text']), 0, 100));
+					$a = [];
+
+					if (($force || $this->dashboard) && array_key_exists($key, $this->reviews))
+					{
+						$this->reviews[$key]['relative_time_description'] = $this->get_relative_time_description($review['time'], $review['relative_time_description'], $use_relative_time_description);
+						$this->reviews[$key]['checked'] = time();
+						$this->reviews[$key]['removable'] = FALSE;
+						$checked_keys[] = $this->reviews[$key]['id'];
+						$relevance++;
+						continue(2);
+					}
+					
+					foreach (array_keys($this->reviews) as $key_temp)
+					{
+						$author_url_id = (array_key_exists('author_url', $this->reviews[$key_temp]) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $this->reviews[$key_temp]['author_url'], $m)) ? $m[1] : NULL;
+						$author_check = ($author_url_id != NULL && array_key_exists('author_url', $review) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $review['author_url'], $m)) ? ($author_url_id == $m[1]) : ($author_url_id == NULL);
+			
+						if ($this->reviews[$key_temp]['author_name'] != $review['author_name'] || !$author_check)
+						{
+							continue;
+						}
+		
+						$review = array_merge($this->reviews[$key_temp], $review);
+						unset($this->reviews[$key_temp]);
+		
+						$review['retrieved'] = time();
+						$review['time_estimate'] = FALSE;
+						$review['removable'] = FALSE;
+						$this->reviews[$key] = $review;
+						$checked_keys[] = $key_temp;
+						$relevance++;
+						continue(3);
+					}
+
+					$a['id'] = $max_id + $count;
+					$a['author_id'] = $author_id;
+					$a['place_id'] = ($this->demo) ? NULL : $this->place_id;
+					$a['order'] = NULL;
+					$a['checked'] = NULL;
+					$a['retrieved'] = time();
+					$a['imported'] = FALSE;
+					$a['time_estimate'] = FALSE;
+					$a['removable'] = FALSE;
+					$a['status'] = TRUE;
+		
+					if (!$this->get_option('local_images', FALSE))
+					{
+						list($a['profile_photo_url']) = $this->set_avatar($review, $key);
+					}
+					else
+					{
+						list($a['profile_photo_url'], $a['avatar']) = $this->set_avatar($review, $key);
+					}
+		
+					$this->reviews[$key] = $this->sanitize_array($a + $review);
+					$checked_keys[] = $a['id'];
+					$relevance++;
+					$count++;
+					break;
 				}
 			}
-			
-			$a['id'] = $max_id + $count;
-			$a['place_id'] = ($this->demo) ? NULL : $this->place_id;
-			$a['order'] = $relevance;
-			$a['checked'] = NULL;
-			$a['retrieved'] = time();
-			$a['imported'] = FALSE;
-			$a['time_estimate'] = FALSE;
-			$a['removable'] = FALSE;
-			$a['status'] = TRUE;
-
-			if (!get_option(__CLASS__ . '_local_images', FALSE))
-			{
-				list($a['profile_photo_url']) = $this->set_avatar($review, $key);
-			}
-			else
-			{
-				list($a['profile_photo_url'], $a['avatar']) = $this->set_avatar($review, $key);
-			}
-
-			$this->reviews[$key] = $this->sanitize_array($a + $review);
-			$checked_ids[] = $a['id'];
-			$relevance++;
-			$count++;
 		}
 		
 		if ($force || $this->dashboard && !$use_relative_time_description)
 		{
+			/* Google returns a varying subset, so keep existing order */
+
 			foreach (array_keys($this->reviews) as $key)
 			{
-				$a = $this->reviews[$key];
-				
-				if (!in_array($a['id'], $checked_ids, TRUE))
+				if (!in_array($key, $checked_keys, TRUE))
 				{
 					$this->reviews[$key]['removable'] = TRUE;
-					$this->reviews[$key]['order'] = $relevance;
-					$relevance++;
+
 				}
-				
-				if ($use_relative_time_description || !$force && isset($a['checked']) && is_numeric($a['checked']) && time() - $a['checked'] < HOUR_IN_SECONDS)
-				{
-					continue;
-				}
-				
-				$this->reviews[$key]['relative_time_description'] = $this->get_relative_time_description($a['time']);
-				
-				if (!$relative_time_description_update && $this->reviews[$key]['relative_time_description'] != $a['relative_time_description'])
-				{
-					$relative_time_description_update = TRUE;
-				}
+			}
+
+			if (!$use_relative_time_description && $this->set_relative_time_descriptions())
+			{
+				$relative_time_description_update = TRUE;
 			}
 		}
  		
+		$this->set_relevance_insert();
+
 		uksort($this->reviews, function ($a, $b)
 			{
-				// Work-around for instable array bug in PHP 8.3.2
+				/* Work-around for instable array bug in PHP 8.3.2 */
 				if (!array_key_exists($a, $this->reviews) || !array_key_exists($b, $this->reviews))
 				{
 					return 0;
@@ -4402,7 +2446,7 @@ class google_business_reviews_rating
 			}
 		);
 		
-		wp_cache_add((($this->demo) ? 'reviews_demo' : 'reviews'), $this->reviews, __CLASS__, HOUR_IN_SECONDS);
+		wp_cache_add((($this->demo) ? 'reviews_demo' : 'reviews'), $this->reviews, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 		
 		$this->reviews_filtered = $this->reviews;
 
@@ -4413,107 +2457,49 @@ class google_business_reviews_rating
 
 		if ($force || $this->dashboard)
 		{
-			update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
+			$this->update_option('reviews', $this->reviews, 'no');
 		}
 		
 		return TRUE;
 	}
 	
-	private function delete_icon()
-	{
-		// Delete the icon image
-		
-		$this->icon_image_id = NULL;
-		$this->icon_image_url = NULL;
-		update_option(__CLASS__ . '_icon', $this->icon_image_id);
+	/* Sets an avatar (profile_photo_url) for an individual reviewer based on their review data */
 
-		return TRUE;
-	}
-	
-	private function set_icon($id = NULL)
+	public function set_avatar(array $data, $key = NULL): array
 	{
-		// Set the icon image
-		
-		if (is_numeric($id))
-		{
-			update_option(__CLASS__ . '_icon', $id);
-			$this->icon_image_id = $id;
-		}
-		else
-		{
-			$this->icon_image_id = get_option(__CLASS__ . '_icon');
-		}
-		
-		if (is_numeric($this->icon_image_id))
-		{
-			$a = wp_get_attachment_image_src($this->icon_image_id, 'full');
-			$this->icon_image_url = (isset($a[0]) && is_string($a[0])) ? $a[0] : NULL;
-		}
-		
-		return TRUE;
-	}
-	
-	private function delete_logo()
-	{
-		// Delete the logo image for Structured Data
-		
-		$this->logo_image_id = NULL;
-		$this->logo_image_url = NULL;
-		update_option(__CLASS__ . '_logo', $this->logo_image_id);
+		$google_image_regex = '#^https?://(?:\w+\.)?(?:gstatic|google(?:usercontent)?)?\.\w+/.+$#i';
+		$ret = [0 => NULL, 1 => NULL];
 
-		return TRUE;
-	}
-	
-	private function set_logo($id = NULL)
-	{
-		// Set the logo image for Structured Data
-		
-		if (is_numeric($id))
-		{
-			update_option(__CLASS__ . '_logo', $id);
-			$this->logo_image_id = $id;
-		}
-		else
-		{
-			$this->logo_image_id = get_option(__CLASS__ . '_logo');
-		}
-		
-		if (is_numeric($this->logo_image_id))
-		{
-			$a = wp_get_attachment_image_src($this->logo_image_id, 'full');
-			$this->logo_image_url = (isset($a[0]) && is_string($a[0])) ? $a[0] : NULL;
-		}
-		
-		return TRUE;
-	}
-
-	public function set_avatar($data, $key = NULL)
-	{
-		// Sets an avatar (profile_photo_url) for an individual reviewer based on their review data
-
-		$ret = array(0 => NULL, 1 => NULL);
-
-		if (!is_array($data) || !isset($data['profile_photo_url']) || !is_string($data['profile_photo_url']) || !preg_match('#^https?://(?:\w+\.)?(?:gstatic|google(?:usercontent)?)?\.\w+/.+$#i', $data['profile_photo_url']))
+		if (!is_array($data) || is_numeric($this->api_version) && (!isset($data['authorAttribution']['photoUri']) || !is_string($data['authorAttribution']['photoUri']) || !preg_match($google_image_regex, $data['authorAttribution']['photoUri'])) || !is_numeric($this->api_version) && (!isset($data['profile_photo_url']) || !is_string($data['profile_photo_url']) || !preg_match($google_image_regex, $data['profile_photo_url'])))
 		{
 			return $ret;
 		}
 
-		$ret[0] = $data['profile_photo_url'];
+		$ret[0] = $photo_url = (is_numeric($this->api_version)) ? $data['authorAttribution']['photoUri'] : $data['profile_photo_url'];
 
-		if (!get_option(__CLASS__ . '_local_images', FALSE))
+		if (!$this->get_option('local_images', FALSE))
 		{
 			return $ret;
 		}
 
-		if ($key == NULL && isset($data['time']) && isset($data['rating']) && isset($data['author_name']) && isset($data['text']) && $data['rating'] != NULL)
+		$time = (is_numeric($this->api_version) && isset($data['publishTime']) && is_string($data['publishTime'])) ? strtotime($data['publishTime']) : (isset($data['time']) ? $data['time'] : NULL);
+		$rating = (isset($data['rating']) && is_numeric($data['rating'])) ? intval($data['rating']) : NULL;
+		$text = (is_numeric($this->api_version) && isset($data['originalText']['text']) && is_string($data['originalText']['text'])) ? $data['originalText']['text'] : (isset($data['text']) ? $data['text'] : NULL);
+		$author_name = (is_numeric($this->api_version) && isset($data['authorAttribution']['displayName']) && is_string($data['authorAttribution']['displayName'])) ? $data['authorAttribution']['displayName'] : (isset($data['author_name']) ? $data['author_name'] : NULL);
+
+		if ($key == NULL && $time != NULL && $rating != NULL && $author_name != NULL)
 		{
-			if (!preg_match('/^(\d+)[^\d]+(\d+)[^\d]+(\d+)(?:[^\d].*)?$/', $data['time'], $t))
+			if (!is_numeric($time) && is_string($time))
 			{
-				return $ret;
+				if (!preg_match('/^(\d+)[^\d]+(\d+)[^\d]+(\d+)(?:[^\d].*)?$/', $time, $t))
+				{
+					return $ret;
+				}
+				
+				$time = mktime(0, 0, 0, $t[2], $t[3], $t[1]);
 			}
-			
-			$time = mktime(0, 0, 0, $t[2], $t[3], $t[1]);
-			$key = $time . '_' . $data['rating'] . '_' . md5(strval($data['author_name']) . '_' . mb_substr(strval($data['text']), 0, 100));
+
+			$key = $time . '_' . $rating . '_' . md5(strval($author_name) . '_' . mb_substr(strval($text), 0, 100));
 		}
 
 		if ($key == NULL || !function_exists('wp_remote_get') || !function_exists('wp_remote_retrieve_body') || !function_exists('wp_get_upload_dir') || !function_exists('wp_upload_bits'))
@@ -4522,6 +2508,7 @@ class google_business_reviews_rating
 		}
 
 		$upload_directory = wp_get_upload_dir();
+		$upload_directory_plugin = NULL;
 
 		if (isset($upload_directory['basedir']) && is_string($upload_directory['basedir']))
 		{
@@ -4532,7 +2519,7 @@ class google_business_reviews_rating
 			$upload_directory_plugin = preg_replace('#^(.+?)(?:/\d+/\d+)/?$#', '$1', $upload_directory['path']) . '/gmbrr';
 		}
 
-		if (!is_dir($upload_directory_plugin))
+		if ($upload_directory_plugin === NULL || !is_dir($upload_directory_plugin))
 		{
 			if (!wp_mkdir_p($upload_directory_plugin))
 			{
@@ -4557,11 +2544,11 @@ class google_business_reviews_rating
 		
 		if (version_compare(PHP_VERSION, '8.1') >= 0)
 		{
-			$fp = @wp_remote_get($data['profile_photo_url']);
+			$fp = @wp_remote_get($photo_url);
 		}
 		else
 		{
-			$fp = wp_remote_get($data['profile_photo_url']);
+			$fp = wp_remote_get($photo_url);
 		}
 
 		$image_type = wp_remote_retrieve_header($fp, 'content-type');
@@ -4600,13 +2587,13 @@ class google_business_reviews_rating
 		return $ret;
 	}
 
-	public function server_ip()
-	{
-		// Retrieve an accurate IP Address for the web server
+	/* Retrieve an accurate IP Address for the web server */
 
-		if (is_string(wp_cache_get('server_ip', __CLASS__)))
+	public function server_ip(): ?string
+	{
+		if (is_string(wp_cache_get('server_ip', self::OPTION_PREFIX)))
 		{
-			return trim(wp_cache_get('server_ip', __CLASS__));
+			return trim(wp_cache_get('server_ip', self::OPTION_PREFIX));
 		}
 
 		$ip_regex = '/(?:^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$)|(?:^(?:(?:[a-fA-F\d]{1,4}:){7}(?:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){6}(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){5}(?::(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,2}|:)|(?:[a-fA-F\d]{1,4}:){4}(?:(?::[a-fA-F\d]{1,4}){0,1}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,3}|:)|(?:[a-fA-F\d]{1,4}:){3}(?:(?::[a-fA-F\d]{1,4}){0,2}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,4}|:)|(?:[a-fA-F\d]{1,4}:){2}(?:(?::[a-fA-F\d]{1,4}){0,3}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,5}|:)|(?:[a-fA-F\d]{1,4}:){1}(?:(?::[a-fA-F\d]{1,4}){0,4}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,6}|:)|(?::(?:(?::[a-fA-F\d]{1,4}){0,5}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,7}|:)))(?:%[0-9a-zA-Z]{1,})?$)/mi';
@@ -4625,12 +2612,12 @@ class google_business_reviews_rating
 			if (is_array($response) && !is_wp_error($response))
 			{
 				$string = wp_remote_retrieve_body($response);
-				$a = (is_string($string)) ? preg_split('/,/i', $string, 2) : array('', '');
+				$a = (is_string($string)) ? preg_split('/,/i', $string, 2) : ['', ''];
 				
 				if (preg_match($ip_regex, $a[1]))
 				{
 					$string = trim(mb_strtolower($a[1]));
-					wp_cache_set('server_ip', $string, __CLASS__, HOUR_IN_SECONDS);
+					wp_cache_set('server_ip', $string, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 					return $string;
 				}
 			}
@@ -4652,7 +2639,7 @@ class google_business_reviews_rating
 				if (preg_match($ip_regex, $string))
 				{
 					$string = trim(mb_strtolower($string));
-					wp_cache_set('server_ip', $string, __CLASS__, HOUR_IN_SECONDS);
+					wp_cache_set('server_ip', $string, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 					return $string;
 				}
 			}
@@ -4665,30 +2652,32 @@ class google_business_reviews_rating
 			if (is_string($string) && preg_match($ip_regex, $string))
 			{
 				$string = trim(mb_strtolower($string));
-				wp_cache_set('server_ip', $string, __CLASS__, HOUR_IN_SECONDS);
+				wp_cache_set('server_ip', $string, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 				return $string;
 			}
 		}
 		
-		if (isset($_SERVER['SERVER_ADDR']) && is_string($_SERVER['SERVER_ADDR']) && preg_match($ip_regex, $_SERVER['SERVER_ADDR']))
+		$server_address = (isset($_SERVER['SERVER_ADDR']) && is_string($_SERVER['SERVER_ADDR'])) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_ADDR'])) : NULL;
+
+		if ($server_address != NULL && preg_match($ip_regex, $server_address))
 		{
-			wp_cache_set('server_ip', trim($_SERVER['SERVER_ADDR']), __CLASS__, HOUR_IN_SECONDS);
-			return trim($_SERVER['SERVER_ADDR']);
+			wp_cache_set('server_ip', $server_address, self::OPTION_PREFIX, HOUR_IN_SECONDS);
+			return $server_address;
 		}
 		
 		return NULL;
 	}
 	
-	public function data_hunter($format = 'array', $force = FALSE)
+	/* Find all references to existing Google Reviews, API Key and Place ID */
+
+	public function data_hunter(string $format = 'array', bool $force = FALSE)
 	{
-		// Find all references to existing Google Reviews, API Key and Place ID
-		
-		if (!$this->dashboard || !current_user_can('manage_options', __CLASS__))
+		if (!$this->dashboard || !current_user_can('manage_options', self::OPTION_PREFIX))
 		{
 			return TRUE;
 		}
 		
-		$return = (!$force && get_option(__CLASS__ . '_place_id') == NULL);
+		$return = (!$force && $this->get_option('place_id') == NULL);
 		
 		switch ($format)
 		{
@@ -4705,33 +2694,34 @@ class google_business_reviews_rating
 		
 		global $wpdb;
 		
-		$ret = array();
-		$language = preg_replace('/_/', '-', get_option('WPLANG'));
+		$ret = [];
+		$language = preg_replace('/_/', '-', get_option('WPLANG', ''));
 		
-		if (get_option('we_are_open_api_key') != NULL && get_option('we_are_open_place_id') != NULL)
+		if (get_option('we_are_open_api_key', '') != NULL && get_option('we_are_open_place_id', '') != NULL)
 		{
-			$ret['api_key'] = get_option('we_are_open_api_key');
-			$ret['place_id'] = get_option('we_are_open_place_id');
+			$ret['api_key'] = get_option('we_are_open_api_key', '');
+			$ret['place_id'] = get_option('we_are_open_place_id', '');
+			$ret['api_version'] = get_option('we_are_open_google_places_api', '');
 		}
 
-		if (empty($ret) && is_string(get_option('grw_google_api_key')) && $wpdb->get_var("SHOW TABLES LIKE '" . $wpdb->prefix . "grp_google_place'") == $wpdb->prefix . 'grp_google_place')
+		if (empty($ret) && get_option('grw_google_api_key', '') != NULL && $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $wpdb->prefix . 'grp_google_place')) == $wpdb->prefix . 'grp_google_place')
 		{
-			$id = $wpdb->get_var("SELECT `id` FROM `" . $wpdb->prefix . "grp_google_place` ORDER BY `id` DESC LIMIT 1");
-			$place_id = $wpdb->get_var("SELECT `place_id` FROM `" . $wpdb->prefix . "grp_google_place` WHERE `id` = '" . esc_sql($id) . "' LIMIT 1");
-			$reviews = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "grp_google_review` WHERE `google_place_id` = '" . intval($id) . "'");
-			$ret['api_key'] = get_option('grw_google_api_key');
+			$id = intval($wpdb->get_var("SELECT `id` FROM `" . $wpdb->prefix . "grp_google_place` ORDER BY `id` DESC LIMIT 1"));
+			$place_id = $wpdb->get_var($wpdb->prepare("SELECT `place_id` FROM `" . $wpdb->prefix . "grp_google_place` WHERE `id` = %d LIMIT 1", $id));
+			$reviews = $wpdb->get_results($wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . "grp_google_review` WHERE `google_place_id` = %d", $id));
+			$ret['api_key'] = get_option('grw_google_api_key', '');
 			$ret['place_id'] = $place_id;
 			$ret['reviews'] = $reviews;
 		}
 		
-		if (empty($ret) && is_array(get_option('wpfbr_google_options')))
+		if (empty($ret) && is_array(get_option('wpfbr_google_options', '')))
 		{
-			$d = get_option('wpfbr_google_options');
+			$d = get_option('wpfbr_google_options', '');
 			if ($d['select_google_api'] != 'default' && is_string($d['google_api_key']))
 			{
-				$reviews = array();
+				$reviews = [];
 				
-				if ($wpdb->get_var("SHOW TABLES LIKE '" . $wpdb->prefix . "wpfb_reviews'") == $wpdb->prefix . 'wpfb_reviews')
+				if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $wpdb->prefix . 'wpfb_reviews')) == $wpdb->prefix . 'wpfb_reviews')
 				{
 					$reviews = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "wpfb_reviews`");
 				}
@@ -4743,14 +2733,14 @@ class google_business_reviews_rating
 			}
 		}
 		
-		if (empty($ret) && is_array(get_option('googleplacesreviews_options')))
+		if (empty($ret) && is_array(get_option('googleplacesreviews_options', '')))
 		{
-			$d = get_option('googleplacesreviews_options');
-			$w = array('place_id' => NULL);
+			$d = get_option('googleplacesreviews_options', '');
+			$w = ['place_id' => NULL];
 			
 			if (array_key_exists('google_places_api_key', $d))
 			{
-				$w = get_option('googleplacesreviews_options');
+				$w = get_option('googleplacesreviews_options', '');
 				
 				if (is_array($w) && array_key_exists('place_id', $w) && is_string($w['place_id']) && mb_strlen($w['place_id'] >= 17))
 				{
@@ -4762,23 +2752,23 @@ class google_business_reviews_rating
 			}
 		}
 		
-		if (empty($ret) && is_string(get_option('google_places_api_key')))
+		if (empty($ret) && get_option('google_places_api_key', '') != NULL)
 		{
-			$ret['api_key'] = get_option('google_places_api_key');
+			$ret['api_key'] = get_option('google_places_api_key', '');
 		}
 		
-		if (empty($ret) && is_array(get_option('trustindex-google-page-details')))
+		if (empty($ret) && is_array(get_option('trustindex-google-page-details', '')))
 		{
-			$d = get_option('trustindex-google-page-details');
+			$d = get_option('trustindex-google-page-details', '');
 			
 			if (array_key_exists('id', $d) && is_string($d['id']) && mb_strlen($d['id'] >= 17))
 			{
 				$ret['place_id'] = $d['id'];
 			}
 			
-			if (is_string(get_option('trustindex-google-lang')))
+			if (get_option('trustindex-google-lang', '') != NULL)
 			{
-				$ret['language'] = get_option('trustindex-google-lang');
+				$ret['language'] = get_option('trustindex-google-lang', '');
 			}
 		}
 		
@@ -4788,9 +2778,9 @@ class google_business_reviews_rating
 			{
 				$ret['language'] = $language;
 			}
-			elseif (!empty($this->languages) && array_key_exists(substr($language, 0, 2), $this->languages))
+			elseif (!empty($this->languages) && array_key_exists(mb_substr($language, 0, 2), $this->languages))
 			{
-				$ret['language'] = substr($language, 0, 2);
+				$ret['language'] = mb_substr($language, 0, 2);
 			}
 		}
 
@@ -4814,10 +2804,10 @@ class google_business_reviews_rating
 		return $ret;
 	}
 	
-	public function reviews_count($place_id = NULL, $status = NULL, $set = TRUE)
+	/* Count the number of reviews stored */
+
+	public function reviews_count($place_id = NULL, $status = NULL, bool $set = TRUE): int
 	{
-		// Count the number of reviews stored
-		
 		if ($set)
 		{
 			$this->set_reviews();
@@ -4846,11 +2836,11 @@ class google_business_reviews_rating
 			{
 				if (is_string($place_id))
 				{
-					if ($a['place_id'] == $place_id)
+					if ($a['place_id'] == $place_id && $a['status'] == $status)
 					{
 						$count++;
 					}
-					
+
 					continue;
 				}
 				
@@ -4871,10 +2861,10 @@ class google_business_reviews_rating
 		return $count;
 	}
 	
-	private function reviews_filter($filters = NULL, $atts = NULL)
+	/* Filter review data */
+
+	protected function reviews_filter(?array $filters = NULL, ?array $atts = NULL): bool
 	{
-		// Filter review data
-		
 		if (!$this->set_reviews() || empty($this->reviews))
 		{
 			return FALSE;
@@ -4882,18 +2872,19 @@ class google_business_reviews_rating
 		
 		if (!is_array($filters))
 		{
-			$filters = array();
+			$filters = [];
 		}
 		
 		if (!is_array($atts))
 		{
-			$atts = array();
+			$atts = [];
 		}
 		
 		$count = 0;
-		$ids = (array_key_exists('id', $filters) && is_numeric($filters['id']) && $filters['id'] > 0) ? array(intval($filters['id'])) : ((array_key_exists('id', $filters) && is_string($filters['id']) && preg_match('/^(?:\d+)(?:,\s*(?:\d+))+$/', $filters['id'])) ? array_unique(preg_split('/[^\d]+/', $filters['id'])) : array());
+		$ids = (array_key_exists('id', $filters) && is_numeric($filters['id']) && $filters['id'] > 0) ? [intval($filters['id'])] : ((array_key_exists('id', $filters) && is_string($filters['id']) && preg_match('/^(?:\d+)(?:,\s*(?:\d+))+$/', $filters['id'])) ? array_unique(preg_split('/[^\d]+/', $filters['id'])) : []);
 		$id = (!empty($ids)) ? $ids[0] : NULL;
-		$place_id = (!$this->demo && array_key_exists('place_id', $filters) && is_string($filters['place_id']) && mb_strlen($filters['place_id']) >= 20) ? $filters['place_id'] : NULL;
+		$place_id = (!$this->demo && array_key_exists('place_id', $filters)) ? $filters['place_id'] : NULL;
+		$place_id = (is_array($place_id)) ? $place_id : ((is_string($place_id) && mb_strlen($place_id) >= 20) ? [$place_id] : NULL);
 		$language = (array_key_exists('language', $filters) && is_string($filters['language']) && mb_strlen($filters['language']) >= 2 && mb_strlen($filters['language']) <= 16) ? preg_replace('/^([a-z]{2,3}).*$/i', '$1', mb_strtolower($filters['language'])) : NULL;
 		$min = ($id == NULL && array_key_exists('min', $filters) && is_numeric($filters['min']) && $filters['min'] >= 1 && $filters['min'] <= 5) ? intval($filters['min']) : NULL;
 		$max = ($id == NULL && array_key_exists('max', $filters) && is_numeric($filters['max']) && $filters['max'] >= 1 && $filters['max'] <= 5) ? intval($filters['max']) : NULL;
@@ -4902,16 +2893,16 @@ class google_business_reviews_rating
 		$excerpt = (array_key_exists('excerpt', $filters) && is_numeric($filters['excerpt']) && $filters['excerpt'] >= 20) ? intval($filters['excerpt']) : NULL;
 		$review_text_min = (array_key_exists('review_text_min', $filters) && is_numeric($filters['review_text_min']) && $filters['review_text_min'] >= 0) ? intval($filters['review_text_min']) : NULL;
 		$review_text_max = (array_key_exists('review_text_max', $filters) && is_numeric($filters['review_text_max']) && $filters['review_text_max'] >= 0 && (!is_numeric($filters['review_text_min']) || is_numeric($filters['review_text_min']) && $filters['review_text_min'] <= $filters['review_text_max'])) ? intval($filters['review_text_max']) : NULL;
-		$review_text_inc = (array_key_exists('review_text_inc', $filters) && is_string($filters['review_text_inc']) && mb_strlen($filters['review_text_inc']) > 1) ? array_unique(preg_split('/,\s*/', $filters['review_text_inc'], 10)) : array();
-		$review_text_exc = (array_key_exists('review_text_exc', $filters) && is_string($filters['review_text_exc']) && mb_strlen($filters['review_text_exc']) > 1) ? array_unique(preg_split('/,\s*/', $filters['review_text_exc'], 10)) : array();
+		$review_text_inc = (array_key_exists('review_text_inc', $filters) && is_string($filters['review_text_inc']) && mb_strlen($filters['review_text_inc']) > 1) ? array_unique(preg_split('/,\s*/', $filters['review_text_inc'], 10)) : [];
+		$review_text_exc = (array_key_exists('review_text_exc', $filters) && is_string($filters['review_text_exc']) && mb_strlen($filters['review_text_exc']) > 1) ? array_unique(preg_split('/,\s*/', $filters['review_text_exc'], 10)) : [];
 
-		$limit = (is_numeric($limit)) ? intval($limit) : ((!array_key_exists('limit', $atts)) ? get_option(__CLASS__ . '_review_limit', NULL) : NULL);
-		$sort = ($id == NULL && array_key_exists('sort', $filters) && ($filters['sort'] != NULL && is_string($filters['sort']))) ? preg_replace('/[^\w_-]/', '', $filters['sort']) : get_option(__CLASS__ . '_review_sort', NULL);
+		$limit = (is_numeric($limit)) ? intval($limit) : ((!array_key_exists('limit', $atts)) ? $this->get_option('review_limit', NULL) : NULL);
+		$sort = ($id == NULL && array_key_exists('sort', $filters) && ($filters['sort'] != NULL && is_string($filters['sort']))) ? preg_replace('/[^\w_-]/', '', $filters['sort']) : $this->get_option('review_sort', NULL);
 		$sort_static = (array_key_exists($sort, $this->review_sort_options) && $this->review_sort_options[$sort]['static']);
-		$min = (is_numeric($min)) ? intval($min) : get_option(__CLASS__ . '_rating_min', NULL);
-		$max = (is_numeric($max)) ? intval($max) : get_option(__CLASS__ . '_rating_max', NULL);
-		$review_text_min = (is_numeric($review_text_min) && $review_text_min >= 0) ? intval($review_text_min) : get_option(__CLASS__ . '_review_text_min', NULL);
-		$review_text_max = (is_numeric($review_text_max) && $review_text_max >= 0) ? intval($review_text_max) : get_option(__CLASS__ . '_review_text_max', NULL);
+		$min = (is_numeric($min)) ? intval($min) : $this->get_option('rating_min', NULL);
+		$max = (is_numeric($max)) ? intval($max) : $this->get_option('rating_max', NULL);
+		$review_text_min = (is_numeric($review_text_min) && $review_text_min >= 0) ? intval($review_text_min) : $this->get_option('review_text_min', NULL);
+		$review_text_max = (is_numeric($review_text_max) && $review_text_max >= 0) ? intval($review_text_max) : $this->get_option('review_text_max', NULL);
 		
 		if (is_numeric($limit) && $limit == 0)
 		{
@@ -4990,7 +2981,7 @@ class google_business_reviews_rating
 
 		if (!empty($ids))
 		{
-			$this->reviews_filtered = array();
+			$this->reviews_filtered = [];
 
 			if (is_string($this->review_sort_option) && $sort == 'shuffle')
 			{
@@ -4999,7 +2990,7 @@ class google_business_reviews_rating
 				if ($sort_static)
 				{
 					$ids_check = $ids;
-					$keys = ($sort_static) ? get_transient(__CLASS__ . '_reviews_shuffled') : wp_cache_get('reviews_shuffled', __CLASS__);
+					$keys = ($sort_static) ? get_transient(self::OPTION_PREFIX . 'reviews_shuffled') : wp_cache_get('reviews_shuffled', self::OPTION_PREFIX);
 					
 					if (is_array($keys) && !empty($keys))
 					{
@@ -5022,11 +3013,11 @@ class google_business_reviews_rating
 					
 					if ($sort_static)
 					{
-						set_transient(__CLASS__ . '_reviews_shuffled', $keys, HOUR_IN_SECONDS);
+						set_transient(self::OPTION_PREFIX . 'reviews_shuffled', $keys, HOUR_IN_SECONDS);
 					}
 					else
 					{
-						wp_cache_set('reviews_shuffled', $keys, __CLASS__, HOUR_IN_SECONDS);
+						wp_cache_set('reviews_shuffled', $keys, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 					}
 				}
 			}
@@ -5072,19 +3063,35 @@ class google_business_reviews_rating
 				continue;
 			}
 			
-			if ($place_id != NULL && $a['place_id'] != $place_id)
+			if (is_array($place_id) && !in_array($a['place_id'], $place_id, TRUE))
 			{
 				unset($this->reviews_filtered[$key]);
 				continue;
 			}
 			
-			if ($language != NULL && isset($a['language']) && ($a['language'] == NULL || preg_replace('/^([a-z]{2,3}).*$/i', '$1', mb_strtolower($a['language'])) != $language))
+			if ($language != NULL && isset($a['text']) && is_string($a['text']) && mb_strlen($a['text']) > 0)
 			{
-				unset($this->reviews_filtered[$key]);
-				continue;
+				$text_language = (isset($a['language']) && is_string($a['language'])) ? preg_replace('/^([a-z]{2,3}).*$/i', '$1', mb_strtolower($a['language'])) : NULL;
+				$original_language = (isset($a['original_text']) && is_string($a['original_text']) && mb_strlen($a['original_text']) > 0 && isset($a['original_language']) && is_string($a['original_language'])) ? preg_replace('/^([a-z]{2,3}).*$/i', '$1', mb_strtolower($a['original_language'])) : NULL;
+
+				if ($text_language != $language && $original_language != $language)
+				{
+					unset($this->reviews_filtered[$key]);
+					continue;
+				}
+
+				if ($text_language != $language)
+				{
+					$a['text'] = $a['original_text'];
+					$a['language'] = $a['original_language'];
+					$a['translated'] = FALSE;
+					$this->reviews_filtered[$key]['text'] = $a['text'];
+					$this->reviews_filtered[$key]['language'] = $a['language'];
+					$this->reviews_filtered[$key]['translated'] = FALSE;
+				}
 			}
 									
-			if (is_numeric($review_text_min) && (!is_string($a['text']) || is_string($a['text']) && $review_text_min > mb_strlen(strip_tags($a['text'])) || is_string($a['text']) && is_numeric($review_text_max) && $review_text_max < mb_strlen(strip_tags($a['text']))))
+			if (is_numeric($review_text_min) && (!is_string($a['text']) || is_string($a['text']) && $review_text_min > mb_strlen(wp_strip_all_tags($a['text'])) || is_string($a['text']) && is_numeric($review_text_max) && $review_text_max < mb_strlen(wp_strip_all_tags($a['text']))))
 			{
 				unset($this->reviews_filtered[$key]);
 				continue;
@@ -5092,7 +3099,7 @@ class google_business_reviews_rating
 									
 			if (!empty($review_text_inc) || !empty($review_text_exc))
 			{
-				$t = strip_tags($a['text']);
+				$t = wp_strip_all_tags($a['text']);
 				$inc = $exc = FALSE;
 					
 				if (!empty($review_text_inc))
@@ -5139,7 +3146,7 @@ class google_business_reviews_rating
 		{
 			if ($this->review_sort_option == 'shuffle')
 			{
-				$keys = ($sort_static) ? get_transient(__CLASS__ . '_reviews_shuffled') : wp_cache_get('reviews_shuffled', __CLASS__);
+				$keys = ($sort_static) ? get_transient(self::OPTION_PREFIX . 'reviews_shuffled') : wp_cache_get('reviews_shuffled', self::OPTION_PREFIX);
 				
 				if (is_array($keys) && !empty($keys))
 				{
@@ -5152,7 +3159,7 @@ class google_business_reviews_rating
 				{
 					$keys = array_keys($this->reviews_filtered);
 					$list = $this->reviews_filtered;
-					$this->reviews_filtered = array();
+					$this->reviews_filtered = [];
 					shuffle($keys);
 					
 					foreach ($keys as $k)
@@ -5164,11 +3171,11 @@ class google_business_reviews_rating
 					
 					if ($sort_static)
 					{
-						set_transient(__CLASS__ . '_reviews_shuffled', $keys, HOUR_IN_SECONDS);
+						set_transient(self::OPTION_PREFIX . 'reviews_shuffled', $keys, HOUR_IN_SECONDS);
 					}
 					else
 					{
-						wp_cache_set('reviews_shuffled', $keys, __CLASS__, HOUR_IN_SECONDS);
+						wp_cache_set('reviews_shuffled', $keys, self::OPTION_PREFIX, HOUR_IN_SECONDS);
 					}
 				}
 			}
@@ -5214,9 +3221,9 @@ class google_business_reviews_rating
 							return 0;
 						}
 						
-						$c = $d = array(mb_strtolower($v), mb_strtolower($w));
+						$c = $d = [mb_strtolower($v), mb_strtolower($w)];
 						arsort($c, SORT_REGULAR);
-						return (array_keys($c) === array_keys($d)) ? 1 : -1;
+						return (array_keys($c) == array_keys($d)) ? 1 : -1;
 					}
 				);
 				
@@ -5235,11 +3242,16 @@ class google_business_reviews_rating
 		return TRUE;
 	}
 	
-	private function sanitize_array($array)
+	/* Sanitize array data to remove characters that can cause update_option() to fail */
+
+	protected function sanitize_array($array): array
 	{
-		// Sanitize array data to remove characters that can cause update_option() to fail
-		
-		if (!get_option(__CLASS__ . '_additional_array_sanitization', FALSE))
+		if (!is_array($array))
+		{
+			return [];
+		}
+
+		if (!$this->get_option('additional_array_sanitization', FALSE))
 		{
 			return $array;
 		}
@@ -5258,39 +3270,39 @@ class google_business_reviews_rating
 		return $array;
 	}
 	
-	public function sanitize_api_key($api_key)
+	/* Sanitize data from API Key setting input */
+
+	public function sanitize_api_key($api_key): ?string
 	{
-		// Sanitize data from API Key setting input
-		
-		if (mb_strlen($api_key) < 10)
+		if (!is_string($api_key) || mb_strlen($api_key) < 10)
 		{
 			$api_key = NULL;
 		}
 		
-		if (get_option(__CLASS__ . '_api_key') != $api_key)
+		if ($this->get_option('api_key') != $api_key)
 		{
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('structured_data', __CLASS__);
-			wp_cache_delete('result', __CLASS__);
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
+			delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+			wp_cache_delete('structured_data', self::OPTION_PREFIX);
+			wp_cache_delete('result', self::OPTION_PREFIX);
+			wp_cache_delete('reviews_shuffled', self::OPTION_PREFIX);
+			wp_cache_delete('reviews', self::OPTION_PREFIX);
 			$this->api_key = sanitize_text_field($api_key);
 			
 			if ($api_key != NULL)
 			{
-				set_transient(__CLASS__ . '_force', time() . '/0', 30);
+				set_transient(self::OPTION_PREFIX . 'force', time() . '/0', 30);
 			}
 
 			self::log('api_key', $this->api_key);
 		}
 		
-		return $api_key;
+		return ($api_key != NULL) ? sanitize_text_field($api_key) : NULL;
 	}
-	
-	public function sanitize_place_id($place_id)
+
+	/* Sanitize data from Place ID setting input */
+
+	public function sanitize_place_id($place_id): ?string
 	{
-		// Sanitize data from Place ID setting input
-		
 		if (mb_strlen($place_id) < 10)
 		{
 			$place_id = NULL;
@@ -5298,7 +3310,7 @@ class google_business_reviews_rating
 
 		if (empty($this->places))
 		{
-			$this->places = get_option(__CLASS__ . '_places', array());
+			$this->places = $this->get_array_option('places');
 		}
 		
 		if (is_array($this->places))
@@ -5314,29 +3326,29 @@ class google_business_reviews_rating
 			}
 		}
 		
-		if (get_option(__CLASS__ . '_place_id') != $place_id)
+		if ($this->get_option('place_id') != $place_id)
 		{
-			$api_key = get_option(__CLASS__ . '_api_key');
-			delete_transient(__CLASS__ . '_reviews_shuffled');
-			wp_cache_delete('structured_data', __CLASS__);
-			wp_cache_delete('result', __CLASS__);
-			wp_cache_delete('result_valid', __CLASS__);
-			wp_cache_delete('reviews_shuffled', __CLASS__);
-			wp_cache_delete('reviews', __CLASS__);
-			update_option(__CLASS__ . '_result', NULL, 'no');
-			update_option(__CLASS__ . '_structured_data', FALSE, 'yes');
+			$api_key = $this->get_option('api_key');
+			delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+			wp_cache_delete('structured_data', self::OPTION_PREFIX);
+			wp_cache_delete('result', self::OPTION_PREFIX);
+			wp_cache_delete('result_valid', self::OPTION_PREFIX);
+			wp_cache_delete('reviews_shuffled', self::OPTION_PREFIX);
+			wp_cache_delete('reviews', self::OPTION_PREFIX);
+			$this->update_option('result', NULL, 'no');
+			$this->update_option('structured_data', FALSE, 'yes');
 			$this->place_id = sanitize_text_field($place_id);
-			$this->data = array();
-			$this->result = array();
+			$this->data = [];
+			$this->result = [];
 			
 			if ($place_id == NULL && $api_key == NULL)
 			{
-				$this->reviews = array();
-				$this->reviews_filtered = array();
+				$this->reviews = [];
+				$this->reviews_filtered = [];
 			}
 			elseif ($place_id != NULL && $api_key != NULL)
 			{
-				set_transient(__CLASS__ . '_force', time() . '/0', 30);
+				set_transient(self::OPTION_PREFIX . 'force', time() . '/0', 30);
 			}
 
 			self::log('place_id', $this->place_id);
@@ -5345,10 +3357,10 @@ class google_business_reviews_rating
 		return $place_id;
 	}
 
-	public function sanitize_retrieval_sort($retrieval_sort)
-	{
-		// Sanitize data from retrieval sort
+	/* Sanitize data from retrieval sort */
 
+	public function sanitize_retrieval_sort($retrieval_sort): ?string
+	{
 		if (!is_string($retrieval_sort) || is_string($retrieval_sort) && !preg_match('/^(?:most_relevant|newest|review_sort)$/', $retrieval_sort))
 		{
 			return NULL;
@@ -5357,33 +3369,33 @@ class google_business_reviews_rating
 		return $retrieval_sort;
 	}
 	
-	public function sanitize_demo($demo)
+	/* Handle switch between active and demo versions */
+
+	public function sanitize_demo($demo): bool
 	{
-		// Handle switch between active and demo versions
-		
-		$demo = (bool)$demo;
+		$demo = boolval($demo);
 		$this->demo = $demo;
 
-		if (get_option(__CLASS__ . '_demo') != $demo)
+		if ($this->get_option('demo') != $demo)
 		{
-			wp_cache_delete('structured_data', __CLASS__);
-			wp_cache_delete('result', __CLASS__);
-			wp_cache_delete('result_demo', __CLASS__);
-			update_option(__CLASS__ . '_result', NULL, 'no');
-			$this->data = array();
-			$this->result = array();
-			$this->reviews = array();
-			$this->reviews_filtered = array();
+			wp_cache_delete('structured_data', self::OPTION_PREFIX);
+			wp_cache_delete('result', self::OPTION_PREFIX);
+			wp_cache_delete('result_demo', self::OPTION_PREFIX);
+			$this->update_option('result', NULL, 'no');
+			$this->data = [];
+			$this->result = [];
+			$this->reviews = [];
+			$this->reviews_filtered = [];
 		}
 		
 		return $demo;
 	}
 
+	/* Sanitizes and normalizes input data */
+
 	public function sanitize_input($data)
 	{
-		// Sanitizes and normalizes input data
-		
-		$stripslashes = (function_exists('wp_magic_quotes')); // Unfortunately, no flag exists
+		$stripslashes = (function_exists('wp_magic_quotes')); /* Unfortunately, no flag exists */
 		
 		if (!is_array($data))
 		{
@@ -5394,12 +3406,12 @@ class google_business_reviews_rating
 			
 			if (is_bool($data))
 			{
-				return (boolean)$data;
+				return boolval($data);
 			}
 
 			if (is_string($data) || is_numeric($data))
 			{
-				return ($stripslashes && is_string($data)) ? stripslashes(wp_kses_stripslashes(sanitize_text_field($data), array())) : wp_kses(sanitize_text_field($data), array());
+				return ($stripslashes && is_string($data)) ? stripslashes(wp_kses_stripslashes(sanitize_text_field($data), [])) : wp_kses(sanitize_text_field($data), []);
 			}
 
 			return FALSE;
@@ -5427,7 +3439,7 @@ class google_business_reviews_rating
 			
 			if (is_bool($data[$k]))
 			{
-				$data[$k] = (boolean)$data[$k];
+				$data[$k] = boolval($data[$k]);
 				continue;
 			}
 
@@ -5437,16 +3449,16 @@ class google_business_reviews_rating
 				continue;
 			}
 
-			$data[$k] = ($stripslashes && is_string($data[$k])) ? stripslashes(wp_kses_stripslashes(sanitize_text_field($data[$k]), array())) : wp_kses(sanitize_text_field($data[$k]), array());
+			$data[$k] = ($stripslashes && is_string($data[$k])) ? stripslashes(wp_kses_stripslashes(sanitize_text_field($data[$k]), [])) : wp_kses(sanitize_text_field($data[$k]), []);
 		}
 	
 		return $data;
 	}
 	
-	public function get_reviews($format = 'array')
+	/* Get all reviews in various formats */
+
+	public function get_reviews(string $format = 'array')
 	{
-		// Get all reviews in various formats
-		
 		$this->set_reviews();
 		$avatar_directory = NULL;
 		$html = '';
@@ -5463,7 +3475,7 @@ class google_business_reviews_rating
 		
 		if ($this->dashboard && !is_string($this->review_sort) && !is_bool($this->review_sort_asc))
 		{
-			$this->review_sort = get_option(__CLASS__ . '_review_sort_admin');
+			$this->review_sort = $this->get_option('review_sort_admin', NULL);
 			
 			if (!is_string($this->review_sort) || !is_array($this->reviews) || is_array($this->reviews) && count($this->reviews) <= 1)
 			{
@@ -5494,7 +3506,7 @@ class google_business_reviews_rating
 			break;
 		case 'time':
 		case 'submitted':
-			uksort($this->reviews, function ($b, $a) { return ($this->reviews[$b]['time'] - $this->reviews[$a]['time']); } );
+			uksort($this->reviews, function ($b, $a) { return (!isset($this->reviews[$a]['time']) || !isset($this->reviews[$b]['time'])) ? 0 : ($this->reviews[$b]['time'] - $this->reviews[$a]['time']); } );
 			break;
 		case 'retrieved':
 			uksort($this->reviews, function ($b, $a) { return ($this->reviews[$b]['retrieved'] - $this->reviews[$a]['retrieved']); } );
@@ -5504,9 +3516,9 @@ class google_business_reviews_rating
 		case 'author_name':
 			uksort($this->reviews, function ($b, $a)
 				{
-					$c = $d = array(mb_strtolower($this->reviews[$b]['author_name']), mb_strtolower($this->reviews[$a]['author_name']));
+					$c = $d = [mb_strtolower($this->reviews[$b]['author_name']), mb_strtolower($this->reviews[$a]['author_name'])];
 					arsort($c, SORT_REGULAR);
-					return (array_keys($c) === array_keys($d)) ? 1 : -1;
+					return (array_keys($c) == array_keys($d)) ? 1 : -1;
 				}
 			);
 			break;
@@ -5518,18 +3530,18 @@ class google_business_reviews_rating
 						return 0;
 					}
 					
-					$c = $d = array(mb_strtolower($this->reviews[$b]['language']), mb_strtolower($this->reviews[$a]['language']));
+					$c = $d = [mb_strtolower($this->reviews[$b]['language']), mb_strtolower($this->reviews[$a]['language'])];
 					arsort($c, SORT_REGULAR);
-					return (array_keys($c) === array_keys($d)) ? 1 : -1;
+					return (array_keys($c) == array_keys($d)) ? 1 : -1;
 				}
 			);
 			break;
 		case 'place_id':
 			uksort($this->reviews, function ($b, $a)
 				{
-					$c = $d = array(mb_strtolower($this->reviews[$b]['place_id']), mb_strtolower($this->reviews[$a]['place_id']));
+					$c = $d = [mb_strtolower($this->reviews[$b]['place_id']), mb_strtolower($this->reviews[$a]['place_id'])];
 					arsort($c, SORT_REGULAR);
-					return (array_keys($c) === array_keys($d)) ? 1 : -1;
+					return (array_keys($c) == array_keys($d)) ? 1 : -1;
 				}
 			);
 			break;
@@ -5543,9 +3555,9 @@ class google_business_reviews_rating
 						return 0;
 					}
 					
-					$c = $d = array(mb_strtolower($this->reviews[$b]['text']), mb_strtolower($this->reviews[$a]['text']));
+					$c = $d = [mb_strtolower($this->reviews[$b]['text']), mb_strtolower($this->reviews[$a]['text'])];
 					arsort($c, SORT_REGULAR);
-					return (array_keys($c) === array_keys($d)) ? 1 : -1;
+					return (array_keys($c) == array_keys($d)) ? 1 : -1;
 				}
 			);
 			break;
@@ -5561,10 +3573,13 @@ class google_business_reviews_rating
 		switch ($format)
 		{
 		case 'ids':
-			$ret = array();
-			foreach (array_keys($this->reviews) as $key)
+			$ret = [];
+			foreach ($this->reviews as $a)
 			{
-				$ret[] = $key;
+				if (isset($a['id']) && is_numeric($a['id']))
+				{
+					$ret[] = intval($a['id']);
+				}
 			}
 			return $ret;
 		case 'array':
@@ -5579,13 +3594,13 @@ class google_business_reviews_rating
 
 				$html = '<div id="latest-google-my-business-reviews" class="activity-block table-view-list">
 <p class="none">'
-				/* translators: %s refers to the Settings URL and should remain untouched */
-				. sprintf(__('No reviews found, please check your <a href="%s">settings</a>.', 'g-business-reviews-rating'), admin_url('options-general.php?page=google_business_reviews_rating_settings')) . '</p>
+				/* translators: %1$s: opening anchor tag to the settings page, %2$s: closing anchor tag */
+				. sprintf(esc_html__('No reviews found, please check your %1$ssettings%2$s.', 'g-business-reviews-rating'), '<a href="' . esc_url(admin_url('options-general.php?page=google_business_reviews_rating_settings')) . '">', '</a>') . '</p>
 </div>';
 				return $html;
 			}
 			
-			$this->reviews_filter(array('sort' => 'date_desc', 'limit' => intval(get_option(__CLASS__ . '_meta_box_limit', 5))));
+			$this->reviews_filter(['sort' => 'date_desc', 'limit' => intval($this->get_option('meta_box_limit', 5))]);
 			$i = 0;
 			$html = '<div id="latest-google-my-business-reviews" class="activity-block table-view-list">
 	<h3>' . __('Recent Reviews', 'g-business-reviews-rating') . '</h3>
@@ -5595,7 +3610,7 @@ class google_business_reviews_rating
 			foreach ($this->reviews_filtered as $id => $a)
 			{
 				$html .= '		<li class="review review-item ' . esc_attr((($i % 2) ? 'odd' : 'even') . ' rating-' . $a['rating']) . (($a['text'] == NULL) ? ' no-text' : ''). '" data-id="' . esc_attr($id). '">
-			<span class="avatar' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? ' original' . ((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? ' local' : '') : ' empty') . '">' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? '<img src="' . esc_attr((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? $avatar_directory . '/' . $a['avatar'] : $a['profile_photo_url']) . '" alt="Avatar">' : '') . '</span>
+			<span class="avatar' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? ' original' . ((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? ' local' : '') : ' empty') . '">' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? '<img src="' . esc_attr((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? $avatar_directory . '/' . $a['avatar'] : $a['profile_photo_url']) . '" alt="' . esc_attr__('Avatar', 'g-business-reviews-rating') . '" loading="lazy" width="32" height="32">' : '') . '</span>
 			<span class="review-meta">
 				<span class="name">' . esc_html($a['author_name']) . '</span>
 				<span class="rating">' . str_repeat('★', $a['rating']) . (($a['rating'] < 5) ? '<span class="not">' . str_repeat('☆', (5 - $a['rating'])) . '</span>' : '') . '</span>
@@ -5604,7 +3619,7 @@ class google_business_reviews_rating
 ';
 				if ($a['text'] != NULL)
 				{
-					$html .= '            <span class="review-text">' . preg_replace('/(\r\n|\r|\n)+/', ' ' . PHP_EOL . '            	', preg_replace('/^(.{128}[^\s]{0,20})(.*)$/uis', '$1…', esc_html(strip_tags($a['text'])))) . '</span>
+					$html .= '            <span class="review-text">' . preg_replace('/(\r\n|\r|\n)+/', ' ' . PHP_EOL . '            	', preg_replace('/^(.{128}[^\s]{0,20})(.*)$/uis', '$1…', esc_html(wp_strip_all_tags($a['text'])))) . '</span>
 ';
 				}
 				$html .= '		</li>
@@ -5617,14 +3632,14 @@ class google_business_reviews_rating
 			<li class="reviews"><a href="' . esc_attr(admin_url(($this->editor) ? './admin.php?page=google_business_reviews_rating' : './options-general.php?page=google_business_reviews_rating_settings#reviews')) . '">' . __('Reviews', 'g-business-reviews-rating') . ' <span class="count">(<span class="reviews-count">' . esc_html($this->reviews_count()) . '</span>)</span></a> |</li>
 ' . (($this->administrator) ? '			<li class="settings"><a href="' . esc_attr(admin_url('./options-general.php?page=google_business_reviews_rating_settings')) . '">' . __('Settings', 'g-business-reviews-rating') . '</a> |</li>' : '') .
 '			<li class="about"><a href="' . esc_attr(admin_url(($this->editor) ? './admin.php?page=google_business_reviews_rating#about' : './options-general.php?page=google_business_reviews_rating_settings#about')) . '">' . __('About', 'g-business-reviews-rating') . '</a> |</li>
-			<li class="rate"><a href="https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post">' . __('Rate Plugin', 'g-business-reviews-rating') . ' <span class="screen-reader-text">' . __('(opens in a new tab)') . '</span> <span aria-hidden="true" class="dashicons dashicons-external"></span></a></li>
+			<li class="rate"><a href="https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post">' . __('Rate Plugin', 'g-business-reviews-rating') . ' <span class="screen-reader-text">' . esc_html__('(opens in a new tab)', 'g-business-reviews-rating') . '</span> <span aria-hidden="true" class="dashicons dashicons-external"></span></a></li>
 		</ul>
 	</div>
 ';
 			return $html;
 		case 'html':
 			$show_place_id = ($this->reviews_count(TRUE, NULL, FALSE) != $this->reviews_count(NULL, NULL, FALSE));
-			$places = array();
+			$places = [];
 			
 			if (!$this->demo && !empty($this->places))
 			{
@@ -5637,17 +3652,17 @@ class google_business_reviews_rating
 			$html .= '<table id="reviews-table" class="wp-list-table widefat fixed striped reviews-table' . (($show_place_id) ? ' places' : '') . '" data-languages="' . esc_attr(json_encode($this->languages)) . '" data-nonce="' . esc_attr(wp_create_nonce('gmbrr_nonce')) . '">
     <thead>
         <tr>
-            <th class="id number'  . (($this->review_sort != NULL && preg_match('/^ids?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('ID', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="id"><span>' . esc_html__('ID', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="submitted date'  . (($this->review_sort != NULL && preg_match('/^(?:date|submitted|time)(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Submitted', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="time"><span>' . esc_html__('Submitted', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="author'  . (($this->review_sort != NULL && preg_match('/^(?:author(?:[_-]name)?|name)(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Author', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="author_name"><span>' . esc_html__('Author', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="rating'  . (($this->review_sort != NULL && preg_match('/^ratings?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Rating', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="rating"><span>' . esc_html__('Rating', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="text'  . (($this->review_sort != NULL && preg_match('/^(?:review(?:[_-]text)?|text)(?:_(?:asc|desc))?$/', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Text', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="text"><span>' . esc_html__('Text', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="language'  . (($this->review_sort != NULL && preg_match('/^languages?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Language', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="language"><span>' . esc_html__('Language', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
-            <th class="retrieved date'  . (($this->review_sort != NULL && preg_match('/^retrieved(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Retrieved', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="retrieved"><span>' . esc_html__('Retrieved', 'g-business-reviews-rating') . '</span> <span class="sorting-indicator"></span></a></th>
+            <th class="id number'  . (($this->review_sort != NULL && preg_match('/^ids?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : (($this->review_sort == NULL) ? ' relevance' : '')) . '" title="' . (($this->review_sort == NULL) ? esc_attr__('Sorted by relevance', 'g-business-reviews-rating') : esc_attr__('ID', 'g-business-reviews-rating')) . '" data-title="' . esc_attr__('ID', 'g-business-reviews-rating') . '" data-title-relevance="' . esc_attr__('Sorted by relevance', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="id"><span>' . esc_html__('ID', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="submitted date'  . (($this->review_sort != NULL && preg_match('/^(?:date|submitted|time)(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Submitted', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="time"><span>' . esc_html__('Submitted', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="author'  . (($this->review_sort != NULL && preg_match('/^(?:author(?:[_-]name)?|name)(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Author', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="author_name"><span>' . esc_html__('Author', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="rating'  . (($this->review_sort != NULL && preg_match('/^ratings?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Rating', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="rating"><span>' . esc_html__('Rating', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="text'  . (($this->review_sort != NULL && preg_match('/^(?:review(?:[_-]text)?|text)(?:_(?:asc|desc))?$/', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Text', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="text"><span>' . esc_html__('Text', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="language'  . (($this->review_sort != NULL && preg_match('/^languages?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Language', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="language"><span>' . esc_html__('Language', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
+            <th class="retrieved date'  . (($this->review_sort != NULL && preg_match('/^retrieved(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Retrieved', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="retrieved"><span>' . esc_html__('Retrieved', 'g-business-reviews-rating') . '</span> <span class="sort-arrow"></span></a></th>
 ';
 			if ($show_place_id)
 			{
-				$html .= '            <th class="place-id'  . (($this->review_sort != NULL && preg_match('/^place_ids?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Place ID', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="place_id">' . esc_html__('Place ID', 'g-business-reviews-rating') . ' <span class="sorting-indicator"></span></a></th>
+				$html .= '            <th class="place-id'  . (($this->review_sort != NULL && preg_match('/^place_ids?(?:_(?:asc|desc))?$/i', $this->review_sort)) ? ' sorted' . ((!is_bool($this->review_sort_asc) || is_bool($this->review_sort_asc) && $this->review_sort_asc) ? ' asc' : ' desc') : '') . '" title="' . esc_attr__('Place ID', 'g-business-reviews-rating') . '"><a href="#reviews-table" class="sort" data-field="place_id">' . esc_html__('Place ID', 'g-business-reviews-rating') . ' <span class="sort-arrow"></span></a></th>
 ';
 			}
 
@@ -5657,21 +3672,21 @@ class google_business_reviews_rating
 ';		
 			foreach ($this->reviews as $key => $a)
 			{
-				$html .= '        <tr id="' . esc_attr(preg_replace('/[^0-9a-z-]/', '-', $key)) . '" class="review ' . esc_attr('rating-' . $a['rating']) . esc_attr(((!$a['status']) ? ' inactive' : '')) . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? ' estimate' : '') . ((array_key_exists('removable', $a) && $a['removable']) ? ' removable' : '') . '" data-id="' . esc_attr($a['id']) . '" data-order="' . esc_attr($a['order']) . '">
-            <td class="id number">' . esc_html($a['id']) . ' <a href="' . esc_attr('#' . preg_replace('/[^0-9a-z-]/', '-', $key)) . '" class="show-hide" title="' . (($a['status']) ? esc_attr__('Hide', 'g-business-reviews-rating') : esc_attr__('Show', 'g-business-reviews-rating')) . '">' . (($a['status']) ? '<span class="dashicons dashicons-visibility"></span>' : '<span class="dashicons dashicons-hidden"></span>') . '</a>' . ((array_key_exists('removable', $a) && $a['removable'] || array_key_exists('time_estimate', $a) && $a['time_estimate']) ? '<a href="' . esc_attr('#' . preg_replace('/[^0-9a-z-]/', '-', $key)) . '" class="remove" title="' . esc_attr__('Remove', 'g-business-reviews-rating') . '"><span class="dashicons dashicons-no"></span></a>' : '') . '</td>
-            <td class="submitted date"><span class="date' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? ' date-edit' : '') . '"><span class="value">' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? esc_html(date("Y/m/d", $a['time'])) . '</span> <span class="dashicons dashicons-arrow-down"></span>' : esc_html(date("Y/m/d H:i", $a['time']))) . '</span></span>' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? '<input type="date" id="' . esc_attr('submitted-' . preg_replace('/[^0-9a-z-]/', '-', $key)) . '" class="time-estimate" name="submitted[]" value="' . esc_attr(date("Y-m-d", $a['time'])) . '" max="' . esc_attr(date("Y-m-d")) . '">' : '') . '</td>
+				$html .= '        <tr id="' . esc_attr('review-' . $a['id']) . '" class="review ' . esc_attr('rating-' . $a['rating']) . esc_attr(((!$a['status']) ? ' inactive' : '')) . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? ' estimate' : '') . ((array_key_exists('removable', $a) && $a['removable']) ? ' removable' : '') . '" data-id="' . esc_attr($a['id']) . '" data-order="' . esc_attr($a['order']) . '">
+            <td class="id number">' . esc_html($a['id']) . ' <a href="' . esc_attr('#review-' . $a['id']) . '" class="show-hide" title="' . (($a['status']) ? esc_attr__('Hide', 'g-business-reviews-rating') : esc_attr__('Show', 'g-business-reviews-rating')) . '">' . (($a['status']) ? '<span class="dashicons dashicons-visibility"></span>' : '<span class="dashicons dashicons-hidden"></span>') . '</a>' . ((array_key_exists('removable', $a) && $a['removable'] || array_key_exists('time_estimate', $a) && $a['time_estimate']) ? '<a href="' . esc_attr('#review-' . $a['id']) . '" class="remove" title="' . esc_attr__('Remove', 'g-business-reviews-rating') . '"><span class="dashicons dashicons-no"></span></a>' : '') . '</td>
+            <td class="submitted date"><span class="date' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? ' date-edit' : '') . '"><span class="value">' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? esc_html(gmdate("Y/m/d", $a['time'])) . '</span> <span class="dashicons dashicons-arrow-down"></span>' : esc_html(gmdate("Y/m/d H:i", $a['time']))) . '</span></span>' . ((array_key_exists('time_estimate', $a) && $a['time_estimate']) ? '<input type="date" id="' . esc_attr('submitted-' . $a['id']) . '" class="time-estimate" name="submitted[]" value="' . esc_attr(gmdate("Y-m-d", $a['time'])) . '" max="' . esc_attr(gmdate("Y-m-d")) . '">' : '') . '</td>
             <td class="author">
 				<span class="name">' . ((isset($a['author_url']) && $a['author_url'] != NULL) ? '<a href="' . esc_attr($a['author_url']) . '" target="_blank">' : '') . esc_html($a['author_name']) . ((isset($a['author_url']) && $a['author_url'] != NULL) ? '</a>' : '') . '</span>
-				' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? '<span class="avatar"><a href="' . esc_attr($a['author_url']) . '" target="_blank"><img src="' . esc_attr((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? $avatar_directory . '/' . $a['avatar'] : $a['profile_photo_url']) . '" alt="Avatar"></a></span>' : '') . '
+				' . ((isset($a['author_url']) && isset($a['profile_photo_url']) && $a['author_url'] != NULL && $a['profile_photo_url'] != NULL) ? '<span class="avatar"><a href="' . esc_attr($a['author_url']) . '" target="_blank"><img src="' . esc_attr((isset($a['avatar']) && $a['avatar'] != NULL && $avatar_directory != NULL) ? $avatar_directory . '/' . $a['avatar'] : $a['profile_photo_url']) . '" alt="' . esc_attr__('Avatar', 'g-business-reviews-rating') . '" loading="lazy" width="32" height="32"></a></span>' : '') . '
 			</td>
             <td class="rating">' . str_repeat('★', $a['rating']) . (($a['rating'] < 5) ? '<span class="not">' . str_repeat('☆', (5 - $a['rating'])) . '</span>' : '') . ' <span class="rating-number">(' . esc_html($a['rating']) . ')</span></td>
-            <td class="text"><div class="text-wrap">' . (($a['text'] != NULL) ? preg_replace('/(\r\n|\r|\n)+/', '<br>' . PHP_EOL . '            	', esc_html(strip_tags($a['text']))) : '<span class="none" title="' . esc_attr(__('None', 'g-business-reviews-rating')) . '">—</span>') . '</div></td>
-            <td class="language">' . (($a['text'] != NULL) ? '<a href="#reviews-table" class="language-edit"><span class="value">' . ((isset($a['language']) && $a['language'] != NULL) ? esc_html($a['language']) : '—') . '</span> <span class="dashicons dashicons-arrow-down"></span></a> <select id="' . esc_attr('language-' . preg_replace('/[^0-9a-z-]/', '-', $key)) . '" class="language" name="language[]" data-none="' . esc_attr__('None', 'g-business-reviews-rating') . '"></select>' : '<span class="none" title="' . esc_attr__('None', 'g-business-reviews-rating') . '">—</span>') . '</td>
-            <td class="retrieved date">' . ((is_numeric($a['retrieved'])) ? esc_html(date("Y/m/d H:i", $a['retrieved'])) : ((is_numeric($a['imported'])) ? '<span class="none" title="' . esc_attr(__('Imported', 'g-business-reviews-rating') . ': ' . date("Y/m/d H:i", $a['imported'])) . '">—</a>' : '<span class="none" title="' . esc_attr__('None', 'g-business-reviews-rating') . '">—</span>')) . '</td>
+            <td class="text"><div class="text-wrap">' . (($a['text'] != NULL && is_string($a['text'])) ? preg_replace('/(\r\n|\r|\n)+/', '<br>' . PHP_EOL . '            	', esc_html(wp_strip_all_tags($a['text']))) : '<span class="none" title="' . esc_attr(__('None', 'g-business-reviews-rating')) . '">—</span>') . '</div></td>
+            <td class="language">' . (($a['text'] != NULL) ? '<a href="#reviews-table" class="language-edit"><span class="value">' . ((isset($a['language']) && $a['language'] != NULL) ? esc_html($a['language']) : '—') . '</span> <span class="dashicons dashicons-arrow-down"></span></a> <select id="' . esc_attr('language-' . $a['id']) . '" class="language" name="language[]" data-none="' . esc_attr__('None', 'g-business-reviews-rating') . '"></select>' . ((isset($a['original_text']) && is_string($a['original_text']) && mb_strlen($a['original_text']) > 0 && $a['original_text'] != $a['text']) ? ' <button type="button" class="review-language" data-text="' . esc_attr($a['original_text']) . '" data-value="' . esc_attr((isset($a['original_language']) && is_string($a['original_language'])) ? $a['original_language'] : '') . '">' . esc_html((isset($a['original_language']) && is_string($a['original_language'])) ? $a['original_language'] : '?') . '</button>' : '') : '<span class="none" title="' . esc_attr__('None', 'g-business-reviews-rating') . '">—</span>') . '</td>
+            <td class="retrieved date">' . ((is_numeric($a['retrieved'])) ? esc_html(gmdate("Y/m/d H:i", $a['retrieved'])) : ((is_numeric($a['imported'])) ? '<span class="none" title="' . esc_attr(__('Imported', 'g-business-reviews-rating') . ': ' . gmdate("Y/m/d H:i", $a['imported'])) . '">—</a>' : '<span class="none" title="' . esc_attr__('None', 'g-business-reviews-rating') . '">—</span>')) . '</td>
 ';
 			if ($show_place_id)
 			{
-				$html .= '            <td class="place-id"><span class="abbr" title="' . (($this->demo) ? 'Abcde-0123456789-Fghij-01234-z' : esc_attr($a['place_id'])) . '"' . ((!empty($places) && array_key_exists($a['place_id'], $places)) ? ' data-place-name="' . esc_attr($places[$a['place_id']]) . '"' : '') . '>' . (($this->demo) ? 'Abcde…z' : esc_html(substr($a['place_id'], 0, 5)) . '…' . esc_html(substr($a['place_id'], -1, 1))) . '</span></td>
+				$html .= '            <td class="place-id"><span class="abbr" title="' . (($this->demo) ? 'Abcde-0123456789-Fghij-01234-z' : esc_attr($a['place_id'])) . '"' . ((!empty($places) && array_key_exists($a['place_id'], $places)) ? ' data-place-name="' . esc_attr($places[$a['place_id']]) . '"' : '') . '>' . (($this->demo) ? 'Abcde…z' : esc_html(mb_substr($a['place_id'], 0, 5)) . '…' . esc_html(mb_substr($a['place_id'], -1, 1))) . '</span></td>
 ';
 			}
 
@@ -5687,12 +3702,28 @@ class google_business_reviews_rating
 ';
 			return $html;
 		}
-		return;
+
+		return NULL;
 	}
-	
-	public function get_relative_time_description($time, $fallback = NULL, $use_fallback = FALSE)
+
+	/* Return current relative time descriptive text */
+
+	public function get_relative_time_description($time, ?string $fallback = NULL, bool $use_fallback = FALSE): ?string
 	{
-		// Return current relative time descriptive text
+		if ($time != NULL && is_string($time))
+		{
+			$time = strtotime($time);
+		}
+
+		if (!is_numeric($time) || $time <= 0)
+		{
+			if ($use_fallback && $fallback == NULL)
+			{
+				return $fallback;
+			}
+
+			return '';
+		}
 		
 		$seconds = round(time() - $time);
 		
@@ -5708,7 +3739,14 @@ class google_business_reviews_rating
 				continue;
 			}
 			
-			if (!$a['singular'] && preg_match('/^pl.*$/i', get_option('WPLANG')) && preg_match('/[\[\]?]/', $a['text']))
+			if (!$a['singular'] && preg_match('/^ar/i', get_option('WPLANG', '')) && preg_match('/\([^()|]+\|[^()|]+\)/', $a['text']))
+			{
+				$count = round($seconds / $a['divider']);
+
+				return sprintf(preg_replace('/\(([^()|]+)\|([^()|]+)\)/', ($count >= 11) ? '$2' : '$1', $a['text']), $count);
+			}
+
+			if (!$a['singular'] && preg_match('/^pl.*$/i', get_option('WPLANG', '')) && preg_match('/[\[\]?]/', $a['text']))
 			{
 				switch ($k)
 				{
@@ -5743,1439 +3781,94 @@ class google_business_reviews_rating
 			
 			return ($a['singular']) ? $a['text'] : sprintf($a['text'], round($seconds / $a['divider']));
 		}
-	
+
 		return $fallback;
 	}
-	
-	public function wp_display($atts = NULL, $content = NULL, $shortcode = NULL)
+
+/* Recompute relative_time_description for every stored review from its time/publishTime — returns TRUE if any value changed */
+
+	protected function set_relative_time_descriptions(): bool
 	{
-		// Display HTML from shortcodes 
-		
-		$this->instance_count = (!is_numeric($this->instance_count)) ? 1 : $this->instance_count + 1;
-		
-		if ($this->instance_count == 1 && !$this->dashboard)
+		if (empty($this->reviews))
 		{
-			$this->set_data();
+			return FALSE;
 		}
-		
-		$type_check = NULL;
-		$shortcode_defaults = array(
-			'animate' => NULL,
-			'attribution' => NULL,
-			'avatar' => NULL,
-			'bullet' => NULL,
-			'class' => NULL,
-			'color_scheme' => NULL,
-			'count' => NULL,
-			'cursor' => NULL,
-			'date' => NULL,
-			'draggable' => NULL,
-			'errors' => NULL,
-			'excerpt' => NULL,
-			'html_tag' => NULL,
-			'html_tags' => NULL,
-			'icon' => NULL,
-			'id' => NULL,
-			'interval' => NULL,
-			'iterations' => NULL,
-			'language' => NULL,
-			'limit' => NULL,
-			'link' => NULL,
-			'link_class' => NULL,
-			'link_disable' => NULL,
-			'local_images' => NULL,
-			'loading' => NULL,
-			'loop' => NULL,
-			'max' => NULL,
-			'min' => NULL,
-			'more' => NULL,
-			'multiplier' => NULL,
-			'name' => NULL,
-			'name_format' => NULL,
-			'offset' => NULL,
-			'outer_tag' => NULL,
-			'place_id' => NULL,
-			'rating' => NULL,
-			'rel' => NULL,
-			'review_item_order' => NULL,
-			'review_text' => NULL,
-			'review_text_exc' => NULL,
-			'review_text_format' => NULL,
-			'review_text_height' => NULL,
-			'review_text_inc' => NULL,
-			'review_text_max' => NULL,
-			'review_text_min' => NULL,
-			'review_word' => NULL,
-			'reviews_link' => NULL,
-			'reviews_link_class' => NULL,
-			'reviews_url' => NULL,
-			'sort' => NULL,
-			'stars' => NULL,
-			'stars_gray' => NULL,
-			'stars_grey' => NULL,
-			'stylesheet' => NULL,
-			'summary' => NULL,
-			'target' => NULL,
-			'theme' => NULL,
-			'transition' => NULL,
-			'transition_duration' => NULL,
-			'type' => NULL,
-			'vicinity' => NULL,
-			'view' => NULL,
-			'write_review_link' => NULL,
-			'write_review_link_class' => NULL,
-			'write_review_url' => NULL
-		);
-		$types = array(
-			'maps_link',
-			'maps_url',
-			'rating',
-			'rating_count',
-			'review_count',
-			'reviews',
-			'reviews_link',
-			'reviews_url',
-			'structured_data',
-			'write_review_link',
-			'write_review_url'
-		);
-		
-		foreach ($types as $t)
+
+		$changed = FALSE;
+
+		foreach (array_keys($this->reviews) as $key)
 		{
-			$shortcode_defaults[$t] = FALSE;
-		}
-		
-		$args = shortcode_atts($shortcode_defaults, $atts);
-		
-		if (!is_array($atts))
-		{
-			$atts = array();
-		}
-	
-		if (array_key_exists(0, $atts) && in_array($atts[0], $types))
-		{
-			$type_check = $atts[0];
-		}
-		
-		if ($type_check == NULL && is_string($shortcode) && preg_match('/^.+_links?$/i', $shortcode))
-		{
-			$type_check = 'reviews_link';
-		}
-		
-		foreach ($args as $k => $v)
-		{
-			if (is_string($v) && (mb_strlen($v) == 0 || $v == 'NULL' || $v == 'null'))
+			$a = $this->reviews[$key];
+			$new = (isset($a['time'])) ? $this->get_relative_time_description($a['time']) : '';
+
+			if (!isset($a['relative_time_description']) || $new != $a['relative_time_description'])
 			{
-				$args[$k] = NULL;
+				$this->reviews[$key]['relative_time_description'] = $new;
+				$changed = TRUE;
 			}
 		}
-				
-		extract($args, EXTR_SKIP);
-		
-		$admin_preview = ($this->dashboard && is_array($atts) && array_key_exists('admin_preview', $atts) && is_bool($atts['admin_preview']) && $atts['admin_preview']);
-		$id_name = (is_string($id) && preg_match('/^[a-z][0-9a-z_-]*[0-9a-z]$/i', $id)) ? mb_strtolower($id) : NULL;
-		$place_id = (is_string($place_id) && mb_strlen($place_id) >= 20) ? $place_id : NULL;
-		$type = (is_string($type)) ? preg_replace('/[^\w_]/', '_', trim(mb_strtolower($type))) : $type_check;
-		$target = (is_string($target)) ? preg_replace('/[^\w_-]/', '-', trim(mb_strtolower($target))) : NULL;
-		$rel = (is_string($rel) && preg_match('/^\s*(?:author|bookmark|external|no(?:follow|referrer|opener))\s*$/i', $rel)) ? mb_strtolower($rel) : ((is_string($rel) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $rel) || !is_string($rel) && array_key_exists('rel', $atts)) ? NULL : 'nofollow');
-		$theme = (is_string($theme)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($theme))) : NULL;
-		$class = (is_string($class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($class))) : NULL;
-		$color_scheme = (is_string($color_scheme) && array_key_exists(preg_replace('/[^\w_]/', '', trim(mb_strtolower($color_scheme))), $this->color_schemes)) ? preg_replace('/[^\w_]/', '', trim(mb_strtolower($color_scheme))) : ((array_key_exists('color_scheme', $atts)) ? NULL : get_option(__CLASS__ . '_color_scheme', NULL));
-		$stylesheet = (is_bool($stylesheet) || is_string($stylesheet) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $stylesheet)) ? (is_bool($stylesheet) && $stylesheet || is_numeric($stylesheet) && $stylesheet > 0 || is_string($stylesheet) && $stylesheet != NULL) : ((!array_key_exists('stylesheet', $atts)) ? get_option(__CLASS__ . '_stylesheet', NULL) : TRUE);
-		$summary = (is_null($summary) || is_bool($summary) && $summary || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $summary)) ? TRUE : ((is_string($summary) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $summary)) ? preg_split('/,\s*/', preg_replace('/[^\w ,_-]/', '-', trim(mb_strtolower($summary))), 8, PREG_SPLIT_NO_EMPTY) : FALSE);
-		$icon = (is_null($icon) || is_bool($icon) && $icon || is_string($icon) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $icon)) ? (is_bool($summary) || is_array($summary) && in_array('icon', $summary)) : ((is_string($icon) && preg_match('/.+\.(?:jpe?g|png|svg|gif)/i', $icon)) ? $icon : FALSE);
-		$name = (is_null($name) || is_bool($name) && $name || is_string($name) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $name)) ? (is_bool($summary) || is_array($summary) && in_array('name', $summary)) : ((is_string($name) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $name)) ? $name : FALSE);
-		$vicinity = (is_null($vicinity) || is_bool($vicinity) && $vicinity || is_string($vicinity) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $vicinity)) ? (is_bool($summary) || is_array($summary) && in_array('vicinity', $summary)) : ((is_string($vicinity) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $vicinity)) ? $vicinity : FALSE);
-		$rating_display = ((!is_array($summary) && (!array_key_exists('rating', $atts) || is_null($rating) || is_bool($rating) && $rating || is_string($rating) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $rating))) || is_array($summary) && in_array('rating', $summary));
-		$stars = (is_null($stars) || is_bool($stars) && $stars || is_string($stars) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|svg|vector)$/i', $stars)) ? ((is_bool($summary) || is_array($summary) && (in_array('stars', $summary))) ? ((!array_key_exists('stars', $atts) && $color_scheme != NULL) ? 'css' : (is_bool($summary) && $summary || is_array($summary) && in_array('stars', $summary))) : FALSE) : ((!array_key_exists('stars', $atts) && $color_scheme != NULL || is_string($stars) && preg_match('/(#(?:[0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(?:rgba?|hsla?)\((?:\d+%?(?:deg|rad|grad|turn)?(?:,|\s)+){2,3}[\s\/]*[\d\.]+%?\))/i', $stars)) ? ((!array_key_exists('stars', $atts) && $color_scheme != NULL) ? 'css' : $stars) : ((is_string($stars) && preg_match('/^(?:html|css|(?:inline[\s_-]+(?:svg|vector)|(?:svg|vector)[\s_-]+inline))$/i', $stars)) ? preg_replace('/[\s_-]+/', ' ', mb_strtolower($stars)) : FALSE));
-		$stars_grey = ((is_string($stars_grey) && preg_match('/(#(?:[0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(?:rgba?|hsla?)\((?:\d+%?(?:deg|rad|grad|turn)?(?:,|\s)+){2,3}[\s\/]*[\d\.]+%?\))/i', $stars_grey)) ? $stars_grey : ((is_string($stars_grey) && preg_match('/^(?:html|css)$/i', $stars_grey)) ? mb_strtolower($stars_grey) : NULL));
-		$stars_gray = ((is_string($stars_gray) && preg_match('/(#(?:[0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(?:rgba?|hsla?)\((?:\d+%?(?:deg|rad|grad|turn)?(?:,|\s)+){2,3}[\s\/]*[\d\.]+%?\))/i', $stars_gray)) ? $stars_gray : ((is_string($stars_gray) && preg_match('/^(?:html|css)$/i', $stars_gray)) ? mb_strtolower($stars_gray) : $stars_grey));
-		$count = (!is_array($summary) && (is_null($count) || is_bool($count) && $count || is_string($count) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $count)) || is_array($summary) && in_array('count', $summary));
-		$limit = (array_key_exists('limit', $atts)) ? ((is_numeric($limit) && $limit >= 0) ? intval($limit) : NULL) : get_option(__CLASS__ . '_review_limit', NULL);
-		$view = (is_numeric($view) && $view >= 1 && $view <= 50 && (is_numeric($limit) && $limit > 0 || !is_numeric($limit))) ? ((is_numeric($limit) && $limit > 0 && $view > $limit) ? intval($limit) : intval($view)) : get_option(__CLASS__ . '_view', NULL);
-		$loop = (is_numeric($view) && is_numeric($loop) && $loop >= 1 && $loop <= 999) ? intval($loop) : (is_numeric($loop) && $loop < 0 || is_bool($loop) && $loop || is_string($loop) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|loop|infin[ia]te?|forever|always|-\d+)$/', $loop));
-		$iterations = (is_numeric($view) && $view >= 1 && is_numeric($iterations) && $iterations >= 1 && $iterations <= 999) ? intval($iterations) : NULL;
-		$interval = (is_numeric($view) && is_numeric($interval) && $interval >= 0.3 && $interval <= 120) ? floatval($interval) : NULL;
-		$transition = (is_string($transition) && preg_match('/^[a-z][0-9a-z .\/()_-]+$/i', $transition)) ? $transition : NULL;
-		$transition_duration = (is_numeric($view) && is_string($transition) && is_numeric($transition_duration) && $transition_duration > 0.05 && $transition_duration <= 10) ? floatval($transition_duration) : NULL;
-		$bullet = (is_string($bullet) && (mb_strlen($bullet) < 20 && !preg_match('/^(?:false|no(?:ne)?|0|off|hide|t(?:rue)?|y(?:es)?|1|on|show)$/i', $bullet))) ? $bullet : (!array_key_exists('bullet', $atts) || is_bool($bullet) && $bullet || is_string($bullet) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $bullet));
-		$cursor = (!array_key_exists('cursor', $atts) || is_bool($cursor) && $cursor || is_string($cursor) && preg_match('/^(?:true|yes|1|on|show|left|right|both)$/', $cursor));
-		$draggable = (!array_key_exists('draggable', $atts) || is_bool($draggable) && $draggable || is_string($draggable) && preg_match('/^(?:true|yes|1|on|show|left|right|both)$/', $draggable));
-		$avatar = (is_null($avatar) || is_bool($avatar) && $avatar || is_string($avatar) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $avatar)) ? TRUE : ((is_string($avatar) && preg_match('/^.+\.(?:jpe?g|png|svg|gif|webp).*$/i', $avatar)) ? $avatar : FALSE);
-		$name_format = (is_bool($name_format) && !$name_format || is_string($name_format) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $name_format)) ? FALSE : ((is_string($name_format) && preg_match('/first|last|initials?|capitali[sz]e|uc(?:first|words)|(?:(?:lower|upper|title)(?:case)?)/i', $name_format)) ? $name_format : NULL);
-		$date = (is_null($date) || is_bool($date) && $date || is_string($date) && preg_match('/^(?:true|yes|1|on|show|relative)$/i', $date)) ? TRUE : ((is_string($date) && preg_match('/^[aABcdDeFgGhHiIjLlmMNnoOPrSstTuUvwWYyzZ ,.;:()\[\]\/_-]{1,20}$/', $date) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $date)) ? $date : FALSE);
-		$relative_date = (is_string($date) && preg_match('/^(?:relative)$/i', $date));
-		$link = (is_bool($link) && $link || is_string($link) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $link)) ? TRUE : ((is_string($link) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $link)) ? $link : FALSE);
-		$link_class = (is_string($link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($link_class))) : NULL;
-		$link_disable = (is_bool($link_disable) && $link_disable || is_string($link_disable) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $link_disable)) ? TRUE : ((is_string($link_disable) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $link_disable)) ? preg_split('/,\s*/', preg_replace('/[^\w ,_-]/', '-', trim(mb_strtolower($link_disable))), 3, PREG_SPLIT_NO_EMPTY) : FALSE);
-		$reviews_link = (is_bool($reviews_link) && $reviews_link || is_string($reviews_link) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $reviews_link)) ? TRUE : ((is_string($reviews_link) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $reviews_link)) ? $reviews_link : FALSE);
-		$write_review_link = (is_bool($write_review_link) && $write_review_link || is_string($write_review_link) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $write_review_link)) ? TRUE : ((is_string($write_review_link) && !preg_match('/^(?:f(?:alse)?|no?|0|off|hide)$/i', $write_review_link)) ? $write_review_link : FALSE);
-		$reviews_url = (is_string($reviews_url) && preg_match('#^((https?:)?//[^/]{4,150}/?.*|/.*)$#i', $reviews_url)) ? $reviews_url : (($this->demo) ? 'https://search.google.com/local/reviews?placeid=ChIJq6pqZz2uEmsRaQAMbAl0RW0' : 'https://search.google.com/local/reviews?placeid=' . esc_attr((is_string($place_id)) ? $place_id : get_option(__CLASS__ . '_place_id')));			
-		$write_review_url = (is_string($write_review_url) && preg_match('#^((https?:)?//[^/]{4,150}/?.*|/.*)$#i', $write_review_url)) ? $write_review_url : (($this->demo) ? 'https://search.google.com/local/writereview?placeid=ChIJq6pqZz2uEmsRaQAMbAl0RW0' : 'https://search.google.com/local/writereview?placeid=' . esc_attr((is_string($place_id)) ? $place_id : get_option(__CLASS__ . '_place_id')));			
-		$reviews_link_class = (is_string($reviews_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($reviews_link_class))) : $link_class;
-		$write_review_link_class = (is_string($write_review_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($write_review_link_class))) : $link_class;
-		$animate = (array_key_exists('animate', $atts) && is_string($animate) && preg_match('/^(?:immediate(?:ly)?|(?:on)?(?:load|ready))$/i', $animate)) ? 'immediate' : (is_null($animate) || is_bool($animate) && $animate || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|animate|animation)$/i', $animate));
-		$review_text = (is_null($review_text) || is_bool($review_text) && $review_text || is_string($review_text) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $review_text));
-		$attribution = (is_null($attribution) || is_bool($attribution) && $attribution || is_string($attribution) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|light|dark)$/i', $attribution)) ? ((is_string($attribution) && preg_match('/^(?:light|dark)$/i', $attribution)) ? mb_strtolower($attribution) : TRUE) : ((is_string($attribution) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $attribution)) ? $attribution : FALSE);
-		$review_text_excerpt_length = (is_numeric($excerpt) && $excerpt >= 20) ? intval($excerpt) : ((!array_key_exists('excerpt', $atts)) ? get_option(__CLASS__ . '_review_text_excerpt_length', NULL) : NULL);
-		$review_text_height = (is_string($review_text_height) && preg_match('/^(?:\d+(?:\.\d+)?|\.\d+)(?:px|r?em|%|ch|ex)|(?:calc|clamp)\((?:(?:\d+(?:\.\d+)?|\.\d+)(?:px|r?em|%|ch|ex)[,\s\/*+-]*){1,3}\)$/i', $review_text_height)) ? mb_strtolower($review_text_height) : NULL;
-		$review_text_format = (is_string($review_text_format) && $review_text_format != NULL) ? mb_strtolower($review_text_format) : NULL;
-		$review_word = (is_string($review_word) && mb_strlen($review_word) >= 2) ? preg_split('#[/,]\s*#', $review_word, 2) : array(__('review', 'g-business-reviews-rating'), __('reviews', 'g-business-reviews-rating'));
-		$more = (is_string($more)) ? $more : __('More', 'g-business-reviews-rating');
-		$language = (is_string($language) && mb_strlen($language) >= 2 && mb_strlen($language) <= 16) ? substr($language, 0, 2) : NULL;
-		$local_images = (array_key_exists('local_images', $atts)) ? (is_bool($local_images) && $local_images || is_string($local_images) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|local)$/i', $local_images)) : NULL;
-		$loading = (is_string($loading) && preg_match('/^(eager|lazy)(?:\s?loading)?$/i', $loading, $m)) ? mb_strtolower($m[1]) : NULL;
-		$html_tags = (is_string($html_tags) && mb_strlen($html_tags) >= 1) ? preg_split('/,+/', preg_replace('/^,+|,+$|[^0-9a-z,]/', '', $html_tags), 8, PREG_SPLIT_NO_EMPTY) : ((is_string($html_tag) && mb_strlen($html_tag) >= 1) ? preg_split('/,+/', preg_replace('/^,+|,+$|[^0-9a-z,]/', '', $html_tag), 8, PREG_SPLIT_NO_EMPTY) : array());
-		$outer_tag = (!array_key_exists('outer_tag', $atts) || (is_null($outer_tag) || is_bool($outer_tag) && $outer_tag || is_string($outer_tag) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $outer_tag)));
-		$multiplier = (is_numeric($multiplier) && $multiplier > 0 && $multiplier < 10) ? floatval($multiplier) : 0.196;
-		$errors = (is_bool($errors) && !$errors || is_string($errors) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $errors)) ? FALSE : ((defined('WP_DEBUG')) ? WP_DEBUG : FALSE);
 
-		switch ($type)
-		{
-		case 'rating':
-		case 'rating_overall':
-		case 'rating_mean':
-		case 'rating_average':
-		case 'mean_rating':
-		case 'overall_rating':
-		case 'overall_google_rating':
-		case 'google_rating':
-		case 'google_rating_overall':
-		case 'google_rating_mean':
-		case 'google_rating_average':
-			if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-			{
-				$this->set_data();
-				if (!isset($this->data['result']) || isset($this->data['result']) && !is_array($this->data['result']))
-				{
-					if (!$errors)
-					{
-						return '';
-					}
-					
-					$text = esc_html__('Error', 'g-business-reviews-rating') . ': No rating data found';
-					return $text;
-				}
-			}
-
-			$html = $this->get_data('rating_rounded', $place_id);
-			break;
-		case 'rating_count':
-		case 'google_rating_count':
-		case 'review_count':
-		case 'google_review_count':
-			if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-			{
-				$this->set_data();
-				if (!isset($this->data['result']) || isset($this->data['result']) && !is_array($this->data['result']))
-				{
-					if (!$errors)
-					{
-						return '';
-					}
-					
-					$text = esc_html__('Error', 'g-business-reviews-rating') . ': No rating count found';
-					return $text;
-				}
-			}
-
-			$html = $this->get_data('rating_count', $place_id);
-			break;
-		case NULL;
-		case 'reviews':
-		case 'google_reviews':
-			if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-			{
-				$this->set_data();
-
-				if (!isset($this->data['result']['reviews']) || isset($this->data['result']) && !is_array($this->data['result']['reviews']))
-				{
-					if (!$errors)
-					{
-						return '';
-					}
-					
-					$html = '<p class="error">' . esc_html__('Error', 'g-business-reviews-rating') . ': No review data found</p>';
-
-					return $html;
-				}
-			}
-
-			$this->reviews_filter($args, $atts);
-			$this->local_images = get_option(__CLASS__ . '_local_images', FALSE);
-			
-			if (is_string($theme))
-			{
-				if ($key = array_search($theme, $this->reviews_themes) && is_string($key))
-				{
-					$theme = $key;
-				}
-				else
-				{
-					$theme = preg_replace('/[^0-9a-z -]/', '-', mb_strtolower($theme));
-				}
-				
-				if (preg_match('/^light(?:\s+([^\s].+))?$/i', $theme, $m))
-				{
-					$theme = (isset($m[1])) ? $m[1] : NULL;
-				}
-			}
-			else
-			{
-				$theme = (!$admin_preview) ? get_option(__CLASS__ . '_reviews_theme', NULL) : NULL;
-				
-				if (is_string($theme) && preg_match('/^light(?:\s+([^\s].+))?$/i', $theme, $m))
-				{
-					$theme = (isset($m[1])) ? $m[1] : NULL;
-				}
-			}
-			
-			$html_tags = (!empty($html_tags)) ? array_replace($this->default_html_tags, $html_tags) : $this->default_html_tags;
-			$classes = array('google-business-reviews-rating', 'gmbrr');
-			$review_item_inline = (is_string($review_item_order) && preg_match('/([\b\s,_-]|^)inline([\b\s,_-]|$)/i', $review_item_order));
-			$review_item_text_first = (is_string($review_item_order) && preg_match('/([\b\s,_-]|^)(?:review(?:[\b\s,_-])?text|review|text)[\b\s,_-]?(?:first|top|before|true|on|high|above|1)([\b\s,_-]|$)/i', $review_item_order));
-			$review_item_author_switch = (is_string($review_item_order) && preg_match('/([\b\s,_-]|^)(?:author(?:[\b\s,_-])?)[\b\s,_-]?(?:last|bottom|after|low|below|switch|flip)([\b\s,_-]|$)/i', $review_item_order));
-			$rating = $this->get_data('rating', $place_id);
-			$rating_rounded = $this->get_data('rating_rounded', $place_id);
-			$name = (is_bool($name) && $name) ? $this->get_data('name', $place_id) : ((is_string($name)) ? $name : FALSE);
-			$icon = (is_string($icon)) ? $icon : (is_bool($icon) && $icon);
-			$vicinity = (is_bool($vicinity) && $vicinity) ? $this->get_data('vicinity', $place_id) : ((is_string($vicinity)) ? $vicinity : FALSE);
-			$avatar = (is_bool($avatar) || is_string($avatar)) ? $avatar : FALSE;
-			$date = ($relative_date) ? 'relative' : ((is_bool($date)) ? $date : ((is_string($date)) ? $date : FALSE));
-			$rating_count = $this->get_data('rating_count', $place_id);
-			$rating_count_rounded = $this->get_data('rating_count_rounded', $place_id);
-			
-			if (is_string($theme) && mb_strlen($theme) > 2)
-			{
-				$classes = array_merge($classes, preg_split('/\s+/', $theme, 8));
-			}
-			
-			if (is_string($class) && mb_strlen($class) > 2)
-			{
-				$classes = array_merge($classes, preg_split('/\s+/', $class, 12));
-			}
-			
-			if (is_string($color_scheme) && mb_strlen($color_scheme) > 2)
-			{
-				$classes[] = $color_scheme;
-			}
-			
-			if (is_bool($stylesheet) && !$stylesheet)
-			{
-				$classes[] = 'no-styles';
-			}
-			elseif (is_string($stars) && preg_match('/^inline|inline$/i', $stars))
-			{
-				$classes[] = 'inline-svg';
-			}
-			else
-			{
-				if (is_string($stars))
-				{
-					$classes[] = ($stars == 'html' || $stars == 'css') ? 'stars-' . $stars : 'stars-color';
-				}
-				
-				if (is_string($stars_gray))
-				{
-					$classes[] = ($stars_gray == 'html' || $stars_gray == 'css') ? 'stars-' . $stars_gray : 'stars-gray-color';
-				}
-			}
-			
-			if (is_numeric($view))
-			{
-				$classes[] = 'carousel';
-			}
-			
-			if (is_string($bullet) && $bullet != NULL)
-			{
-				$classes[] = 'bullet-symbol';
-			}			
-			
-			if (is_string($link))
-			{
-				$classes[] = 'link';
-			}
-			
-			if ($this->demo)
-			{
-				$classes[] = 'demo';
-			}
-
-			$class = implode(' ', array_unique($classes));
-			
-			if (is_bool($icon) && $icon)
-			{
-				$icon = $this->get_data('icon', $place_id);
-			}
-			
-			if (is_bool($link) && !$link && is_numeric($limit) && $limit == 0 && is_string($theme) && preg_match('/\b(?:tiny|badge)\b/', $theme))
-			{
-				$link = $reviews_url;
-			}
-			elseif ((is_bool($link) && $link || is_string($link)) && (!is_numeric($limit) || is_numeric($limit) && $limit > 0))
-			{
-				$link = (is_string($theme) && preg_match('/\b(?:tiny|badge)\b/', $theme)) ? $reviews_url : FALSE;
-			}
-			elseif (is_bool($link) && $link || is_string($link) && preg_match('/^(?:view[\s_-]*)?reviews?$/i', $link))
-			{
-				$link = $reviews_url;
-			}
-			elseif (is_string($link) && preg_match('/^write[\s_-]*(?:a[\s_-]*)?reviews?$/i', $link))
-			{
-				$link = $write_review_url;
-			}
-			
-			if (!array_key_exists('summary', $atts) && !array_key_exists('icon', $atts) && !array_key_exists('name', $atts) && !array_key_exists('vicinity', $atts) && is_string($theme) && preg_match('/\b(?:tiny\b.*badge|badge\b.*tiny)\b/', $theme))
-			{
-				$icon = FALSE;
-				$name = FALSE;
-				$vicinity = FALSE;
-			}
-			
-			$html = '<div id="' . esc_attr(($id_name != NULL) ? $id_name : 'google-business-reviews-rating' . (($this->instance_count > 1) ? '-' . $this->instance_count : '')) . '" ' 
-			. 'class="' . esc_attr($class) . '"'
-			. ((is_string($link) && (is_bool($link_disable) && !$link_disable || !is_bool($link_disable))) ? ' data-href="' . esc_attr($link) . '"' : '')
-			. (($stylesheet && is_string($stars) && $stars != 'html' && $stars != 'css') ? ' data-stars="' . esc_attr($stars) . '"' : '')
-			. (($stylesheet && is_string($stars_gray) && $stars_gray != 'html' && $stars_gray != 'css') ? ' data-stars-gray="' . esc_attr($stars_gray) . '"' : '')
-			. ((is_string($animate) && $animate == 'immediate') ? ' data-animate="' . esc_attr($animate) . '"' : '')
-			. ((is_numeric($view)) ? ' data-view="' . esc_attr($view) . '"' . ((is_numeric($loop) || is_bool($loop) && $loop) ? ' data-loop="' . esc_attr((!is_numeric($loop)) ? '-1' : $loop) . '"' : '') . ((is_numeric($iterations)) ? ' data-iterations="' . esc_attr($iterations) . '"' : '') . ((is_numeric($interval)) ? ' data-interval="' . esc_attr($interval) . '"' : '') . ((is_string($transition)) ? ' data-transition="' . esc_attr($transition) . '"' . ((is_numeric($transition_duration)) ? ' data-transition-duration="' . esc_attr($transition_duration) . '"' : '') : '') . ((is_bool($cursor) && !$cursor) ? ' data-cursor="0"' : '') . ((is_bool($draggable) && !$draggable) ? ' data-draggable="0"' : '') : '')
-			. '>
-';
-
-			if ($summary)
-			{
-				if ((!is_bool($icon) || is_bool($icon) && $icon || is_string($icon)) || (!is_bool($name) || is_bool($name) && $name) || (!is_bool($vicinity) || is_bool($vicinity) && $vicinity))
-				{
-					if (is_string($icon) || is_string($name))
-					{
-						$html .= '	<' . $html_tags[0] . ' class="heading' . (($icon == NULL) ? ' no-icon' : '') . ((!is_string($name)) ? ' no-name' : '') . '">'
-						. (($icon != NULL) ? '<span class="icon' . (((is_bool($local_images) && $local_images || is_null($local_images) && $this->local_images) && (is_bool($icon) && $icon || is_string($icon) && preg_match('#^https?://(?:\w+\.)?(?:gstatic|google(?:usercontent)?)?\.\w+/.+$#i', $icon))) ? ' generic' : '') . '">'
-						. (((is_bool($local_images) && !$local_images || is_null($local_images) && !$this->local_images) || (is_bool($local_images) && $local_images || is_null($local_images) && $this->local_images) && is_string($icon) && !preg_match('#^https?://(?:\w+\.)?(?:gstatic|google(?:usercontent)?)?\.\w+/.+$#i', $icon)) ? '<img src="' . esc_attr($icon) . '" alt="' . esc_attr(trim($name . ' ' . __('Icon', 'g-business-reviews-rating'))) . '"' . (($loading != NULL) ? ' loading="' . esc_attr($loading) . '"' : '') . '>' : '')
-						. '</span>' : '')
-						. ((is_string($name)) ? esc_html($name) : '')
-						. '</' . $html_tags[0] . '>
-';
-					}
-					
-					if (is_string($vicinity) && mb_strlen($vicinity) >= 1)
-					{
-						$html .= '	<' . $html_tags[1] . ' class="vicinity">' . esc_html($vicinity) . '</' . $html_tags[1] . '>
-';
-					}
-				}
-				
-				$html .= '	<' . $html_tags[2] . ' class="rating' . (($rating <= 0) ? ' rating-none' : '') . '">';
-				
-				if ((is_bool($attribution) && $attribution || is_string($attribution) && mb_strlen($attribution) >= 1) && is_string($theme) && preg_match('/\btiny\b/', $theme))
-				{
-					$html .= '<span class="attribution google-icon' . ((is_string($attribution)) ? ' ' . esc_attr($attribution) : '') . '" title="' . esc_attr__('Powered by Google') . '"></span> ';
-				}
-
-				if ($rating_display)
-				{
-					$html .= '<span class="number">' . esc_html($rating_rounded) . '</span>' . (((is_bool($stars) && $stars || is_string($stars) || $count)) ? ' ' : '');
-				}
-
-				if (is_bool($stars) && $stars || is_string($stars))
-				{
-					if (preg_match('/^inline|inline$/i', $stars))
-					{
-						$partial = (round($rating * 10, 0, PHP_ROUND_HALF_UP) - floor($rating) * 10) * 10;
-						$html .= '<span class="all-stars inline-svg' . ((is_bool($animate) && $animate) ? ' animate' : '') . '">' . PHP_EOL;
-
-						for ($star = 1; $star <= 5; $star++)
-						{
-							$html .= '	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" class="star' . (($star > ceil($rating)) ? ' gray' : (($star > floor($rating) && $partial > 0) ? ' mask-' . $partial . '-' . (100 - $partial) : '')) . '" width="100" height="100" viewBox="0 0 100 100">' . PHP_EOL
-		. (($star <= ceil($rating)) ? '	    <defs>
-	        <filter id="' . esc_attr('gmbrr-star-blur-' . $this->instance_count . '-' . $star) . '" color-interpolation-filters="linear" x="-50%" y="-50%" width="200%" height="200%">
-				<feGaussianBlur in="SourceGraphic" stdDeviation="14"></feGaussianBlur>
-	        </filter>
-	    </defs>	    <clipPath id="' . esc_attr('gmbrr-star-mask-shape-' . $this->instance_count . '-' . $star) . '">
-	        <rect class="mask-shape" />
-	    </clipPath>' . PHP_EOL : '')
-		. '	    <clipPath id="' . esc_attr('gmbrr-star-mask-shape-' . $this->instance_count . '-' . ($star + 5)) . '">
-	        <rect class="mask-shape static" />
-	    </clipPath>
-	    <path class="gray" d="m50 2.447 11.743 36.411L100 38.774l-31 22.42 11.902 36.359L50 74.998 19.098 97.553 31 61.194 0 38.774l38.257.084z" />' . PHP_EOL
-		. (($star <= ceil($rating)) ? '	    <path class="yellow" clip-path="url(' . esc_attr('#gmbrr-star-mask-shape-' . $this->instance_count . '-' . $star) . ')" d="m50 2.447 11.743 36.411L100 38.774l-31 22.42 11.902 36.359L50 74.998 19.098 97.553 31 61.194 0 38.774l38.257.084z" />
-	    <circle class="glow" clip-path="url(' . esc_attr('#gmbrr-star-mask-shape-' . $this->instance_count . '-' . $star) . ')" filter="url(' . esc_attr('#gmbrr-star-blur-' . $this->instance_count . '-' . $star) . ')" cx="-100%" cy="50%" r="60"></circle>' . PHP_EOL : '')
-		. '	    <path class="outline" fill="none" stroke="#F7B704" stroke-miterlimit="10" stroke-width="1.937" d="M96.975 39.754 67.85 60.817l11.182 34.159L50 73.786l-29.032 21.19L32.15 60.817 3.025 39.753l35.943.079L50 5.624l11.032 34.208 35.943-.079v.001l-.61.441" />
-	</svg>' . PHP_EOL;
-						}
-
-						$html .= '</span> ';
-					}
-					elseif ($stylesheet && ((!is_string($stars) || is_string($stars) && $stars != 'html') && !preg_match('/\bversion[_-]?1\b/i', $class)))
-					{
-						$partial = (round($rating * 10, 0, PHP_ROUND_HALF_UP) - floor($rating) * 10) * 10;
-						$html .= '<span class="all-stars' . (($animate) ? ' animate' : '') . '">'
-						. str_repeat('<span class="star"></span>', ($partial > 0) ? floor($rating) : ceil($rating))
-						. (($partial > 0) ? '<span class="star split-' . $partial . '-' . (100 - $partial) . '"></span>' : '')
-						. str_repeat('<span class="star gray"></span>', ($partial > 0) ? (5 - ceil($rating)) : (5 - floor($rating)))
-						. '</span> ';
-					}	
-					elseif ($stylesheet)
-					{
-						$html .= '<span class="all-stars">'
-						. str_repeat('★', 5)
-						. '<span class="rating-stars' . (($animate) ? ' animate' : '') . '"' . (($animate) ? ' style="width: 0;"' : '') . ' data-multiplier="' . (is_numeric($multiplier) ? esc_attr($multiplier) : '') . '">'
-						. str_repeat('★', ceil($rating))
-						. '</span></span> ';
-					}
-					else
-					{
-						$html .= '<span class="rating-stars' . (is_bool($animate) ? ' animate' : '') . '" data-rating="' . esc_attr($rating) . '" data-multiplier="' . (is_numeric($multiplier) ? esc_attr($multiplier) : '') . '">'
-						. str_repeat('★', round($rating)) . ((round($rating) < 5) ? '<span class="not">' . str_repeat('☆', (5 - round($rating, 0, PHP_ROUND_HALF_DOWN))) . '</span>' : '')
-						. '</span> ';
-					}
-				}
-				
-				if ($count)
-				{
-					$review_word = (count($review_word) == 2 && $rating_count != 1) ? $review_word[1] : $review_word[0];
-					$html .= (($link != $reviews_url && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('reviews', $link_disable))) ? '<a href="' . esc_attr($reviews_url). '" target="_blank"' . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . ' class="count">' : '<span class="count">');
-
-					if (preg_match('/^(?:([^%]+)%[us]|([^%]+)%[us]([^%]+)|%[us]([^%]+))$/i', $review_word, $m))
-					{
-						$html .= ((isset($m[1])) ? $m[1] : '') . ((isset($m[2])) ? $m[2] : '') . esc_html($rating_count_rounded) . ((isset($m[3])) ? $m[3] : '') . ((isset($m[4])) ? $m[4] : '');
-					}
-					else
-					{
-						$html .= esc_html($rating_count_rounded) . ' ' . $review_word;
-					}
-					
-					$html .= (($link != $reviews_url && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('reviews', $link_disable))) ? '</a>' : '</span>');
-				}
-				
-				$html .= '</' . $html_tags[2] . '>
-';
-			}
-						
-			if ((!is_numeric($limit) || is_numeric($limit) && $limit > 0) && ($errors || !$errors && !empty($this->reviews) && !empty($this->reviews_filtered)))
-			{
-				if (empty($this->reviews))
-				{
-					$html .= '	<' . $html_tags[9] . ' class="listing no-reviews">' . esc_html__('No reviews found.', 'g-business-reviews-rating') . '</' . $html_tags[9] . '>
-';
-				}
-				elseif (empty($this->reviews_filtered))
-				{
-					$html .= '	<' . $html_tags[9] . ' class="listing no-reviews">' . esc_html__('No reviews found, offset too high or another restriction.', 'g-business-reviews-rating') . '</' . $html_tags[9] . '>
-';
-				}
-				elseif (!is_numeric($limit) || is_numeric($limit) && $limit > 0)
-				{
-					$options = array(
-						'avatar' => $avatar,
-						'avatar_directory' => NULL,
-						'bullet' => $bullet,
-						'date' => $date,
-						'html_tags' => $html_tags,
-						'id_name' => $id_name,
-						'index' => 0,	
-						'link_disable' => $link_disable,
-						'loading' => $loading,
-						'more' => $more,
-						'name_format' => $name_format,
-						'name_format_match' => array(),
-						'rel' => $rel,
-						'review_text' => $review_text,
-						'review_text_excerpt_length' => $review_text_excerpt_length,
-						'review_text_format' => $review_text_format,
-						'review_text_height' => $review_text_height,
-						'theme' => $theme,
-						'view' => $view
-					);
-
-					$options['author_name_capitalize'] = (is_string($name_format) && preg_match('/(?:^|\b)(?:capitali[sz]e|uc(?:first|words)|title(?:case))(?:\b|$)/i', $name_format));
-					$options['author_name_lowercase'] = (!$options['author_name_capitalize'] && is_string($name_format) && preg_match('/(?:^|\b)lower(?:case)?(?:\b|$)/i', $name_format));
-					$options['author_name_uppercase'] = (!$options['author_name_capitalize'] && !$options['author_name_lowercase'] && is_string($name_format) && preg_match('/(?:^|\b)upper(?:case)?(?:\b|$)/i', $name_format));
-
-					if (is_string($name_format) && preg_match('/^(?:capitali[sz]e|uc(?:first|words)|(?:(?:lower|upper|title)(?:case)?))?\s*(?:(?:(first|last)\s+)?initials?(?:\s+(only)?)?(?:\s+(?:with\s+)?(dot|(?:full)?stop|point|space)s?(?:\s+(?:and\s+)?(dot|(?:full)?stop|point|space)s?)?)?|(first|last)(?:\s+name)?(?:\s+only)?)\s*(?:capitali[sz]e|uc(?:first|words)|(?:(?:lower|upper|title)(?:case)?))?$/i', $name_format, $name_format_match))
-					{
-						$options['name_format_match'] = $name_format_match;
-						$options['author_name_first'] = (isset($name_format_match[5]) && is_string($name_format_match[5]) && mb_strtolower($name_format_match[5]) == 'first');
-						$options['author_name_last'] = (!$options['author_name_first'] && isset($name_format_match[5]) && is_string($name_format_match[5]) && mb_strtolower($name_format_match[5]) == 'last');
-						$options['author_name_first_initials'] = (!$options['author_name_first'] && !$options['author_name_last'] && isset($name_format_match[1]) && is_string($name_format_match[1]) && mb_strtolower($name_format_match[1]) == 'first');
-						$options['author_name_last_initials'] = (!$options['author_name_first'] && !$options['author_name_last'] && !$options['author_name_first_initials'] && isset($name_format_match[1]) && is_string($name_format_match[1]) && mb_strtolower($name_format_match[1]) == 'last');
-						$options['author_name_only'] = (isset($name_format_match[2]) && is_string($name_format_match[2]) && $name_format_match[2] != NULL);
-						$options['author_name_dot'] = ((isset($name_format_match[3]) && is_string($name_format_match[3]) && $name_format_match[3] != NULL && mb_strtolower($name_format_match[3]) != 'space') || (isset($name_format_match[4]) && is_string($name_format_match[4]) && $name_format_match[4] != NULL && mb_strtolower($name_format_match[4]) != 'space'));
-						$options['author_name_space'] = ((isset($name_format_match[3]) && is_string($name_format_match[3]) && mb_strtolower($name_format_match[3]) == 'space') || (isset($name_format_match[4]) && is_string($name_format_match[4]) && mb_strtolower($name_format_match[4]) == 'space'));
-					}
-					
-					$check_key = NULL;
-					$options['review_item_inline'] = FALSE;
-					$options['review_item_text_first'] = FALSE;
-					$options['review_item_author_switch'] = FALSE;
-					
-					if (is_string($review_item_order))
-					{
-						$options['review_item_inline'] = (preg_match('/([\b\s,_-]|^)inline([\b\s,_-]|$)/i', $review_item_order));
-						$options['review_item_text_first'] = (preg_match('/([\b\s,_-]|^)(?:review(?:[\b\s,_-])?text|review|text)[\b\s,_-]?(?:first|top|before|true|on|high|above|1)([\b\s,_-]|$)/i', $review_item_order));
-						$options['review_item_author_switch'] = (preg_match('/([\b\s,_-]|^)(?:(?:author(?:[_-]?name)?|name)(?:[\b\s,_-])?)[\b\s,_-]?(?:last|bottom|after|low|below|switch|flip)([\b\s,_-]|$)/i', $review_item_order));
-						
-						if (!$options['review_item_text_first'] && !$options['review_item_author_switch'] && preg_match('/^(?:(?:author(?:[_-]?name)?|avatar|date|inline|name|rating|review|text)[,\s]*){2,6}$/i', $review_item_order))
-						{
-							$review_item_order = preg_split('/,\s*/', mb_strtolower($review_item_order), 6, PREG_SPLIT_NO_EMPTY);
-						}
-						
-						if (is_array($review_item_order))
-						{
-							if ($check_key = array_search('inline', $review_item_order) != FALSE)
-							{
-								$options['review_item_inline'] = TRUE;
-								unset($review_item_order[$check_key]);
-							}
-							
-							if ($check_key = array_search('text', $review_item_order) != FALSE)
-							{
-								$review_item_order[$check_key] = 'review';
-							}
-							
-							if ($check_key = array_search('author', $review_item_order) != FALSE || $check_key = array_search('authorname', $review_item_order) != FALSE || $check_key = array_search('author_name', $review_item_order) != FALSE || $check_key = array_search('author-name', $review_item_order) != FALSE)
-							{
-								$review_item_order[$check_key] = 'name';
-							}
-							
-							$review_item_order = array_unique($review_item_order);
-						}
-					}
-					
-					if (is_array($review_item_order) && count($review_item_order) >= 2 && ($review_item_order[0] == 'text' || $review_item_order[0] == 'view'))
-					{
-						$options['review_item_text_first'] = TRUE;
-					}
-					elseif (!is_array($review_item_order))
-					{
-						if ($options['review_item_text_first'])
-						{
-							if ($options['review_item_author_switch'])
-							{
-								$review_item_order = array('review', 'avatar', 'rating', 'date', 'name');
-							}
-							else
-							{
-								$review_item_order = array('review', 'avatar', 'name', 'rating', 'date');
-							}
-						}
-						elseif (is_string($theme) && preg_match('/\bbubble\b/', $theme) && preg_match('/\bcenter\b/', $theme))
-						{
-							if ($options['review_item_author_switch'])
-							{
-								$options['review_item_text_first'] = TRUE;
-								$review_item_order = array('rating', 'date', 'review', 'avatar', 'name');
-							}
-							else
-							{
-								$review_item_order = array('avatar', 'name', 'review', 'rating', 'date');
-							}
-						}
-						else
-						{
-							if ($options['review_item_author_switch'])
-							{
-								$review_item_order = array('avatar', 'rating', 'date', 'name', 'review');
-							}
-							else
-							{
-								$review_item_order = array('avatar', 'name', 'rating', 'date', 'review');
-							}
-						}
-					}
-					
-					$options['avatar'] = ((is_bool($avatar) && $avatar || is_string($avatar) && $avatar != NULL) && (is_string($review_item_order) || is_array($review_item_order) && in_array('avatar', $review_item_order))) ? $avatar : FALSE;
-					$options['review_item_order'] = $review_item_order;
-
-					if ((is_bool($options['avatar']) && $options['avatar'] || is_string($options['avatar']) && $options['avatar'] == 'local') && (is_bool($local_images) && $local_images || is_null($local_images) && $this->local_images) && function_exists('wp_upload_dir'))
-					{
-						$upload_dir = wp_upload_dir();
-
-						if (isset($upload_dir['baseurl']) && is_string($upload_dir['baseurl']))
-						{
-							$options['avatar_directory'] = $upload_dir['baseurl'] . '/gmbrr';
-						}
-					}
-			
-					$html .= '<' . $html_tags[3] . ' class="listing">
-';
-
-					foreach ($this->reviews_filtered as $a)
-					{
-						$html .= $this->review_item($a, $options);
-						$options['index']++;
-					}
-					
-					$html .= '	</' . $html_tags[3] . '>
-';
-					
-					$html .= $this->review_item($a, $options, 'navigation');
-				}
-			}
-			
-			if ((is_bool($link_disable) && !$link_disable || !is_bool($link_disable)) && ((is_bool($reviews_link) && $reviews_link || is_string($reviews_link)) || (is_bool($write_review_link) && $write_review_link || is_string($write_review_link))))
-			{
-				if ($reviews_link_class != NULL)
-				{
-					$reviews_link_class = preg_split('/\s+|,\s*/', $reviews_link_class, 15);
-					$reviews_link_class = array_merge(array('view-reviews'), $reviews_link_class);
-					$reviews_link_class = implode(' ', array_unique($reviews_link_class));
-				}				
-				else
-				{
-					$reviews_link_class = 'button view-reviews';
-				}
-
-				if ($write_review_link_class != NULL)
-				{
-					$write_review_link_class = preg_split('/\s+|,\s*/', $write_review_link_class, 15);
-					$write_review_link_class = array_merge(array('write-review'), $write_review_link_class);
-					$write_review_link_class = implode(' ', array_unique($write_review_link_class));
-				}
-				else
-				{
-					$write_review_link_class = 'button write-review';
-				}
-
-				$html .= '	<' . $html_tags[7] . ' class="buttons">';
-				
-				if (is_bool($reviews_link) && $reviews_link || is_string($reviews_link))
-				{
-					$html .= '<a href="' . esc_attr($reviews_url). '"' . (($reviews_link_class != NULL) ? ' class="' . esc_attr($reviews_link_class) . '"' : '') . ' target="_blank"' . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' . ((is_string($reviews_link)) ? esc_html($reviews_link) : esc_html__('View Reviews', 'g-business-reviews-rating')) . '</a>';
-				}
-				
-				if ((is_bool($reviews_link) && $reviews_link || is_string($reviews_link)) && (is_bool($write_review_link) && $write_review_link || is_string($write_review_link)))
-				{
-					$html .= ' ';
-				}
-				
-				if (is_bool($write_review_link) && $write_review_link || is_string($write_review_link))
-				{
-					$html .= '<a href="' . esc_attr($write_review_url). '"' . (($write_review_link_class != NULL) ? ' class="' . esc_attr($write_review_link_class) . '"' : '') . ' target="_blank"' . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' . ((is_string($write_review_link)) ? esc_html($write_review_link) : esc_html__('Write Review', 'g-business-reviews-rating')). '</a>';
-				}
-				
-				$html .= '</' . $html_tags[7] . '>
-';
-			}
-			
-			if ((is_bool($attribution) && $attribution || is_string($attribution) && mb_strlen($attribution) >= 1) && (!is_string($theme) || is_string($theme) && !preg_match('/\btiny\b/', $theme)))
-			{
-				$html .= '	<' . $html_tags[8] . ' class="attribution"><span class="powered-by-google' . ((is_string($attribution)) ? ' ' . esc_attr($attribution) : '') . '" title="' . esc_attr__('Powered by Google') . '"></span></' . $html_tags[8] . '>
-';
-			}
-
-			$html .= '</div>
-';
-			break;
-		case 'review':
-		case 'review_list':
-		case 'reviews_list':
-		case 'review_url':
-		case 'reviews_url':
-		case 'review_link':
-		case 'reviews_link':
-		case 'review_href':
-		case 'reviews_href':
-		case 'review_list_link':
-		case 'reviews_list_link':
-		case 'review_list_href':
-		case 'reviews_list_href':
-		case 'google_review':
-		case 'google_review_list':
-		case 'google_reviews_list':
-		case 'google_review_url':
-		case 'google_reviews_url':
-		case 'google_review_link':
-		case 'google_reviews_link':
-		case 'google_review_href':
-		case 'google_reviews_href':
-		case 'google_review_list_link':
-		case 'google_review_list_href':
-		case 'google_reviews_list_link':
-		case 'google_reviews_list_href':
-			if ($class == NULL && is_string($link_class))
-			{
-				$class = $link_class;
-			}
-			
-			$html = ($content != NULL) ? '<a href="' . $reviews_url . '"' . (($class != NULL) ? ' class="' . esc_attr($class) . '"' : '') . (($target != NULL) ? ' target="' . esc_attr($target) . '"' : '') . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' . $content . '</a>' : $reviews_url;
-			break;
-		case 'write_review':
-		case 'write_review_url':
-		case 'write_review_link':
-		case 'write_review_href':
-		case 'google_write_review':
-		case 'google_write_review_url':
-		case 'google_write_review_link':
-		case 'google_write_review_href':
-			if ($class == NULL && is_string($link_class))
-			{
-				$class = $link_class;
-			}
-
-			$html = ($content != NULL) ? '<a href="' . $write_review_url . '"' . (($class != NULL) ? ' class="' . esc_attr($class) . '"' : '') . (($target != NULL) ? ' target="' . esc_attr($target) . '"' : '') . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' . $content . '</a>' : $write_review_url;
-			break;
-		case 'url':
-		case 'map':
-		case 'maps':
-		case 'maps_url':
-		case 'maps_link':
-		case 'maps_href':
-		case 'google_map':
-		case 'google_maps':
-		case 'google_map_url':
-		case 'google_map_link':
-		case 'google_map_href':
-		case 'google_maps_url':
-		case 'google_maps_link':
-		case 'google_maps_href':
-			if (!is_array($this->data) || is_array($this->data) && empty($this->data))
-			{
-				$this->set_data();
-				if (!isset($this->data['result']) || isset($this->data['result']) && !is_array($this->data['url']))
-				{
-					if (!$errors)
-					{
-						return '';
-					}
-					
-					$text = esc_html__('Error', 'g-business-reviews-rating') . ': No URL found';
-					return $text;
-				}
-			}
-			
-			if ($class == NULL && is_string($link_class))
-			{
-				$class = $link_class;
-			}
-
-			$url = (isset($this->data['result']['url']) && is_string($this->data['result']['url'])) ? $this->data['result']['url'] : '';
-			$html = ($content != NULL) ? '<a href="' . $url . '"' . (($class != NULL) ? ' class="' . esc_attr($class) . '"' : '') . (($target != NULL) ? ' target="' . esc_attr($target) . '"' : '') . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' . $content . '</a>' : $url;
-			break;
-		case 'structured_data':
-			$tag = (is_array($html_tags) && !empty($html_tags)) ? $html_tags[0] : 'pre';
-			$html = (($outer_tag) ? '<' . $tag . (($tag == 'script') ? ' type="application/ld+json"' : ' class="structured-data"') . '>' : '')
-				. $this->structured_data('json')
-				. (($outer_tag) ? '</' . $tag . '>' : '');
-			break;
-		default:
-			$html = '<pre class="error">[' . esc_html($shortcode) . ' type not found: ' . esc_html($type) . ']</pre>';
-			break;
-		}
-		
-		return $html;
+		return $changed;
 	}
 
-	private function get_review_ids($reviews = NULL)
+/* Force-refresh stored relative date strings — triggered on plugin update, activation and locale change */
+
+	public function refresh_relative_time_descriptions(): bool
 	{
-		$ids = array();
-
-		if (!is_array($reviews))
+		if (get_option(self::OPTION_PREFIX . 'update', '') == '')
 		{
-			$reviews = $this->result['result']['reviews'];
+			return FALSE;
 		}
 
-		if (!is_array($reviews))
+		if (!$this->translation_exists(TRUE))
 		{
-			return NULL;
+			return FALSE;
 		}
 
-		foreach ($reviews as $a)
+		$place_id = get_option(self::OPTION_PREFIX . 'place_id', '');
+		$api_key = get_option(self::OPTION_PREFIX . 'api_key', '');
+
+		if ((!is_string($place_id) || mb_strlen($place_id) < 10) || (!is_string($api_key) || mb_strlen($api_key) < 10))
 		{
-			$ids[] = $this->get_review_id($a);
+			return FALSE;
 		}
 
-		return $ids;
+		if (empty($this->reviews))
+		{
+			$this->reviews = $this->get_array_option('reviews');
+		}
+
+		if (!$this->set_relative_time_descriptions())
+		{
+			return FALSE;
+		}
+
+		$this->update_option('reviews', $this->reviews, 'no');
+
+		return TRUE;
 	}
 
-	private function get_review_id($review = NULL)
+/* Check if current translation exists */
+
+	public function translation_exists(bool $loose = FALSE): bool
 	{
-		return (is_array($review) && isset($review['author_url']) && is_string($review['author_url']) && preg_match('/^.+[^\d](\d{20,120})[^\d].*$/', $review['author_url'], $m)) ? $m[1] : NULL;
-	}
-	
-	private function review_item($data = NULL, $options = NULL, $type = 'all')
-	{
-		// Display individual review items from well-formatted data and options
-		
-		$html = '';
-		extract($options, EXTR_SKIP);		
-		$author_name = (isset($data['author_name']) && $data['author_name'] != NULL && ($name_format == NULL || (!is_bool($name_format) || is_bool($name_format) && $name_format))) ? $data['author_name'] : NULL;
-		
-		switch ($type)
-		{
-		case 'all':
-			break;
-		case 'review':
-			if (isset($review_text) && !$review_text || !is_string($data['text']) || is_string($data['text']) && mb_strlen($data['text']) == 0)
-			{
-				return $html;
-			}
-			
-			$review_text = $data['text'];
-						
-			if ($review_text != NULL && $review_text_format != NULL && preg_match('/(?:strip|remove|clear)[ _-]?line(?:[ _-]?break)?s?/i', $review_text_format) && preg_match('/(?:(?:add|insert)[ _-]?)?punctuations?/i', $review_text_format) && preg_match('/[a-z][ \t]*(?:<br\s?\/?>|\r|\n)/i', $review_text))
-			{
-				$review_text = preg_replace('/([a-z])[ \t]*($|<br\s?\/?>|\r|\n)/i', '$1.$2', $review_text);
-			}
-			
-			$review_text = strip_tags($review_text);
-			$set_excerpt = (is_numeric($review_text_excerpt_length) && mb_strlen($review_text) > 20 && $review_text_excerpt_length < round(mb_strlen($review_text) * 1.1));
-			$html .= '			<div class="text' . (($set_excerpt) ? ' text-excerpt' : '') . '' . (($review_text_height != NULL) ? ' fixed-height' : '') . '"' . (($review_text_height != NULL) ? ' style="height: ' . esc_attr($review_text_height) . ';"' : '') . '>';
-			
-			if ($review_text_format != NULL && preg_match('/(?:(?:add|insert)[ _-]?)?paragraphs?/i', $review_text_format))
-			{
-				$html .= PHP_EOL . '				<p>';
-			}
-			
-			if ($review_text_format != NULL && preg_match('/(?:strip|remove|clear)[ _-]line(?:[ _-]?break)?s?/i', $review_text_format))
-			{
-				if ($set_excerpt)
-				{
-					$html .= preg_replace('/(\r\n|\r|\n)+/', ' ', preg_replace('/^(.{' . $review_text_excerpt_length . '}[^\s]{0,20})(.*)$/uis', '<span class="review-snippet">$1</span> <span class="review-more-placeholder">… ' . esc_html($more) . '</span><span class="review-full-text">$2</span>', esc_html($review_text)));
-				}
-				else
-				{
-					$html .= preg_replace('/(\r\n|\r|\n)+/', ' ', esc_html($review_text));
-				}
-			}
-			elseif (!$set_excerpt && $review_text_format != NULL && preg_match('/(?:(?:add|insert)[ _-]?)?paragraphs?/i', $review_text_format))
-			{
-				$html .= preg_replace('/(\r\n|\r|\n)+/', '</p>' . PHP_EOL . '				<p>', esc_html($review_text));
-			}
-			else
-			{
-				if ($set_excerpt)
-				{
-					$html .= preg_replace('/(\r\n|\r|\n)+/', '<br>' . PHP_EOL . '				', preg_replace('/^(.{' . $review_text_excerpt_length . '}[^\s]{0,20})(.*)$/uis', '<span class="review-snippet">$1</span> <span class="review-more-placeholder">… ' . esc_html($more) . '</span><span class="review-full-text">$2</span>', esc_html($review_text)));
-				}
-				else
-				{
-					$html .= preg_replace('/(\r\n|\r|\n)+/', '<br>' . PHP_EOL . '				', esc_html($review_text));
-				}
-			}
-			
-			if ($review_text_format != NULL && preg_match('/(?:(?:add|insert)[ _-]?)?paragraphs?/i', $review_text_format))
-			{
-				$html .= '</p>' . PHP_EOL;
-			}
-			
-			$html .= '</div>
-';
-			return $html;
-		case 'avatar':
-			if (!isset($data['author_url']) || $data['author_url'] == NULL)
-			{
-				return $html;
-			}
-			
-			$html .= '			<span class="author-avatar' . (((is_bool($avatar) || is_string($avatar) && $avatar != 'local') && isset($data['avatar']) && $data['avatar'] != NULL && $avatar_directory != NULL) ? ' local' : '') . '">' . ((isset($data['author_url']) && $data['author_url'] != NULL && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('author', $link_disable))) ? '<a href="' . esc_attr($data['author_url']) . '" target="_blank"' . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' : '') . (($data['profile_photo_url'] != NULL) ? '<img src="' . esc_attr((is_string($avatar) && $avatar != 'local') ? $avatar : ((isset($data['avatar']) && $data['avatar'] != NULL && $avatar_directory != NULL) ? $avatar_directory . '/' . $data['avatar'] : $data['profile_photo_url'])) . '" alt="Avatar"' . ((isset($loading) && $loading != NULL) ? ' loading="' . esc_attr($loading) . '"' : '') . '>' : '—') . ((isset($data['author_url']) && $data['author_url'] != NULL && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('author', $link_disable))) ? '</a>' : '') . '</span>
-';
-			return $html;
-		case 'name':
-			if ($author_name == NULL)
-			{
-				return $html;
-			}
-			
-			if ($name_format != NULL && !empty($name_format_match))
-			{
-				$author_name_array = preg_split('/[.\s]+/', $author_name, -1, PREG_SPLIT_NO_EMPTY);
-				$author_name = '';
-				
-				if (count($author_name_array) == 1 || $author_name_first || $author_name_last || $author_name_first_initials || $author_name_last_initials)
-				{
-					if (count($author_name_array) == 1 || $author_name_first || $author_name_first_initials)
-					{
-						$author_name = ($author_name_first) ? $author_name_array[0] : mb_strtoupper(mb_substr($author_name_array[0], 0, 1) . (($author_name_dot) ? '.' : ''));
-			
-						if (!$author_name_first && !$author_name_only && count($author_name_array) > 1)
-						{
-							$author_name .= ' ' . implode(' ', array_slice($author_name_array, 1));
-						}
-					}
-					else
-					{
-						if (!$author_name_first && !$author_name_last && !$author_name_only)
-						{
-							$author_name = implode(' ', array_slice($author_name_array, 0, -1));
-						}
-						
-						$author_name .= ($author_name_last) ? end($author_name_array) : ' ' . mb_strtoupper(mb_substr(end($author_name_array), 0, 1) . (($author_name_dot) ? '.' : ''));
-					}
-				}
-				else
-				{
-					$author_name = ($author_name_last) ? end($author_name_array) : mb_strtoupper(mb_substr($author_name_array[0], 0, 1) . (($author_name_dot) ? '.' : '') . (($author_name_space) ? ' ' : '') . mb_substr(end($author_name_array), 0, 1) . (($author_name_dot) ? '.' : ''));
-				}
-				
-				$author_name = trim($author_name);
-			}
-			
-			if ($author_name_capitalize)
-			{
-				$author_name = ucwords(trim($author_name), " -\t\r\n\f\v'’");
-			}
-			
-			if ($author_name_lowercase)
-			{
-				$author_name = mb_strtolower(trim($author_name));
-			}
-			
-			if ($author_name_uppercase)
-			{
-				$author_name = mb_strtoupper(trim($author_name));
-			}
-			
-			$html .= '				<span class="author-name">' . ((isset($data['author_url']) && $data['author_url'] != NULL && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('author', $link_disable))) ? '<a href="' . esc_attr($data['author_url']) . '" target="_blank"' . (($rel != NULL) ? ' rel="' . esc_attr($rel) . '"' : '') . '>' : '') . esc_html($author_name) . ((isset($data['author_url']) && $data['author_url'] != NULL && (is_bool($link_disable) && !$link_disable || is_array($link_disable) && !in_array('author', $link_disable))) ? '</a>' : '') . '</span>
-';
-			return $html;
-		case 'rating':
-			if (!isset($data['rating']) || !is_numeric($data['rating']))
-			{
-				return $html;
-			}
-			
-			$html .= '				<span class="rating">' . str_repeat('★', $data['rating']) . (($data['rating'] < 5) ? '<span class="not">' . str_repeat('☆', (5 - $data['rating'])) . '</span>' : '') . '</span>
-';
-			return $html;
-		case 'date':
-			if (!isset($data['time']) && !isset($data['relative_time_description']))
-			{
-				return $html;
-			}
+		$locale = (function_exists('determine_locale')) ? determine_locale() : get_option('WPLANG', '');
+		$locale = (is_string($locale)) ? $locale : '';
 
-			if ((is_string($date) && $date == 'relative' || $data['relative_time_description'] == NULL) && is_numeric($data['time']))
-			{
-				$html .= '				<span class="relative-time-description">' . esc_html($this->get_relative_time_description($data['time'])) . '</span>
-';
-				return $html;
-			}
-			
-			if (is_string($date) && is_numeric($data['time']))
-			{
-				$html .= '				<span class="date">' . esc_html((function_exists('wp_date')) ? wp_date($date, $data['time']) : date($date, $data['time'])) . '</span>
-';
-				return $html;
-			}
-
-			$html .= '				<span class="relative-time-description">' . esc_html($data['relative_time_description']) . '</span>
-';
-			return $html;
-		case 'navigation':
-			if (!is_numeric($view) || $index <= 0 || $view <= 0 || $index < $view || is_bool($bullet) && !$bullet)
-			{
-				return $html;
-			}
-			
-			$html .= '	<' . $html_tags[5] . ' class="navigation">'; 
-				
-			for ($j = 0; $j < $index / $view; $j++)
-			{
-				$html .= '		<' . $html_tags[6] . ' class="bullet' . (($j == 0) ? ' current' : '') . '"><a href="#' . esc_attr((($id_name != NULL) ? $id_name : 'google-business-reviews-rating' . (($this->instance_count > 1) ? '-' . $this->instance_count : ''))) . '" data-slide="' . esc_attr($j + 1) . '">' . ((is_string($bullet) && $bullet != NULL) ? $bullet : '●') . '</a></' . $html_tags[6] . '>'; 
-			}
-			
-			$html .= '	</' . $html_tags[5] . '>';
-			return $html;
-		default:
-			return $html;
-		}
-		
-		$type = NULL;
-		$check_key = NULL;
-		
-		if (!is_array($review_item_order))
-		{
-			$review_item_order = array('avatar', 'name', 'rating', 'date', 'review');
-		}
-		
-		if (in_array('author', $review_item_order) || in_array('authorname', $review_item_order) || in_array('author_name', $review_item_order) || in_array('author-name', $review_item_order))
-		{
-			$review_item_order = str_replace(array('authorname', 'author_name', 'author-name', 'author'), array('name', 'name', 'name', 'name'), $review_item_order);
-		}
-	
-		if (in_array('text', $review_item_order))
-		{
-			$check_key = array_search('text', $review_item_order);
-			
-			if (!in_array('review', $review_item_order))
-			{
-				$review_item_order[$check_key] = 'review';
-			}
-			else
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-		
-		if (in_array('time', $review_item_order))
-		{
-			$check_key = array_search('time', $review_item_order);
-			
-			if (!in_array('date', $review_item_order))
-			{
-				$review_item_order[$check_key] = 'date';
-			}
-			else
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-		
-		if (in_array('time', $review_item_order))
-		{
-			$check_key = array_search('time', $review_item_order);
-			
-			if (!in_array('date', $review_item_order))
-			{
-				$review_item_order[$check_key] = 'date';
-			}
-			else
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-
-		if ($author_name == NULL && in_array('name', $review_item_order))
-		{
-			$check_key = array_search('name', $review_item_order);
-
-			if (is_numeric($check_key))
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-		
-		if (isset($avatar) && is_bool($avatar) && !$avatar || is_string($theme) && preg_match('/\bbadge\b/', $theme) && in_array('avatar', $review_item_order))
-		{
-			$check_key = array_search('avatar', $review_item_order);
-
-			if (is_numeric($check_key))
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-
-		if (isset($date) && is_bool($date) && !$date || is_string($date) && !is_numeric($data['time']) && in_array('date', $review_item_order))
-		{
-			$check_key = array_search('date', $review_item_order);
-
-			if (is_numeric($check_key))
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-
-		if (isset($review_text) && is_bool($review_text) && !$review_text && in_array('review', $review_item_order))
-		{
-			$check_key = array_search('review', $review_item_order);
-
-			if (is_numeric($check_key))
-			{
-				unset($review_item_order[$check_key]);
-			}
-		}
-
-		$review_item_order = array_values($review_item_order);
-		$html .= '		<' . $html_tags[4] . ' class="' . esc_attr('rating-' . $data['rating']) . ((is_numeric($view)) ? ' ' . (($index < $view) ? 'visible' : 'hidden') : '') . ((is_bool($avatar) && !$avatar) ? ' no-avatar' : '') . ((!is_bool($date) || is_bool($date) && !$date) && (!is_string($date) || is_string($date) && !is_numeric($data['time'])) ? ' no-date' : '') . (($review_item_text_first) ? ' text-first' : '') . (($review_item_inline) ? ' inline' : '') . (($review_item_author_switch) ? ' author-switch' : '') . '" data-index="' . esc_attr($index) . '">
-';
-
-		foreach ($review_item_order as $i => $type)
-		{
-			$previous_type = (array_key_exists($i - 1, $review_item_order)) ? $review_item_order[$i - 1] : NULL; 
-			$next_type = (array_key_exists($i + 1, $review_item_order)) ? $review_item_order[$i + 1] : NULL;
-			
-			if (($previous_type == NULL || $previous_type == 'avatar' || $previous_type == 'review') && ($type == 'name' || $type == 'rating' || $type == 'date'))
-			{
-				$html .= '			<span class="review-meta">
-';
-			}
-
-			$html .= $this->review_item($data, $options, $type);
-
-			if (($type == 'name' || $type == 'rating' || $type == 'date') && ($next_type == NULL || $next_type == 'avatar' || $next_type == 'review'))
-			{
-				$html .= '			</span>
-';
-			}
-		}
-
-		$html .= '		</' . $html_tags[4] . '>
-';
-		return $html;
-	}
-
-	private function get_retrieval_sort($next_sort = FALSE)
-	{
-		// Get the current or next retrieval/review sort
-		
-		$retrieval_sort = 'most_relevant';
-		
-		if ($this->place_id == NULL || $this->demo)
-		{
-			return $retrieval_sort;
-		}
-
-		$option = get_option(__CLASS__ . '_retrieval_sort', 'most_relevant');
-
-		switch ($option)
-		{
-		case 'most_relevant':
-		case 'newest':
-			$retrieval_sort = $option;
-			break;
-		case 'review_sort':
-			$retrieval_sort = (isset($this->review_sort) && is_string($this->review_sort) && !preg_match('/^relevance.*$/i', $this->review_sort)) ? 'newest' : 'most_relevant';
-			break;
-		default:
-			$retrieval = get_option(__CLASS__ . '_retrieval');
-				
-			if (!is_array($retrieval) || is_array($retrieval) && (empty($retrieval) || !isset($retrieval['requests']) || !is_array($retrieval['requests'])))
-			{
-				break;
-			}
-
-			$requests = array_reverse($retrieval['requests']);
-
-			foreach ($requests as $a)
-			{
-				if ($a['place_id'] != $this->place_id)
-				{
-					continue;
-				}
-
-				$retrieval_sort = (isset($a['review_sort']) && ($next_sort && $a['review_sort'] == 'most_relevant' || !$next_sort && $a['review_sort'] == 'newest')) ? 'newest' : 'most_relevant';
-				break;
-			}
-
-			break;
-		}
-
-		return $retrieval_sort;
-	}
-	
-	public function translation_exists($loose = FALSE)
-	{
-		// Check if current translation exists
-		
 		if ($loose)
 		{
-			return (preg_match('/^(?:(?:de|en|es|f|it|nl|pl).*)?$/i', get_option('WPLANG')));
+			return (preg_match('/^(?:(?:ar|cs|cz|da|de|el|en|es|fr|he|hr|hu|it|iw|ja|ko|nl|pl|sr|zh).*)?$/i', $locale));
 		}
-		
-		$test_word = 'Welcome';
-		
-		return (preg_match('/^(?:en.*)?$/i', get_option('WPLANG')) || __($test_word, 'g-business-reviews-rating') != $test_word);
+
+		return (preg_match('/^(?:en.*)?$/i', $locale) || is_textdomain_loaded('g-business-reviews-rating'));
 	}
 	
-	public function dashboard_widget()
+	public function setup(): bool
 	{
-		// Initiate Dashboard Widget
-	
-		if ($this->demo || intval(get_option(__CLASS__ . '_meta_box_limit', 5)) < 1)
-		{
-			return TRUE;
-		}
-		
-		wp_add_dashboard_widget(__CLASS__, __('Reviews and Rating - Google Reviews', 'g-business-reviews-rating'), array($this, 'dashboard_widget_display'), NULL, NULL, 'side', 'default');
-		return TRUE;
-	}
-	
-	public function dashboard_widget_display()
-	{
-		// Display Dashboard Widget
-	
-		if ($this->demo)
-		{
-			return TRUE;
-		}
-	
-		echo $this->get_reviews('latest');
 		return TRUE;
 	}
 
-	private function notification($message = NULL, $heading = NULL, $type = NULL)
-	{
-		// Display a relevant notification
-
-		if ($message != NULL)
-		{
-			$html = '<p class="plugin-notification notice is-dismissable' . (($type != NULL) ? esc_attr(' ' . $type) : '') . ' visible">' . PHP_EOL
-			. '<span class="close"><a href="#google-business-reviews-rating-settings" class="button dismiss later" data-notification-action="notification rate later" title="' . esc_attr__('Remind me later', 'g-business-reviews-rating') . '"><span class="dashicons dashicons-dismiss"></span></a></span>' . PHP_EOL
-			. (($heading != NULL) ? '<span class="heading">' . $heading . '</span>' . PHP_EOL : '')
-			. '<span class="message">'
-			. $message
-			. '</span>' . PHP_EOL
-			. '<span class="buttons">'
-			. '<a href="#google-business-reviews-rating-settings" class="button ui-button later" data-notification-action="notification rate later">' . esc_html__('Remind me later', 'g-business-reviews-rating') . '</a> '
-			. '<a href="#google-business-reviews-rating-settings" class="button ui-button dismiss" data-notification-action="notification rate dismiss">' . esc_html__('Dismiss for a year', 'g-business-reviews-rating') . '</a> '
-			. '<a href="#google-business-reviews-rating-settings" class="button ui-button done" data-notification-action="notification rate done">' . esc_html__('I’ve already left a review', 'g-business-reviews-rating') . '</a>'
-			. '</span>' . PHP_EOL
-			. '</p>';
-			self::log('notification rate', (($heading != NULL) ? $heading . PHP_EOL : '') . strip_tags($message));
-
-			return $html;
-		}
-
-		if (!$this->administrator || !$this->valid() || $this->count_reviews_all <= 5 || !function_exists('array_column'))
-		{
-			return '';
-		}
-
-		$log = get_option(__CLASS__ . '_log', array());
-		
-		if (!is_array($log) || count($log) <= 2)
-		{
-			if (mt_rand(0, 3) >= 2)
-			{
-				$initial_version = get_option(__CLASS__ . '_initial_version', NULL);
-				
-				if ($initial_version != NULL && floatval($initial_version) <= 4.27 && (empty($log) || is_array($log) && !in_array('notification rate', array_column($log, 'type'))))
-				{
-					/* translators: 1: The initial version of this plugin, 2: refers to review URL at wordpress.org, 3: string to handle notification data */
-					return $this->notification(sprintf(__('You have used this plugin for quite a while, since version %1$s. We’d love to hear what you think about its design, features, support… So, please consider <a href="%2$s" target="_blank" %3$s>leaving a review</a>!', 'g-business-reviews-rating'), $initial_version, 'https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post', 'data-notification-action="notification rate now"'), esc_html__('You’ve experienced using this plugin', 'g-business-reviews-rating'), 'version-change');
-				}
-			}
-			
-			return '';
-		}
-
-		if (!is_array($log) || in_array('notification rate done', array_column($log, 'type')))
-		{
-			return '';
-		}
-		
-		$installation_timestamp = array_search('install', array_column($log, 'type'));
-		$reset_timestamp = NULL;
-		$reset_timestamp_notify = $installation_timestamp_notify = FALSE;
-
-		if (is_numeric($installation_timestamp) && isset($log[$installation_timestamp]) && isset($log[$installation_timestamp]['time']))
-		{
-			$installation_timestamp = $log[$installation_timestamp]['time'];
-
-			if (is_numeric($installation_timestamp) && $installation_timestamp < time() - YEAR_IN_SECONDS)
-			{
-				$installation_timestamp_notify = TRUE;
-			}
-		}
-		else
-		{
-			$reset_timestamp = array_search('reset', array_column($log, 'type'));
-			$reset_timestamp_notify = FALSE;
-
-			if (is_numeric($reset_timestamp) && isset($log[$reset_timestamp]) && isset($log[$reset_timestamp]['time']))
-			{
-				$reset_timestamp = $log[$reset_timestamp]['time'];
-
-				if (is_numeric($reset_timestamp) && $reset_timestamp < time() - YEAR_IN_SECONDS)
-				{
-					$reset_timestamp_notify = TRUE;
-				}
-			}
-			else
-			{
-				$reset_timestamp = NULL;
-			}
-
-			$installation_timestamp = NULL;
-		}
-
-		$notification_rating = TRUE;
-		$notification_rating_now_timestamp = time() - HOUR_IN_SECONDS;
-		$notification_rating_later_timestamp = time() - 2 * WEEK_IN_SECONDS;
-		$notification_rating_dismiss_timestamp = time() - YEAR_IN_SECONDS;
-		$log_keys = array_reverse(array_keys($log));
-
-		foreach ($log_keys as $k)
-		{
-			if (!isset($log[$k]['type']) || !isset($log[$k]['time']))
-			{
-				continue;
-			}
-
-			if ($log[$k]['type'] == 'notification rate now' && $log[$k]['time'] >= $notification_rating_now_timestamp)
-			{
-				$notification_rating = FALSE;
-				break;
-			}
-
-			if ($log[$k]['type'] == 'notification rate later' && $log[$k]['time'] >= $notification_rating_later_timestamp)
-			{
-				$notification_rating = FALSE;
-				break;
-			}
-
-			if ($log[$k]['type'] == 'notification rate dismiss' && $log[$k]['time'] >= $notification_rating_dismiss_timestamp)
-			{
-				$notification_rating = FALSE;
-				break;
-			}
-
-			if (($log[$k]['type'] == 'install' || $log[$k]['type'] == 'reset') && ($log[$k]['time'] >= $notification_rating_later_timestamp || $this->count_reviews_all <= 10))
-			{
-				$notification_rating = FALSE;
-				break;
-			}
-
-			if ($log[$k]['time'] < $notification_rating_dismiss_timestamp)
-			{
-				break;
-			}
-		}
-		
-		if ($notification_rating && $this->get_data('boolean'))
-		{
-			if (is_numeric($installation_timestamp) && $installation_timestamp_notify || is_numeric($reset_timestamp) && $reset_timestamp_notify)
-			{
-				/* translators: 1: The plugin installation date, 2: refers to review URL at wordpress.org, 3: string to handle notification data */
-				return $this->notification(sprintf(__('You have used this plugin for quite a while, since %1$s. We’d love to hear what you think about its design, features, support… So, please consider <a href="%2$s" target="_blank" %3$s>leaving a review</a>!', 'g-business-reviews-rating'), wp_date("F Y", $installation_timestamp), 'https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post', 'data-notification-action="notification rate now"'), esc_html__('You’ve experienced this plugin', 'g-business-reviews-rating'), 'version-change');
-			}
-
-			/* translators: 1: refers to review URL at wordpress.org, 2: string to handle notification data */
-			return $this->notification(sprintf(__('We’d love to hear what you think about its design, features, support… So, please consider <a href="%1$s" target="_blank" %2$s>leaving a review</a>!', 'g-business-reviews-rating'), 'https://wordpress.org/support/plugin/g-business-reviews-rating/reviews/#new-post', 'data-notification-action="notification rate now"'), esc_html__('Please review our Google Reviews plugin', 'g-business-reviews-rating'), 'review-reminder');
-		}
-
-		return '';
-	}
-
-	public function delete_places($place_ids, $force = FALSE)
-	{
-		if (!is_array($place_ids))
-		{
-			return FALSE;
-		}
-
-		if (empty($place_ids) || !$force && !in_array('confirm', $place_ids))
-		{
-			return TRUE;
-		}
-
-		if (empty($this->places))
-		{
-			$this->places = get_option(__CLASS__ . '_places', array());
-		}
-		
-		if (empty($this->places))
-		{
-			return FALSE;
-		}
-		
-		foreach ($place_ids as $place_id)
-		{
-			if (!is_string($place_id) || $place_id == 'confirm' || $place_id == $this->place_id || $place_id == get_option(__CLASS__ . '_place_id'))
-			{
-				continue;
-			}
-
-			$this->delete_place($place_id);
-		}
-
-		$this->set_reviews(TRUE);
-		$this->count_reviews_all = $this->reviews_count();
-		$this->count_reviews_active = $this->reviews_count(NULL, TRUE);
-		
-		return TRUE;
-	}
-	
-	private function delete_place($place_id)
+	protected function delete_place(string $place_id): bool
 	{
 		if (!is_string($place_id))
 		{
@@ -7184,15 +3877,15 @@ class google_business_reviews_rating
 
 		if (empty($this->places))
 		{
-			$this->places = get_option(__CLASS__ . '_places', array());
+			$this->places = $this->get_array_option('places');
 		}
-		
+
 		if (empty($this->places))
 		{
 			return FALSE;
 		}
 
-		$reviews = array();
+		$reviews = [];
 
 		foreach ($this->places as $i => $a)
 		{
@@ -7203,7 +3896,7 @@ class google_business_reviews_rating
 
 			if (empty($this->reviews))
 			{
-				$this->reviews = get_option(__CLASS__ . '_reviews', array());
+				$this->reviews = $this->get_array_option('reviews');
 			}
 
 			foreach ($this->reviews as $j => $r)
@@ -7237,7 +3930,7 @@ class google_business_reviews_rating
 								$upload_directory_plugin = preg_replace('#^(.+?)(?:/\d+/\d+)/?$#', '$1', $upload_directory['path']) . '/gmbrr';
 							}
 						}
-						
+
 						if (!is_dir($upload_directory_plugin) || !is_file($upload_directory_plugin . '/' . $this->reviews[$j]['avatar']))
 						{
 							continue;
@@ -7245,86 +3938,105 @@ class google_business_reviews_rating
 
 						@unlink($upload_directory_plugin . '/' . $this->reviews[$j]['avatar']);
 					}
-		
+
 					unset($this->reviews[$j]);
 				}
 
-				delete_transient(__CLASS__ . '_reviews_shuffled');
-				wp_cache_delete('reviews_shuffled', __CLASS__);
-				wp_cache_delete('reviews', __CLASS__);
-				update_option(__CLASS__ . '_reviews', $this->reviews, 'no');
+				delete_transient(self::OPTION_PREFIX . 'reviews_shuffled');
+				wp_cache_delete('reviews_shuffled', self::OPTION_PREFIX);
+				wp_cache_delete('reviews', self::OPTION_PREFIX);
+				$this->update_option('reviews', $this->reviews, 'no');
 			}
 
 			unset($this->places[$i]);
 			sort($this->places);
-			update_option(__CLASS__ . '_places', $this->places, 'yes');
+			$this->update_option('places', $this->places, 'yes');
 
 			return TRUE;
 		}
-		
+
 		return TRUE;
 	}
 
-	private function notification_reset()
-	{
-		// Clear all notifications from log file
+	/* Get the current or next retrieval/review sort */
 
-		$log = get_option(__CLASS__ . '_log', array());
-		
-		if (!is_array($log) || is_array($log) && empty($log))
+	protected function get_retrieval_sort(bool $next_sort = FALSE): string
+	{
+		$retrieval_sort = 'most_relevant';
+
+		if ($this->place_id == NULL || $this->demo)
 		{
-			return FALSE;
+			return $retrieval_sort;
 		}
 
-		$cleaned_log = array();
+		$option = $this->get_option('retrieval_sort', 'most_relevant');
 
-		foreach ($log as $a)
+		switch ($option)
 		{
-			if (!isset($a['type']) || isset($a['type']) && preg_match('/^notification rate [a-z]{2,25}$/', $a['type']))
+		case 'most_relevant':
+		case 'newest':
+			$retrieval_sort = $option;
+			break;
+		case 'review_sort':
+			$retrieval_sort = (isset($this->review_sort) && is_string($this->review_sort) && !preg_match('/^relevance.*$/i', $this->review_sort)) ? 'newest' : 'most_relevant';
+			break;
+		default:
+			$retrieval = $this->get_option('retrieval');
+
+			if (!is_array($retrieval) || is_array($retrieval) && (empty($retrieval) || !isset($retrieval['requests']) || !is_array($retrieval['requests'])))
 			{
-				continue;
+				break;
 			}
 
-			$cleaned_log[] = $a;
+			$requests = array_reverse($retrieval['requests']);
+
+			foreach ($requests as $a)
+			{
+				if ($a['place_id'] != $this->place_id)
+				{
+					continue;
+				}
+
+				$retrieval_sort = (isset($a['review_sort']) && ($next_sort && $a['review_sort'] == 'most_relevant' || !$next_sort && $a['review_sort'] == 'newest')) ? 'newest' : 'most_relevant';
+				break;
+			}
+
+			break;
 		}
 
-		if (count($log) == count($cleaned_log))
-		{
-			return FALSE;
-		}
-
-		update_option(__CLASS__ . '_log', $cleaned_log, 'no');
-
-		return TRUE;
+		return $retrieval_sort;
 	}
 
-	public static function log($type, $data = NULL)
-	{
-		// Log actions
+	/* Log actions */
 
-		$log = get_option(__CLASS__ . '_log', array());
+	public static function log(string $type, $data = NULL): bool
+	{
+		$log = get_option(self::OPTION_PREFIX . 'log', []);
 
 		if (!is_array($log))
 		{
-			$log = array();
+			$log = [];
 		}
 
 		$log = array_splice($log, -1000);
 
-		$log[] = array(
+		$log[] = [
 			'type' => $type,
 			'data' => $data,
 			'user' => (function_exists('get_current_user_id')) ? get_current_user_id() : NULL,
 			'cron' => (defined('DOING_CRON') && DOING_CRON),
 			'time' => time()
-		);
+		];
 
-		update_option(__CLASS__ . '_log', $log, 'no');
+		update_option(self::OPTION_PREFIX . 'log', $log, 'no');
 
 		return TRUE;
 	}
 }
 
-defined('GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT') or define('GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT', '{"html_attributions":"","result":{"icon":"https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png","name":"Everyday Demo Restaurant","rating":3.9,"reviews":[{"author_name":"Lisa Dooley","author_url":"#","language":"en","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzAwN0Y3MCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDYuOTM5LDI4LjA1aDYuMjU2djYyLjU1N0g4OC4xN3Y1LjQ5N2gtNDEuMjNWMjguMDV6Ii8+CjwvZz4KPC9zdmc+Cg==","rating":5,"relative_time_description":"a month ago","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.","time":1561637346},{"author_name":"Catherine P","author_url":"#","language":"en","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0JGMDkwMCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNOTIuNjI1LDczLjkyNWMtMC41MDcsNy41ODMtMy4xNSwxMy40OTItNy45MjksMTcuNzI1Qzc5LjkxOCw5NS44ODQsNzMuNDc3LDk4LDY1LjM3Niw5OApjLTQuNTU3LDAtOC42NTUtMC44MjItMTIuMjk1LTIuNDY0Yy0zLjY0MS0xLjY0My02Ljc1Ni0zLjk5Ni05LjM1MS03LjA2MmMtMi41OTUtMy4wNjQtNC41OS02Ljg0LTUuOTgyLTExLjMyNwpjLTEuMzkyLTQuNDg1LTIuMDg4LTkuNTcyLTIuMDg4LTE1LjI2YzAtNS42MjMsMC43MTEtMTAuNjQ3LDIuMTM1LTE1LjA3YzEuNDI1LTQuNDIyLDMuNDM1LTguMTY3LDYuMDI5LTExLjIzMgpjMi41OTUtMy4wNjQsNS43MjktNS40MDMsOS40LTcuMDE0YzMuNjctMS42MTEsNy43ODQtMi40MTcsMTIuMzQyLTIuNDE3YzMuODYxLDAsNy4zOTEsMC41MTMsMTAuNTg3LDEuNTM4CmMzLjE5NSwxLjAyNSw1LjkzMywyLjQ3OSw4LjIxMiw0LjM2YzIuMjc3LDEuODgyLDQuMDY2LDQuMTUsNS4zNjQsNi44MDRjMS4yOTcsMi42NTQsMi4wNDIsNS42MjUsMi4yMzEsOC45MWgtNi4yNTYKYy0wLjUwNi00Ljk5MS0yLjU1OS04LjkyNC02LjE2MS0xMS44MDFjLTMuNjAyLTIuODc1LTguMjc4LTQuMzEzLTE0LjAyNy00LjMxM2MtNy4yNjcsMC0xMi45ODUsMi41NjgtMTcuMTU2LDcuNzAxCmMtNC4xNyw1LjEzNS02LjI1NSwxMi42MTQtNi4yNTUsMjIuNDM4YzAsNC45NDUsMC41NTIsOS4zMTksMS42NTksMTMuMTIyYzEuMTA0LDMuODAzLDIuNjg1LDcuMDA1LDQuNzM5LDkuNjAzCmMyLjA1MywyLjYsNC41MzQsNC41ODEsNy40NCw1Ljk0M2MyLjkwNiwxLjM2Miw2LjE2MSwyLjA0NCw5Ljc2MywyLjA0NGM2LjEyOCwwLDEwLjk5NS0xLjYyNiwxNC41OTctNC44ODIKYzMuNjAyLTMuMjU0LDUuNjIzLTcuODE5LDYuMDY2LTEzLjY5Nkg5Mi42MjV6Ii8+CjwvZz4KPC9zdmc+Cg==","rating":1,"relative_time_description":"2 months ago","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.","time":1557738977},{"author_name":"Fay A","author_url":"#","language":"en","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0EzMDBDNCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDQuNjY1LDI3Ljk1Nmg0My4xMjZ2NS40OTdINTAuOTJ2MjQuODMzaDMzLjQ1OHY1LjQ5N0g1MC45MnYzMi4zMjFoLTYuMjU2VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K","rating":5,"relative_time_description":"2 weeks ago","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.","time":1563122393},{"author_name":"Dexter Ortega","author_url":"#","language":"es","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzI2NUVGRiIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNTkuMjE0LDI3Ljk1NmM0LjA0MywwLDcuNzA4LDAuMTg5LDEwLjk5NCwwLjU2OGMzLjI4NSwwLjM3OSw2LjI1NiwxLjQyMiw4LjkxLDMuMTI4CmM0LjE3LDIuNjU0LDcuMzYsNi41MjUsOS41NzMsMTEuNjExYzIuMjExLDUuMDg3LDMuMzE3LDExLjI5NiwzLjMxNywxOC42MjVjMCw3Ljg5OS0xLjIxOCwxNC40NTQtMy42NDksMTkuNjY4CmMtMi40MzQsNS4yMTMtNS45ODcsOS4wODQtMTAuNjYzLDExLjYxYy0yLjQ2NSwxLjMyNy01LjM3MiwyLjE0OS04LjcyMSwyLjQ2NWMtMy4zNSwwLjMxNi03LjIzNSwwLjQ3NC0xMS42NTgsMC40NzRIMzguNTUxVjI3Ljk1NgpoMTYuMDE5SDU5LjIxNHogTTU3Ljk4MSw5MC42MDdjMy43OTIsMCw3LjEwOC0wLjEyNiw5Ljk1Mi0wLjM4MWMyLjg0NC0wLjI1Myw1LjI3NS0wLjk4Miw3LjI5OC0yLjE4OApjNi44ODctNC4xMiwxMC4zMzItMTIuNzc1LDEwLjMzMi0yNS45NjJjMC0xMi43NDItMy4yODctMjEuMjctOS44NTctMjUuNTgxYy0yLjIxMy0xLjQ1Ny00LjgzNC0yLjMzLTcuODY3LTIuNjE1CmMtMy4wMzMtMC4yODQtNi41NC0wLjQyOC0xMC41MjEtMC40MjhINDQuODA3djU3LjE1NUg1Ny45ODF6Ii8+CjwvZz4KPC9zdmc+Cg==","rating":5,"relative_time_description":"3 months ago","text":"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.","time":1554727451},{"author_name":"Mary N","author_url":"#","language":"en","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0I2M0RGRiIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMzIuODY0LDI3Ljk1Nmg4LjgxNWwyMi40NjMsNTkuOTk4bDIyLjA4NC01OS45OThoOC44MTV2NjguMTQ5aC02LjI1NlYzNi42NzVMNjcuMDgxLDk2LjEwNGgtNS43ODIKTDM5LjEyLDM2LjY3NXY1OS40MjloLTYuMjU2VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K","rating":4,"relative_time_description":"4 months ago","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.","time":1552675416},{"author_name":"Jerry Jet","author_url":"#","language":"en","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0ZGQjQwNSIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDkuNTQ2LDc1LjI1MnY0LjM2YzAsOC41OTQsMy44MjMsMTIuODkxLDExLjQ2OSwxMi44OTFjNC41NSwwLDcuNzM5LTEuMTIxLDkuNTczLTMuMzY1CmMxLjgzMi0yLjI0MiwyLjc0OC01Ljg5MiwyLjc0OC0xMC45NDdWMjguMDVoNi4yNTZ2NTEuNTYyYzAsNi4wNjYtMS42MTEsMTAuNjQ4LTQuODM0LDEzLjc0M0M3MS41MzUsOTYuNDUxLDY2Ljg5MSw5OCw2MC44MjUsOTgKYy0xMS42OTEsMC0xNy41MzUtNS45MzgtMTcuNTM1LTE3LjgxOXYtNC45MjlINDkuNTQ2eiIvPgo8L2c+Cjwvc3ZnPgo=","rating":2,"relative_time_description":"4 months ago","text":"Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?","time":1552675416},{"author_name":"Ian A","author_url":"#","language":"it","profile_photo_url":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzAwQjk4NyIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNjAuODI1LDI3Ljk1Nmg2LjI1NXY2OC4xNDloLTYuMjU1VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K","rating":5,"relative_time_description":"2 months ago","text":"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.","time":1557738977}],"url":"https://goo.gl/maps/CciLp41Y9fMZgubPA","user_ratings_total":31,"vicinity":"123 Battersea Place, London"},"status":"OK"}');
+defined('GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT') or define('GOOGLE_BUSINESS_REVIEWS_RATING_DEMO_RESULT', '{\"displayName\":{\"text\":\"Everyday Demo Restaurant\",\"languageCode\":\"en\"},\"formattedAddress\":\"123 Battersea Place, London, UK\",\"googleMapsUri\":\"https://www.google.com/maps/place/?q=place_id:ChIJtTeDfh9w5kcRJEWRKN1Yy6I\",\"iconMaskBaseUri\":\"https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet\",\"id\":\"ChIJtTeDfh9w5kcRJEWRKN1Yy6I\",\"shortFormattedAddress\":\"123 Battersea Place, London\",\"rating\":3.9,\"userRatingCount\":31,\"reviews\":[{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v1demo\",\"authorAttribution\":{\"displayName\":\"Lisa Dooley\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzAwN0Y3MCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDYuOTM5LDI4LjA1aDYuMjU2djYyLjU1N0g4OC4xN3Y1LjQ5N2gtNDEuMjNWMjguMDV6Ii8+CjwvZz4KPC9zdmc+Cg==\"},\"rating\":5,\"relativePublishTimeDescription\":\"3 weeks ago\",\"text\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"en\"},\"originalText\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"en\"},\"publishTime\":\"2026-04-16T07:29:13Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v2demo\",\"authorAttribution\":{\"displayName\":\"Catherine P\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0JGMDkwMCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNOTIuNjI1LDczLjkyNWMtMC41MDcsNy41ODMtMy4xNSwxMy40OTItNy45MjksMTcuNzI1Qzc5LjkxOCw5NS44ODQsNzMuNDc3LDk4LDY1LjM3Niw5OApjLTQuNTU3LDAtOC42NTUtMC44MjItMTIuMjk1LTIuNDY0Yy0zLjY0MS0xLjY0My02Ljc1Ni0zLjk5Ni05LjM1MS03LjA2MmMtMi41OTUtMy4wNjQtNC41OS02Ljg0LTUuOTgyLTExLjMyNwpjLTEuMzkyLTQuNDg1LTIuMDg4LTkuNTcyLTIuMDg4LTE1LjI2YzAtNS42MjMsMC43MTEtMTAuNjQ3LDIuMTM1LTE1LjA3YzEuNDI1LTQuNDIyLDMuNDM1LTguMTY3LDYuMDI5LTExLjIzMgpjMi41OTUtMy4wNjQsNS43MjktNS40MDMsOS40LTcuMDE0YzMuNjctMS42MTEsNy43ODQtMi40MTcsMTIuMzQyLTIuNDE3YzMuODYxLDAsNy4zOTEsMC41MTMsMTAuNTg3LDEuNTM4CmMzLjE5NSwxLjAyNSw1LjkzMywyLjQ3OSw4LjIxMiw0LjM2YzIuMjc3LDEuODgyLDQuMDY2LDQuMTUsNS4zNjQsNi44MDRjMS4yOTcsMi42NTQsMi4wNDIsNS42MjUsMi4yMzEsOC45MWgtNi4yNTYKYy0wLjUwNi00Ljk5MS0yLjU1OS04LjkyNC02LjE2MS0xMS44MDFjLTMuNjAyLTIuODc1LTguMjc4LTQuMzEzLTE0LjAyNy00LjMxM2MtNy4yNjcsMC0xMi45ODUsMi41NjgtMTcuMTU2LDcuNzAxCmMtNC4xNyw1LjEzNS02LjI1NSwxMi42MTQtNi4yNTUsMjIuNDM4YzAsNC45NDUsMC41NTIsOS4zMTksMS42NTksMTMuMTIyYzEuMTA0LDMuODAzLDIuNjg1LDcuMDA1LDQuNzM5LDkuNjAzCmMyLjA1MywyLjYsNC41MzQsNC41ODEsNy40NCw1Ljk0M2MyLjkwNiwxLjM2Miw2LjE2MSwyLjA0NCw5Ljc2MywyLjA0NGM2LjEyOCwwLDEwLjk5NS0xLjYyNiwxNC41OTctNC44ODIKYzMuNjAyLTMuMjU0LDUuNjIzLTcuODE5LDYuMDY2LTEzLjY5Nkg5Mi42MjV6Ii8+CjwvZz4KPC9zdmc+Cg==\"},\"rating\":1,\"relativePublishTimeDescription\":\"2 months ago\",\"text\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"en\"},\"originalText\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"en\"},\"publishTime\":\"2026-03-02T04:36:24Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v3demo\",\"authorAttribution\":{\"displayName\":\"Fay A\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0EzMDBDNCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDQuNjY1LDI3Ljk1Nmg0My4xMjZ2NS40OTdINTAuOTJ2MjQuODMzaDMzLjQ1OHY1LjQ5N0g1MC45MnYzMi4zMjFoLTYuMjU2VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K\"},\"rating\":5,\"relativePublishTimeDescription\":\"a week ago\",\"text\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.\",\"languageCode\":\"en\"},\"originalText\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.\",\"languageCode\":\"en\"},\"publishTime\":\"2026-05-03T12:00:00Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v4demo\",\"authorAttribution\":{\"displayName\":\"Dexter Ortega\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzI2NUVGRiIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNTkuMjE0LDI3Ljk1NmM0LjA0MywwLDcuNzA4LDAuMTg5LDEwLjk5NCwwLjU2OGMzLjI4NSwwLjM3OSw2LjI1NiwxLjQyMiw4LjkxLDMuMTI4CmM0LjE3LDIuNjU0LDcuMzYsNi41MjUsOS41NzMsMTEuNjExYzIuMjExLDUuMDg3LDMuMzE3LDExLjI5NiwzLjMxNywxOC42MjVjMCw3Ljg5OS0xLjIxOCwxNC40NTQtMy42NDksMTkuNjY4CmMtMi40MzQsNS4yMTMtNS45ODcsOS4wODQtMTAuNjYzLDExLjYxYy0yLjQ2NSwxLjMyNy01LjM3MiwyLjE0OS04LjcyMSwyLjQ2NWMtMy4zNSwwLjMxNi03LjIzNSwwLjQ3NC0xMS42NTgsMC40NzRIMzguNTUxVjI3Ljk1NgpoMTYuMDE5SDU5LjIxNHogTTU3Ljk4MSw5MC42MDdjMy43OTIsMCw3LjEwOC0wLjEyNiw5Ljk1Mi0wLjM4MWMyLjg0NC0wLjI1Myw1LjI3NS0wLjk4Miw3LjI5OC0yLjE4OAppYzYuODg3LTQuMTIsMTAuMzMyLTEyLjc3NSwxMC4zMzItMjUuOTYyYzAtMTIuNzQyLTMuMjg3LTIxLjI3LTkuODU3LTI1LjU4MWMtMi4yMTMtMS40NTctNC44MzQtMi4zMy03Ljg2Ny0yLjYxNQpjLTMuMDMzLTAuMjg0LTYuNTQtMC40MjgtMTAuNTIxLTAuNDI4SDQ0LjgwN3Y1Ny4xNTVINTcuOTgxeiIvPgo8L2c+PC9zdmc+Cg==\"},\"rating\":5,\"relativePublishTimeDescription\":\"3 months ago\",\"text\":{\"text\":\"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"es\"},\"originalText\":{\"text\":\"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"languageCode\":\"es\"},\"publishTime\":\"2026-01-26T08:04:18Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v5demo\",\"authorAttribution\":{\"displayName\":\"Mary N\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0I2M0RGRiIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMzIuODY0LDI3Ljk1Nmg4LjgxNWwyMi40NjMsNTkuOTk4bDIyLjA4NC01OS45OThoOC44MTV2NjguMTQ5aC02LjI1NlYzNi42NzVMNjcuMDgxLDk2LjEwNGgtNS43ODIKTDM5LjEyLDM2LjY3NXY1OS40MjloLTYuMjU2VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K\"},\"rating\":4,\"relativePublishTimeDescription\":\"4 months ago\",\"text\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\",\"languageCode\":\"en\"},\"originalText\":{\"text\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\",\"languageCode\":\"en\"},\"publishTime\":\"2026-01-02T14:03:43Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v6demo\",\"authorAttribution\":{\"displayName\":\"Jerry Jet\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iI0ZGQjQwNSIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNDkuNTQ2LDc1LjI1MnY0LjM2YzAsOC41OTQsMy44MjMsMTIuODkxLDExLjQ2OSwxMi44OTFjNC41NSwwLDcuNzM5LTEuMTIxLDkuNTczLTMuMzY1CmMxLjgzMi0yLjI0MiwyLjc0OC01Ljg5MiwyLjc0OC0xMC45NDdWMjguMDVoNi4yNTZ2NTEuNTYyYzAsNi4wNjYtMS42MTEsMTAuNjQ4LTQuODM0LDEzLjc0M0M3MS41MzUsOTYuNDUxLDY2Ljg5MSw5OCw2MC44MjUsOTgKYy0xMS42OTEsMC0xNy41MzUtNS45MzgtMTcuNTM1LTE3LjgxOXYtNC45MjlINDkuNTQ2eiIvPgo8L2c+Cjwvc3ZnPgo=\"},\"rating\":2,\"relativePublishTimeDescription\":\"4 months ago\",\"text\":{\"text\":\"Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\",\"languageCode\":\"en\"},\"originalText\":{\"text\":\"Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\",\"languageCode\":\"en\"},\"publishTime\":\"2026-01-02T14:03:43Z\"},{\"name\":\"places/ChIJtTeDfh9w5kcRJEWRKN1Yy6I/reviews/AfLeW3v7demo\",\"authorAttribution\":{\"displayName\":\"Ian A\",\"uri\":\"#\",\"photoUri\":\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTI4IDEyOCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxjaXJjbGUgZmlsbD0iIzAwQjk4NyIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+CjxnPgo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNjAuODI1LDI3Ljk1Nmg2LjI1NXY2OC4xNDloLTYuMjU1VjI3Ljk1NnoiLz4KPC9nPgo8L3N2Zz4K\"},\"rating\":5,\"relativePublishTimeDescription\":\"2 months ago\",\"text\":{\"text\":\"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\",\"languageCode\":\"it\"},\"originalText\":{\"text\":\"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\",\"languageCode\":\"it\"},\"publishTime\":\"2026-03-02T04:36:24Z\"}]}');
 
-new google_business_reviews_rating; 
+require_once(plugin_dir_path(__FILE__) . 'wp/index.php');
+require_once(plugin_dir_path(__FILE__) . 'wp/widget.php');
+require_once(plugin_dir_path(__FILE__) . 'wp/block.php');
+require_once(plugin_dir_path(__FILE__) . 'dashboard/index.php');

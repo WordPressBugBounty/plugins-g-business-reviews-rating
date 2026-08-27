@@ -1,56 +1,56 @@
-﻿=== Reviews and Rating – Google Reviews ===
+﻿=== Reviews and Rating - Google Reviews ===
 
-Plugin Name: Reviews and Rating – Google Reviews
+Plugin Name: Reviews and Rating - Google Reviews
 Plugin URI: https://designextreme.com/wordpress/gmbrr/
 Contributors: designextreme
 Donate link: https://paypal.me/designextreme
 Tags: google reviews, google rating, google my business, gmb reviews, structured data
-Requires at least: 4.6
-Tested up to: 6.7.1
-Stable tag: 5.10
-Requires PHP: 5.2.4
+Requires at least: 5.3
+Tested up to: 7.1
+Stable tag: 6.0
+Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Completely restriction-free Google reviews and rating as Shortcode/Widget. Extensive display options; delicious themes; includes Structured Data.
+Completely restriction-free Google reviews and rating as Block or Shortcode. Extensive display options; delicious themes; includes Structured Data.
 
 == Description ==
 
-Promote your Google reviews and rating from your *Google My Business* listing – with current customer reviews and the overall rating loading from within your website
+Promote your Google reviews and rating from your *Google Business Profile* listing, formerly Google My Business – with current customer reviews and the overall rating loading from within your website
 
 This plugin will collect your location’s data using Google’s Place ID; transforming this information into a well-formatted list or blocks of reviews. You’ll be able to add links to the Google reviews, your Google Maps listing, plus direct your customers to post their reviews and ratings with Google. Don’t worry: there are no restrictions to the reviews collection and plenty of options to display it perfectly on your website.
 
 = Easy and secure integration direct from Google =
 
-This Google reviews plugin is the perfect tool for businesses looking to showcase their customer reviews and ratings fully-loaded right on their website.
+Show your Google reviews and overall rating on your own website, fully formatted and ready to match your design.
 
-One of the many standout features of the plugin is its easy setup and integration with reviews posted to Google My Business using Google’s Places API. You will be able to quickly and easily display your business’s ratings and reviews on your website. A fully automated process keeps the overall rating accurate and over time maintains and builds the catalog of customer reviews.
+Setup is straightforward: connect your listing through Google’s Places (New) API and your ratings and reviews appear on your site. A fully automated process keeps the overall rating accurate and builds the catalog of reviews over time.
 
 = Highly customizable with an extensive selection of designs =
 
-Whether you prefer lists, carousels, columns, or tiles… it’s all covered. A great feature of the plugin is the customizable designs – currently 150 variations with light and dark versions and 14 color schemes.
+Whether you prefer lists, carousels, columns or tiles, it’s all covered: currently 250 design variations with light and dark versions and 14 color schemes.
 
 All aspects of the summary can be selected as with each review item. There’s even the author’s name and date formatting for good measure!
 
-You can choose from an extensive range of templates to display their reviews and ratings in a way that fits your website design. The styling has a light touch so you can also customize the templates to match your brand style and preferences.
+You can choose from an extensive range of templates to display your reviews and ratings in a way that fits your website design. The styling has a light touch so you can also customize the templates to match your brand style and preferences.
 
 = Unconstrained filtering of reviews =
 
-The plugin also allows businesses to sort and filter reviews by all elements of the review including its star rating. Star rating filtering means a business can choose to display only its most positive reviews or, for a transparent approach, all reviews, regardless of their rating. Apply your desire for similar-length reviews, include or exclude reviews by their word content, cached shuffled reviews, and more – everything you’ll need, it’s all there.
+The plugin also allows businesses to sort and filter reviews by all elements of the review including its star rating. Star rating filtering means a business can choose to display only its most positive reviews or, for a transparent approach, all reviews, regardless of their rating. Apply your desire for similar-length reviews, include or exclude reviews by their word content, cached shuffled reviews and more – everything you’ll need, it’s all there.
 
 = A fully responsive design =
 
-The plugin is designed to be fully responsive, which means that it will look great on all devices, including desktop computers, laptops, tablets, and smartphones. This is an important feature for businesses that want to ensure that their customer reviews and ratings are easily accessible to all visitors and deliver on the highest SEO demands.
+The design is fully responsive, so your reviews read well at any screen size. That keeps them accessible to every visitor and helps meet the highest SEO demands.
 
 = Regularly updated and feedback-driven development =
 
-This plugin is regularly updated to ensure that it is always up-to-date and working with the latest version of WordPress and edge PHP releases. This means that businesses can rest assured that their customer reviews and ratings will be displayed correctly and accurately, without any technical issues.
+This plugin is updated regularly to keep pace with new WordPress releases and supported PHP versions.
 
-We listen to user feedback and any good suggestions will be considered and implemented in new releases. As documented in our plugin reviews, support is second to none, surpassing what you’d expect from paid support with premium plugins.
+I respond quickly to any issue raised in the support forum, and user suggestions genuinely shape the plugin. A good deal of what it does today started as a request from someone using it.
 
 = Free, powerful and reliable =
 
-So, get this Google reviews plugin for a powerful and versatile way to showcase your customer reviews and ratings on your website. With its easy integration with the Places API, numerous customizable designs, extensive sorting and filtering, excellent shortcode support, responsive design, free to use, Structured Data/Schema and fully maintained. This plugin is the perfect tool for any business looking to build trust and credibility with its customers.
+This plugin gives you a powerful and versatile way to show your Google reviews: easy integration with the Places (New) API, 250 customizable designs, extensive sorting and filtering, comprehensive shortcode support, a responsive layout and Structured Data for search engines. It is free to use and actively maintained.
 
 == People love this plugin: ==
 
@@ -68,11 +68,11 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 
 == Features: ==
 
-*   **Shortcode and Widget** for customer reviews on Google
+*   **Shortcode, Widget and Block** for customer reviews on Google
 *   *Very* high level of customization with more [added on request](https://designextreme.com/wordpress/gmbrr/)
 *   Insert a list of customers’ reviews with rating range, review length range, offset, [unrestricted] limit, sorting, language and individual review(s) selection
 *   [Fully responsive design](https://demo.designextreme.com/reviews-rating-google-business/) with light styling to allow for your customizations; show/hide any element using shortcode parameters
-*   Customize appearance with columns, customize order within review items, hide or overwrite avatars, date formatting, name formatting, and much more
+*   Customize appearance with columns, customize order within review items, hide or overwrite avatars, date formatting, name formatting and much more
 *   Designed with SVG vector graphics for a crisp appearance across all devices
 *   250 designs/themes including:
 	*   support for light/dark backgrounds,
@@ -100,6 +100,7 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 	*   Display the total number of reviews
 *   Right To Left (RTL) language support
 *   Live preview in Dashboard→Settings
+*   Light and dark mode for the dashboard, following your operating system unless you choose otherwise
 *   Select your choice icon to replace Google’s generic icons
 *   **Structured Data** ([Schema.org](http://schema.org)) support to present clear business information and review data to search engines which assists with SEO
 *   **Demo mode** to help create your website before it goes live; without requiring Google API credentials
@@ -117,7 +118,7 @@ We have a comprehensive showcase of the shortcode’s design and functionality o
 *   [Basic Shortcode](https://demo.designextreme.com/reviews-rating-google-business/)
 *   [Standard appearance in French](https://demo.designextreme.com/reviews-rating-google-business/#french)
 *   [Bubbles, outlined](https://demo.designextreme.com/reviews-rating-google-business/#bubble)
-*   [Bubbles, centred and filled](https://demo.designextreme.com/reviews-rating-google-business/#bubble-center-fill)
+*   [Bubbles, centered and filled](https://demo.designextreme.com/reviews-rating-google-business/#bubble-center-fill)
 *   [Tile effect](https://demo.designextreme.com/reviews-rating-google-business/#tile)
 *   [Columns and colors](https://demo.designextreme.com/reviews-rating-google-business/#columns)
 *   [Review item order and design](https://demo.designextreme.com/reviews-rating-google-business/#review-item-order)
@@ -133,7 +134,7 @@ We have a comprehensive showcase of the shortcode’s design and functionality o
 == Recommendations: ==
 
 *   Please [set your business in Google](https://business.google.com) and find your Business’ [Place ID](https://developers.google.com/places/place-id) before using this plugin.
-*   For peace of mind, please set [Google Places API Quotas](https://console.cloud.google.com/google/maps-apis/apis/places-backend.googleapis.com/quotas) to keep requests below the billable threshold. The recommended value for requests is 100 per day.
+*   For peace of mind, please set [Google Places (New) API Quotas](https://console.cloud.google.com/google/maps-apis/apis/places-backend.googleapis.com/quotas) to keep requests below the billable threshold. The recommended value for requests is 100 per day.
 
 *This is my first public plugin, so [all comments](https://designextreme.com/wordpress/gmbrr/) are very welcome. I would also like to see your usage so I can introduce new themes. There is a sister plugin: [We’re Open!](https://wordpress.org/plugins/opening-hours/) which retrieves current opening hours from Google My Business.*
 
@@ -149,11 +150,15 @@ We have a comprehensive showcase of the shortcode’s design and functionality o
 
 == Frequently Asked Questions ==
 
+= Do I have to use a shortcode? =
+
+No. Add the *Reviews and Rating* block in the editor, or the widget to a sidebar. Both cover the usual choices: location, theme, language, how many reviews and what to show. Use the shortcode when you need an option they don’t offer.
+
 = How do I get a Google API Key? =
 
 All the details for collecting your Google API Key can be found at [our visual guide to creating a Google API Key](https://designextreme.com/wordpress/gmbrr/#api-key).
 
-Once your *Project* is set, you will need a new *API Key* with access to the **Places API**. As a restriction, set your host’s **IP Address** (not your website’s URL). Details of this value are listed on the Settings→Reviews and Rating page.
+Once your *Project* is set, you will need a new *API Key* with access to the **Places (New) API**. As a restriction, set your host’s **IP Address** (not your website’s URL). Details of this value are listed on the Settings→Reviews and Rating page.
 
 The Google API is required for this plugin to load the data from the Google API.
 
@@ -163,7 +168,11 @@ You can locate your unique *Place ID* using Google’s: [Place ID Finder](https:
 
 = I have more than 5 reviews, why can I only see 5 in this plugin? =
 
-The Google API only offers a maximum of 5 relevant or recent reviews at a time. Fortunately, this plugin will collect more reviews over time giving you more options to display your selection of reviews from a larger pool. If you feel comfortable with the *HTML Inspector* in your browser, you can import all the reviews showing in the Google reviews popup.
+The Google API only offers a maximum of 5 reviews at a time, and which 5 it returns varies between requests. Fortunately, this plugin will collect more reviews over time giving you more options to display your selection of reviews from a larger pool. If you feel comfortable with the *HTML Inspector* in your browser, you can import all the reviews showing in the Google reviews popup.
+
+= Can I choose whether Google sends relevant or recent reviews? =
+
+Only on the older Places API. Google’s Places (New) API has no equivalent, so the Review Retrieval setting appears only if you are still using the older API. On Places (New) you order reviews yourself: use **Arrange by relevance** in the Reviews section to sort every review by length and how recent it is, then adjust from there.
 
 = Why can’t I see any reviews on the website? =
 
@@ -179,15 +188,15 @@ The link to a [Google Billing Account](https://console.cloud.google.com/projects
 
 = Can I limit my API requests to keep these within my free allowance? =
 
-This plugin will only use a fraction of your free allowance. However, for peace of mind, you can limit the request to ensure it stays within your free allowance. Just go to [Google Maps Platform: Quotas](https://console.cloud.google.com/google/maps-apis/quotas); select Places API from the dropdown at the top; in the first Requests section, set the “Requests per day” to 100 and click Save.
+This plugin will only use a fraction of your free allowance. However, for peace of mind, you can limit the request to ensure it stays within your free allowance. Just go to [Google Maps Platform: Quotas](https://console.cloud.google.com/google/maps-apis/quotas); select Places (New) API from the dropdown at the top; in the first Requests section, set the “Requests per day” to 100 and click Save.
 
 = Getting my own Google API is annoying; can’t I just load my reviews from somewhere else? =
 
 This is possible; however it would involve sharing your data with a third-party provider. We believe that it is much better to source your reviews direct from Google. Additionally, relying on anyone other than Google will result in slower updates and/or fewer reviews with the possibility of being cut-off their service goes down or if they decide to limit their service to reduce costs.
 
-= When setting up the Google API Credentials, I cannot see Places API listed. Where is it? =
+= When setting up the Google API Credentials, I cannot see Places (New) API listed. Where is it? =
 
-Some people don’t appear to have the Places API enabled in their account. Go to your [Places API page](https://console.cloud.google.com/apis/library/places-backend.googleapis.com?q=place) and click to Enable this API.
+Some people don’t appear to have the Places (New) API enabled in their account. Go to your [Places (New) API page](https://console.cloud.google.com/apis/library/places-backend.googleapis.com?q=place) and click to Enable this API.
 
 = How many locations can I add to this plugin? =
 
@@ -221,7 +230,7 @@ You can select to load the standard or minified versions of the JavaScript and s
 
 = Is this plugin GDPR compliant? =
 
-Yes. The customer ratings and reviews are collected directly by your web server from Google Cloud using the Places API. No customer data is shared at any point in this process. Similarly, the HTML Import process processes the same publicly available content from Google’s review listing.
+Yes. The customer ratings and reviews are collected directly by your web server from Google Cloud using the Places (New) API. No customer data is shared at any point in this process. Similarly, the HTML Import process processes the same publicly available content from Google’s review listing.
 
 If you are concerned about loading either the business icon or avatar images through Google’s CDN, you can choose to use [locally hosted images](https://demo.designextreme.com/reviews-rating-google-business/#columns) in their place, save all CDN images locally or hide these altogether.
 
@@ -243,6 +252,42 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 10. Dashboard view of advanced import with 9 new reviews
 
 == Changelog ==
+
+= 6.0 =
+
+* Fixed a security issue allowing unsafe HTML tags through a shortcode parameter (Thanks to Muhammad Yudha, Wordfence)
+* Added nonce verification to dashboard actions and switched to parameterized database queries
+* Strengthened custom CSS validation to block external imports and HTML tag injection
+* Added support for Google’s Places (New) API
+* Added a Gutenberg block, mirroring Widget functionality
+* Added Arrange by relevance in Reviews, ordering every review by length and how recent it is
+* Added an HTML Import option to store Google’s own order as relevance
+* Added a dashboard color scheme setting with System, Light and Dark options, remembered per user
+* Added a dashboard that remembers your last-used section, per user
+* Added a list of recent retrievals with new review counts
+* Added accessibility support throughout: reduced motion, high contrast and screen reader labels
+* Added a language label to reviews when a specific language is chosen
+* Added Arabic and Chinese language support for relative times
+* Added a Bluesky link in the About section
+* Fixed duplicate entries appearing when a reviewer edited their review
+* Fixed a fatal error when adding a location on PHP 8
+* Fixed saving of the Google API Key
+* Fixed the synchronization frequency being ignored with multiple locations
+* Fixed the review count when filtering by both location and review status
+* Fixed duplicate entries in the Structured Data output
+* Fixed the language of imported translations not being detected
+* Fixed icon text appearing in imported reviewer names
+* Fixed relative review times ignoring an installed translation
+* Fixed the welcome screen not appearing for some new installations
+* Fixed the widget’s theme names not being translatable
+* Improved the Widget for current WordPress versions
+* Improved the language parameter to match a review on either its translated or original text
+* Improved Structured Data for search engines
+* Improved front-end performance by removing the jQuery dependency
+* Rebuilt the plugin’s internal structure for greater reliability and easier maintenance
+* Set minimum WordPress version to 5.3
+* Set minimum PHP version to 7.4
+* Tested with WordPress 7.1
 
 = 5.10 =
 
@@ -499,7 +544,7 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 * Improved style sheet preferences; moved to Additional section
 * Improved handling of Widget – calling Shortcode method for HTML output
 * Improved HTML output within review list
-* Improved review item customisations
+* Improved review item customizations
 * Fixed warning when avatar image is not included in API data (Thanks to Christopher)
 * Fixed rel parameter as null for its removal (Thanks to Robert)
 * Optimized style sheet
@@ -555,7 +600,7 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 = 3.36 =
 
 * Improved layout in preview for column themes
-* Fixed unexpected review filtering behaviour in some cases
+* Fixed unexpected review filtering behavior in some cases
 * Fixed multibyte character issue in review text
 * Fixed missing Widget
 
@@ -1072,7 +1117,9 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 
 == Upgrade Notice ==
 
+= 6.0 =
 
+A major release: Google’s Places (New) API, a block for the editor, a dashboard color scheme and a rebuilt internal structure. PHP 7.4 or later is now required. Your settings, retrieved reviews and widgets carry over untouched.
 
 == Getting started with Google API ==
 
