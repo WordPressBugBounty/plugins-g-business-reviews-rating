@@ -7,6 +7,8 @@ if (!defined('ABSPATH'))
 
 class google_business_reviews_rating_frontend extends google_business_reviews_rating
 {
+	protected array $shortcode_filter_excluded = ['id', 'type'];
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -20,7 +22,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 		$this->demo = $this->get_option('demo');
 		$stylesheet = $this->get_option('stylesheet', TRUE);
 		$javascript = $this->get_option('javascript', TRUE);
-		$structured_data = $this->get_option('structured_data', 0);
+		$structured_data = apply_filters(self::OPTION_PREFIX . 'structured_data', $this->get_option('structured_data', 0));
 
 		add_shortcode(self::PLUGIN_ALIAS, [$this, 'display']);
 		add_shortcode('reviews_rating', [$this, 'display']);
@@ -100,7 +102,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 			return NULL;
 		}
 
-		$show_in_page = get_option(self::OPTION_PREFIX . 'structured_data', 0);
+		$show_in_page = apply_filters(self::OPTION_PREFIX . 'structured_data', $this->get_option('structured_data', 0));
 		$show_in_page = (!$this->dashboard && (is_numeric($show_in_page) && ($show_in_page <= -1 || $show_in_page > 1 && function_exists('get_the_ID') && get_the_ID() == intval($show_in_page)) || (is_bool($show_in_page) && $show_in_page || is_numeric($show_in_page) && intval($show_in_page) == 1) && is_front_page()));
 
 		if (!$return && !$string && empty($data) && !$show_in_page)
@@ -156,6 +158,31 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 
 		echo wp_kses($output, ['script' => ['type' => 'application/ld+json']]);
 		return NULL;
+	}
+
+	/* Seed filtered defaults into the attributes so they read as supplied on the shortcode */
+
+	protected function parameters_filter(array $shortcode_defaults, $atts, $shortcode): array
+	{
+		$atts = (is_array($atts)) ? $atts : [];
+		$overrides = apply_filters(self::OPTION_PREFIX . 'parameters', [], $shortcode, $shortcode_defaults);
+
+		if (!is_array($overrides))
+		{
+			return $atts;
+		}
+
+		foreach ($overrides as $k => $v)
+		{
+			if (!array_key_exists($k, $shortcode_defaults) || array_key_exists($k, $atts) || in_array($k, $this->shortcode_filter_excluded))
+			{
+				continue;
+			}
+
+			$atts[$k] = $v;
+		}
+
+		return $atts;
 	}
 
 	/* Display HTML from shortcodes */
@@ -259,6 +286,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 		}
 		
 		$places = NULL;
+		$atts = $this->parameters_filter($shortcode_defaults, $atts, $shortcode);
 		$args = shortcode_atts($shortcode_defaults, $atts);
 		
 		if (!is_array($atts))
@@ -336,7 +364,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 		$class = (is_string($class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($class))) : NULL;
 		$color_scheme = (is_string($color_scheme) && array_key_exists(preg_replace('/[^\w_]/', '', trim(mb_strtolower($color_scheme))), $this->color_schemes)) ? preg_replace('/[^\w_]/', '', trim(mb_strtolower($color_scheme))) : ((array_key_exists('color_scheme', $atts)) ? NULL : $this->get_option('color_scheme', NULL));
 		$stylesheet = (is_bool($stylesheet) || is_string($stylesheet) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $stylesheet)) ? (is_bool($stylesheet) && $stylesheet || is_numeric($stylesheet) && $stylesheet > 0 || is_string($stylesheet) && $stylesheet != NULL) : ((!array_key_exists('stylesheet', $atts)) ? $this->get_option('stylesheet', NULL) : TRUE);
-		$summary = (is_null($summary) || is_bool($summary) && $summary || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $summary)) ? TRUE : ((is_string($summary) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $summary)) ? preg_split('/,\s*/', preg_replace('/[^\w ,_-]/', '-', trim(mb_strtolower($summary))), 8, PREG_SPLIT_NO_EMPTY) : FALSE);
+		$summary = (is_null($summary) || is_bool($summary) && $summary || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $summary)) ? TRUE : ((is_string($summary) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $summary)) ? preg_split('/,\s*/', preg_replace('/[^\w ,_-]/', '-', trim(mb_strtolower($summary))), 8, PREG_SPLIT_NO_EMPTY) : ((is_bool($summary) || is_string($summary)) ? FALSE : TRUE));
 		$icon = (is_null($icon) || is_bool($icon) && $icon || is_string($icon) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $icon)) ? (is_bool($summary) || is_array($summary) && in_array('icon', $summary)) : ((is_string($icon) && preg_match('/.+\.(?:jpe?g|png|svg|gif)/i', $icon)) ? wp_strip_all_tags($icon, TRUE) : FALSE);
 		$name = (is_null($name) || is_bool($name) && $name || is_string($name) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $name)) ? (is_bool($summary) || is_array($summary) && in_array('name', $summary)) : ((is_string($name) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $name)) ? wp_strip_all_tags($name, TRUE) : FALSE);
 		$vicinity = (is_null($vicinity) || is_bool($vicinity) && $vicinity || is_string($vicinity) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $vicinity)) ? (is_bool($summary) || is_array($summary) && in_array('vicinity', $summary)) : ((is_string($vicinity) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $vicinity)) ? wp_strip_all_tags($vicinity, TRUE) : FALSE);
@@ -355,9 +383,9 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 		$bullet = (is_string($bullet) && (mb_strlen($bullet) < 20 && !preg_match('/^(?:false|no(?:ne)?|0|off|hide|t(?:rue)?|y(?:es)?|1|on|show)$/i', $bullet))) ? wp_strip_all_tags($bullet, TRUE) : (!array_key_exists('bullet', $atts) || is_bool($bullet) && $bullet || is_string($bullet) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $bullet));
 		$cursor = (!array_key_exists('cursor', $atts) || is_bool($cursor) && $cursor || is_string($cursor) && preg_match('/^(?:true|yes|1|on|show|left|right|both)$/', $cursor));
 		$draggable = (!array_key_exists('draggable', $atts) || is_bool($draggable) && $draggable || is_string($draggable) && preg_match('/^(?:true|yes|1|on|show|left|right|both)$/', $draggable));
-		$avatar = (is_null($avatar) || is_bool($avatar) && $avatar || is_string($avatar) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $avatar)) ? TRUE : ((is_string($avatar) && preg_match('/^.+\.(?:jpe?g|png|svg|gif|webp).*$/i', $avatar)) ? wp_strip_all_tags($avatar, TRUE) : FALSE);
+		$avatar = (is_null($avatar) || is_bool($avatar) && $avatar || is_string($avatar) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/', $avatar)) ? TRUE : ((is_string($avatar) && preg_match('/^.+\.(?:jpe?g|png|svg|gif|webp).*$/i', $avatar)) ? wp_strip_all_tags($avatar, TRUE) : ((is_bool($avatar) || is_string($avatar)) ? FALSE : TRUE));
 		$name_format = (is_bool($name_format) && !$name_format || is_string($name_format) && preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $name_format)) ? FALSE : ((is_string($name_format) && preg_match('/first|last|initials?|capitali[sz]e|uc(?:first|words)|(?:(?:lower|upper|title)(?:case)?)/i', $name_format)) ? $name_format : NULL);
-		$date = (is_null($date) || is_bool($date) && $date || is_string($date) && preg_match('/^(?:true|yes|1|on|show)$/i', $date)) ? TRUE : ((is_string($date) && preg_match('/^[aABcdDeFgGhHiIjLlmMNnoOPrSstTuUvwWYyzZ ,.;:()\[\]\/_-]{1,20}$/', $date) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $date)) ? wp_strip_all_tags($date, TRUE) : FALSE);
+		$date = (is_null($date) || is_bool($date) && $date || is_string($date) && preg_match('/^(?:true|yes|1|on|show)$/i', $date)) ? TRUE : ((is_string($date) && preg_match('/^[aABcdDeFgGhHiIjLlmMNnoOPrSstTuUvwWYyzZ ,.;:()\[\]\/_-]{1,20}$/', $date) && !preg_match('/^(?:false|no(?:ne)?|0|off|hide)$/i', $date)) ? wp_strip_all_tags($date, TRUE) : ((is_bool($date) || is_string($date)) ? FALSE : TRUE));
 		$relative_date = (is_string($date) && preg_match('/^(?:relative)$/i', $date));
 		$link = (is_bool($link) && $link || is_string($link) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $link)) ? TRUE : ((is_string($link) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $link)) ? wp_strip_all_tags($link, TRUE) : FALSE);
 		$link_class = (is_string($link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($link_class))) : NULL;
@@ -368,7 +396,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 		$write_review_url = (is_string($write_review_url) && preg_match('#^((https?:)?//[^/]{4,150}/?.*|/.*)$#i', $write_review_url)) ? wp_strip_all_tags($write_review_url, TRUE) : (($this->demo) ? 'https://search.google.com/local/writereview?placeid=ChIJq6pqZz2uEmsRaQAMbAl0RW0' : 'https://search.google.com/local/writereview?placeid=' . esc_attr((is_string($place_id)) ? wp_strip_all_tags($place_id, TRUE) : $this->get_option('place_id')));			
 		$reviews_link_class = (is_string($reviews_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($reviews_link_class))) : wp_strip_all_tags($link_class, TRUE);
 		$write_review_link_class = (is_string($write_review_link_class)) ? preg_replace('/[^\w _-]/', '-', trim(mb_strtolower($write_review_link_class))) : wp_strip_all_tags($link_class, TRUE);
-		$animate = (array_key_exists('animate', $atts) && is_string($animate) && preg_match('/^(?:immediate(?:ly)?|(?:on)?(?:load|ready))$/i', $animate)) ? 'immediate' : (is_null($animate) || is_bool($animate) && $animate || is_string($summary) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|animate|animation)$/i', $animate));
+		$animate = (array_key_exists('animate', $atts) && is_string($animate) && preg_match('/^(?:immediate(?:ly)?|(?:on)?(?:load|ready))$/i', $animate)) ? 'immediate' : (is_null($animate) || is_bool($animate) && $animate || is_string($animate) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|animate|animation)$/i', $animate));
 		$review_text = (is_null($review_text) || is_bool($review_text) && $review_text || is_string($review_text) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show)$/i', $review_text));
 		$attribution = (is_null($attribution) || is_bool($attribution) && $attribution || is_string($attribution) && preg_match('/^(?:t(?:rue)?|y(?:es)?|1|on|show|light|dark)$/i', $attribution)) ? ((is_string($attribution) && preg_match('/^(?:light|dark)$/i', $attribution)) ? mb_strtolower($attribution) : TRUE) : ((is_string($attribution) && !preg_match('/^(?:f(?:alse)?|no?(?:ne)?|0|off|hide)$/i', $attribution)) ? wp_strip_all_tags($attribution, TRUE) : FALSE);
 		$review_text_excerpt_length = (is_numeric($excerpt) && $excerpt >= 20) ? intval($excerpt) : ((!array_key_exists('excerpt', $atts)) ? $this->get_option('review_text_excerpt_length', NULL) : NULL);
@@ -684,7 +712,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 					}
 					else
 					{
-						$html .= '<span class="rating-stars' . (is_bool($animate) ? ' animate' : '') . '"' . $stars_aria . ' data-rating="' . esc_attr($rating) . '" data-multiplier="' . (is_numeric($multiplier) ? esc_attr($multiplier) : '') . '">'
+						$html .= '<span class="rating-stars' . (($animate) ? ' animate' : '') . '"' . $stars_aria . ' data-rating="' . esc_attr($rating) . '" data-multiplier="' . (is_numeric($multiplier) ? esc_attr($multiplier) : '') . '">'
 						. str_repeat('★', round($rating)) . ((round($rating) < 5) ? '<span class="not">' . str_repeat('☆', (5 - round($rating, 0, PHP_ROUND_HALF_DOWN))) . '</span>' : '')
 						. '</span> ';
 					}
@@ -1363,6 +1391,7 @@ class google_business_reviews_rating_frontend extends google_business_reviews_ra
 			. (($review_item_author_switch) ? ' author-switch' : '')
 			. '"'
 			. (($language_class && isset($data['language']) && is_string($data['language']) && $data['language'] != NULL) ? ' data-language="' . esc_attr($data['language']) . '"' : '')
+			. (($language_class && isset($data['translated'])) ? ' data-translated="' . (($data['translated']) ? '1' : '0') . '"' : '')
 			. ' data-index="' . esc_attr($index) . '"'
 			. '>';
 

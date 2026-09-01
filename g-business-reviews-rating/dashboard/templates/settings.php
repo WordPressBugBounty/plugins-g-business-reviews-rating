@@ -763,7 +763,7 @@ Finally for regular requests, please <a href="%5$s" class="components-external-l
                 </tr>
                 <tr id="parameter-language-class">
                     <td class="parameter">language_class</td>
-                    <td class="description"><?php /* translators: 1: example CSS class added to a review item element */ echo sprintf(__('Add a language CSS class (e.g. <span class="code">%s</span>) and a <span class="code">data-language</span> attribute to each review item. Enabled automatically when the language parameter is set.', 'g-business-reviews-rating'), 'language-en'); ?></td>
+                    <td class="description"><?php /* translators: 1: example CSS class added to a review item element, 2: data-language attribute name, 3: data-translated attribute name */ echo sprintf(__('Add a language CSS class (e.g. <span class="code">%1$s</span>) plus <span class="code">%2$s</span> and <span class="code">%3$s</span> attributes to each review item. Enabled automatically when the language parameter is set.', 'g-business-reviews-rating'), 'language-en', 'data-language', 'data-translated'); ?></td>
                     <td class="accepted">yes, no, true, false, <span class="code">1</span>, <span class="code">0</span>, show, hide, on, off</td>
                     <td class="default"><span class="code">FALSE</span></td>
                     <td class="boolean"><span class="dashicons dashicons-yes"></span></td>

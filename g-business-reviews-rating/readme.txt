@@ -7,7 +7,7 @@ Donate link: https://paypal.me/designextreme
 Tags: google reviews, google rating, google my business, gmb reviews, structured data
 Requires at least: 5.3
 Tested up to: 7.1
-Stable tag: 6.0
+Stable tag: 6.1
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -50,7 +50,7 @@ I respond quickly to any issue raised in the support forum, and user suggestions
 
 = Free, powerful and reliable =
 
-This plugin gives you a powerful and versatile way to show your Google reviews: easy integration with the Places (New) API, 250 customizable designs, extensive sorting and filtering, comprehensive shortcode support, a responsive layout and Structured Data for search engines. It is free to use and actively maintained.
+This plugin gives you a powerful and versatile way to show your Google reviews: easy integration with the Places (New) API, 250 customizable designs, extensive sorting and filtering, comprehensive Shortcode support, a responsive layout and Structured Data for search engines. It is free to use and actively maintained.
 
 == People love this plugin: ==
 
@@ -71,7 +71,7 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 *   **Shortcode, Widget and Block** for customer reviews on Google
 *   *Very* high level of customization with more [added on request](https://designextreme.com/wordpress/gmbrr/)
 *   Insert a list of customers’ reviews with rating range, review length range, offset, [unrestricted] limit, sorting, language and individual review(s) selection
-*   [Fully responsive design](https://demo.designextreme.com/reviews-rating-google-business/) with light styling to allow for your customizations; show/hide any element using shortcode parameters
+*   [Fully responsive design](https://demo.designextreme.com/reviews-rating-google-business/) with light styling to allow for your customizations; show/hide any element using Shortcode parameters
 *   Customize appearance with columns, customize order within review items, hide or overwrite avatars, date formatting, name formatting and much more
 *   Designed with SVG vector graphics for a crisp appearance across all devices
 *   250 designs/themes including:
@@ -92,7 +92,7 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 	*	Transitions will pause on mouse hover
 	*	Customizable navigation bullets
 	*	Works with all themes containing a list of reviews
-*   Additional shortcodes for:
+*   Additional Shortcodes for:
 	*   Link to [reviews](https://demo.designextreme.com/reviews-rating-google-business/#links) and current rating on Google, with an optional Google icon
 	*   Link for customers to [leave their rating](https://demo.designextreme.com/reviews-rating-google-business/#links) and write a review on Google, with an optional Google icon
 	*   Link to the [business place/location](https://demo.designextreme.com/reviews-rating-google-business/#links) with Google Maps, with an optional Google icon
@@ -113,7 +113,7 @@ Very impressed with the functionality of this plugin. Manual HTML import worked 
 
 == Demonstration: ==
 
-We have a comprehensive showcase of the shortcode’s design and functionality on our [Demonstration Website](https://demo.designextreme.com/reviews-rating-google-business/).
+We have a comprehensive showcase of the Shortcode’s design and functionality on our [Demonstration Website](https://demo.designextreme.com/reviews-rating-google-business/).
 
 *   [Basic Shortcode](https://demo.designextreme.com/reviews-rating-google-business/)
 *   [Standard appearance in French](https://demo.designextreme.com/reviews-rating-google-business/#french)
@@ -145,14 +145,14 @@ We have a comprehensive showcase of the shortcode’s design and functionality o
 3. Use the **Settings**→**Reviews and Rating – Google Reviews** screen to configure the plugin with
 	a. your [Google API Key](https://designextreme.com/wordpress/gmbrr/#api-key) and
 	b. the business’ [Place ID](https://developers.google.com/places/place-id).
-4. Once the Google credentials are all set, shortcodes will be available to place in any page, post or use the widget
+4. Once the Google credentials are all set, Shortcodes will be available to place in any page, post or use the widget
 
 
 == Frequently Asked Questions ==
 
-= Do I have to use a shortcode? =
+= Do I have to use a Shortcode? =
 
-No. Add the *Reviews and Rating* block in the editor, or the widget to a sidebar. Both cover the usual choices: location, theme, language, how many reviews and what to show. Use the shortcode when you need an option they don’t offer.
+No. Add the *Reviews and Rating* block in the editor, or the widget to a sidebar. Both cover the usual choices: location, theme, language, how many reviews and what to show. Use the Shortcode when you need an option they don’t offer.
 
 = How do I get a Google API Key? =
 
@@ -234,6 +234,10 @@ Yes. The customer ratings and reviews are collected directly by your web server 
 
 If you are concerned about loading either the business icon or avatar images through Google’s CDN, you can choose to use [locally hosted images](https://demo.designextreme.com/reviews-rating-google-business/#columns) in their place, save all CDN images locally or hide these altogether.
 
+= Can I set the Shortcode parameters in code? =
+
+Yes. The `google_business_reviews_rating_parameters` filter accepts an array of parameter names and values, applied to every Shortcode, widget and block. A parameter written into the Shortcode itself always takes precedence. There is also `google_business_reviews_rating_structured_data` to control the Structured Data output.
+
 = Where can I find some examples of the Shortcodes? =
 
 There’s a comprehensive list in the Shortcodes section in Dashboard→Settings. To view a showcase of many of these Shortcodes with various parameters and some suggestions for CSS, please have a look at our [Demonstration Website](https://demo.designextreme.com/reviews-rating-google-business/).
@@ -241,10 +245,10 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 == Screenshots ==
 
 1. Examples of the reviews listings with Light/Dark themes, badges, multiple columns and bubble themes
-2. Examples of shortcodes and their results; all visible on the Demonstration Website
+2. Examples of Shortcodes and their results; all visible on the Demonstration Website
 3. Dashboard view with general review display settings and a preview of a bubble theme
 4. Shortcodes with some examples of the parameters
-5. Details of the many shortcode parameters available to customize the display
+5. Details of the many Shortcode parameters available to customize the display
 6. Dashboard view of all retrieved reviews, with more added over time from Google
 7. Dashboard view of current retrieved data using the Google API
 8. Widget with extensive customization in the Dashboard
@@ -252,6 +256,13 @@ There’s a comprehensive list in the Shortcodes section in Dashboard→Settings
 10. Dashboard view of advanced import with 9 new reviews
 
 == Changelog ==
+
+= 6.1 =
+
+* Added filters to set Shortcode parameters and Structured Data programmatically
+* Added language and translated attributes to each review, for styling by language
+* Fixed the More link not expanding the full review (Thanks to Miikka)
+* Fixed the animate parameter switching animation off instead of on
 
 = 6.0 =
 

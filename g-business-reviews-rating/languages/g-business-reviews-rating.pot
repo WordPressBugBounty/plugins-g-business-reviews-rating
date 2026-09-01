@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Reviews and Rating - Google Reviews 6.0\n"
+"Project-Id-Version: Reviews and Rating - Google Reviews 6.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/g-business-reviews-rating\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-27T12:40:47+00:00\n"
+"POT-Creation-Date: 2026-09-01T14:35:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: g-business-reviews-rating\n"
@@ -1655,7 +1655,7 @@ msgstr ""
 #: dashboard/templates/settings.php:1461
 #: index.php:3632
 #: wp/templates/widget.php:145
-#: wp/block/index.js:99
+#: wp/block/index.js:105
 msgid "Reviews"
 msgstr ""
 
@@ -1673,7 +1673,7 @@ msgstr ""
 #: dashboard/templates/settings.php:1760
 #: dashboard/templates/settings.php:1769
 #: index.php:3634
-#: wp/block/index.js:155
+#: wp/block/index.js:161
 msgid "About"
 msgstr ""
 
@@ -1807,14 +1807,14 @@ msgid "The general settings for your reviews and rating elements. Shortcode para
 msgstr ""
 
 #: dashboard/templates/settings.php:155
-#: wp/block/index.js:53
+#: wp/block/index.js:59
 msgid "Theme"
 msgstr ""
 
 #: dashboard/templates/settings.php:158
 #: dashboard/templates/settings.php:691
 #: wp/templates/widget.php:51
-#: wp/block/index.js:55
+#: wp/block/index.js:61
 msgid "Default"
 msgstr ""
 
@@ -1905,9 +1905,9 @@ msgid "None"
 msgstr ""
 
 #: dashboard/templates/settings.php:244
-#: wp/index.php:610
+#: wp/index.php:638
 #: wp/templates/widget.php:46
-#: wp/block/index.js:93
+#: wp/block/index.js:99
 msgid "Icon"
 msgstr ""
 
@@ -2068,13 +2068,13 @@ msgstr ""
 #: dashboard/templates/settings.php:436
 #: dashboard/templates/settings.php:1535
 #: index.php:3665
-#: wp/block/index.js:39
+#: wp/block/index.js:45
 msgid "Place ID"
 msgstr ""
 
 #: dashboard/templates/settings.php:437
 #: index.php:3658
-#: wp/block/index.js:95
+#: wp/block/index.js:101
 msgid "Rating"
 msgstr ""
 
@@ -2195,7 +2195,7 @@ msgstr ""
 #: dashboard/templates/settings.php:632
 #: dashboard/templates/settings.php:693
 #: dashboard/templates/settings.php:1245
-#: wp/block/index.js:151
+#: wp/block/index.js:157
 msgid "Links"
 msgstr ""
 
@@ -2323,10 +2323,10 @@ msgstr ""
 msgid "en, fr, de, …"
 msgstr ""
 
-#. translators: 1: example CSS class added to a review item element
+#. translators: 1: example CSS class added to a review item element, 2: data-language attribute name, 3: data-translated attribute name
 #: dashboard/templates/settings.php:766
 #, php-format
-msgid "Add a language CSS class (e.g. <span class=\"code\">%s</span>) and a <span class=\"code\">data-language</span> attribute to each review item. Enabled automatically when the language parameter is set."
+msgid "Add a language CSS class (e.g. <span class=\"code\">%1$s</span>) plus <span class=\"code\">%2$s</span> and <span class=\"code\">%3$s</span> attributes to each review item. Enabled automatically when the language parameter is set."
 msgstr ""
 
 #: dashboard/templates/settings.php:772
@@ -2424,13 +2424,13 @@ msgstr ""
 
 #: dashboard/templates/settings.php:877
 #: dashboard/templates/settings.php:1462
-#: wp/index.php:377
+#: wp/index.php:405
 msgid "review"
 msgstr ""
 
 #: dashboard/templates/settings.php:877
 #: dashboard/templates/settings.php:1462
-#: wp/index.php:377
+#: wp/index.php:405
 msgid "reviews"
 msgstr ""
 
@@ -2487,7 +2487,7 @@ msgid "Text to use in the &ldquo;more&rdquo; toggle link."
 msgstr ""
 
 #: dashboard/templates/settings.php:961
-#: wp/index.php:378
+#: wp/index.php:406
 #: wp/widget.php:458
 msgid "More"
 msgstr ""
@@ -2923,7 +2923,7 @@ msgid "Total"
 msgstr ""
 
 #: dashboard/templates/settings.php:1540
-#: wp/block/index.js:37
+#: wp/block/index.js:43
 msgid "Source"
 msgstr ""
 
@@ -3498,7 +3498,7 @@ msgstr ""
 
 #: index.php:3613
 #: index.php:3680
-#: wp/index.php:1155
+#: wp/index.php:1183
 msgid "Avatar"
 msgstr ""
 
@@ -3527,7 +3527,7 @@ msgid "Author"
 msgstr ""
 
 #: index.php:3660
-#: wp/block/index.js:45
+#: wp/block/index.js:51
 msgid "Language"
 msgstr ""
 
@@ -3544,60 +3544,60 @@ msgid "Imported"
 msgstr ""
 
 #: index.php:3698
-#: wp/index.php:718
+#: wp/index.php:746
 msgid "No reviews found."
 msgstr ""
 
-#: wp/index.php:412
-#: wp/index.php:434
-#: wp/index.php:455
-#: wp/index.php:1009
+#: wp/index.php:440
+#: wp/index.php:462
+#: wp/index.php:483
+#: wp/index.php:1037
 msgid "Error"
 msgstr ""
 
-#: wp/index.php:628
-#: wp/index.php:929
+#: wp/index.php:656
+#: wp/index.php:957
 msgid "Powered by Google"
 msgstr ""
 
 #. translators: %s: rating value out of five, for example 4.5
-#: wp/index.php:637
-#: wp/index.php:1224
+#: wp/index.php:665
+#: wp/index.php:1252
 #, php-format
 msgid "Rated %s out of 5"
 msgstr ""
 
 #. translators: %s: the language the reviews are filtered by
-#: wp/index.php:724
+#: wp/index.php:752
 #, php-format
 msgid "No reviews found in %s."
 msgstr ""
 
 #. translators: %s: the language the reviews are filtered by
-#: wp/index.php:724
+#: wp/index.php:752
 msgid "No reviews found, offset too high or another restriction."
 msgstr ""
 
-#: wp/index.php:910
+#: wp/index.php:938
 msgid "View Reviews"
 msgstr ""
 
-#: wp/index.php:920
+#: wp/index.php:948
 msgid "Write Review"
 msgstr ""
 
 #. translators: %s refers to the name of the author with a possessive
-#: wp/index.php:1154
+#: wp/index.php:1182
 #, php-format
 msgid "%s’s Avatar"
 msgstr ""
 
-#: wp/index.php:1257
+#: wp/index.php:1285
 msgid "Reviews carousel"
 msgstr ""
 
 #. translators: %u: slide number, starting at 1
-#: wp/index.php:1262
+#: wp/index.php:1290
 #, php-format
 msgid "Go to slide %u"
 msgstr ""
@@ -3955,103 +3955,103 @@ msgstr ""
 msgid "Not reviews or ratings exist."
 msgstr ""
 
-#: wp/block/index.js:40
+#: wp/block/index.js:46
 msgid "Leave empty to use the Place ID from the plugin settings."
 msgstr ""
 
-#: wp/block/index.js:47
+#: wp/block/index.js:53
 msgid "Any language"
 msgstr ""
 
-#: wp/block/index.js:51
+#: wp/block/index.js:57
 msgid "Appearance"
 msgstr ""
 
-#: wp/block/index.js:90
+#: wp/block/index.js:96
 msgid "Summary"
 msgstr ""
 
-#: wp/block/index.js:91
+#: wp/block/index.js:97
 msgid "Show the summary"
 msgstr ""
 
-#: wp/block/index.js:92
+#: wp/block/index.js:98
 msgid "Business name"
 msgstr ""
 
-#: wp/block/index.js:94
+#: wp/block/index.js:100
 msgid "Address"
 msgstr ""
 
-#: wp/block/index.js:96
+#: wp/block/index.js:102
 msgid "Stars"
 msgstr ""
 
-#: wp/block/index.js:97
+#: wp/block/index.js:103
 msgid "Review count"
 msgstr ""
 
-#: wp/block/index.js:101
+#: wp/block/index.js:107
 msgid "Sort"
 msgstr ""
 
-#: wp/block/index.js:103
+#: wp/block/index.js:109
 msgid "Relevance"
 msgstr ""
 
-#: wp/block/index.js:107
+#: wp/block/index.js:113
 msgid "Number of reviews"
 msgstr ""
 
-#: wp/block/index.js:114
+#: wp/block/index.js:120
 msgid "Skip the first"
 msgstr ""
 
-#: wp/block/index.js:121
+#: wp/block/index.js:127
 msgid "Lowest rating shown"
 msgstr ""
 
-#: wp/block/index.js:128
+#: wp/block/index.js:134
 msgid "Highest rating shown"
 msgstr ""
 
-#: wp/block/index.js:135
+#: wp/block/index.js:141
 msgid "Shorten review text to"
 msgstr ""
 
-#: wp/block/index.js:136
+#: wp/block/index.js:142
 msgid "Characters. Zero uses the plugin setting."
 msgstr ""
 
-#: wp/block/index.js:144
+#: wp/block/index.js:150
 msgid "Read more text"
 msgstr ""
 
-#: wp/block/index.js:148
+#: wp/block/index.js:154
 msgid "Review date"
 msgstr ""
 
-#: wp/block/index.js:149
+#: wp/block/index.js:155
 msgid "Reviewer photos"
 msgstr ""
 
-#: wp/block/index.js:152
+#: wp/block/index.js:158
 msgid "View reviews on Google"
 msgstr ""
 
-#: wp/block/index.js:153
+#: wp/block/index.js:159
 msgid "Write a review"
 msgstr ""
 
-#: wp/block/index.js:156
+#: wp/block/index.js:162
 msgid "Attribution"
 msgstr ""
 
-#: wp/block/index.js:157
+#: wp/block/index.js:163
 msgid "Credits Google as the source. Some themes already make this clear, so it can be turned off."
 msgstr ""
 
-#: wp/block/index.js:158
+#: wp/block/index.js:164
 msgid "These are the common options. The shortcode covers everything else."
 msgstr ""
 

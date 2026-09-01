@@ -4,7 +4,7 @@
  * Plugin Name: Reviews and Rating - Google Reviews
  * Plugin URI: https://wordpress.org/plugins/g-business-reviews-rating/
  * Description: Shortcode and widget for Google reviews, current rating and direct links to allow customers to leave their own rating and review – data sourced from Google My Business
- * Version: 6.0
+ * Version: 6.1
  * Requires at least: 5.3
  * Requires PHP: 7.4
  * Author: Noah Hearle, Design Extreme

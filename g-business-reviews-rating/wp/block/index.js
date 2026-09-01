@@ -7,6 +7,12 @@ const server_side_render = window.wp.serverSideRender;
 
 const google_business_reviews_rating_block_columns = { two: 2, three: 3, four: 4, five: 5, six: 6 };
 
+const google_business_reviews_rating_block_icon = create_element(
+    'svg',
+    { xmlns: 'http://www.w3.org/2000/svg', viewBox: '272.67 13.72 96 96' },
+    create_element('path', { fill: '#F7B603', d: 'M338.809 72.417 368.252 51h-36.389l-11.197-34.5L309.468 51h-36.389l29.444 21.417-11.202 34.523 29.345-21.324 29.345 21.322z' })
+);
+
 const google_business_reviews_rating_block_options = (list, empty_label) => {
     let options = [{ label: empty_label, value: '' }],
         key;
@@ -168,6 +174,7 @@ const google_business_reviews_rating_block_edit = ( { attributes, setAttributes 
 };
 
 registerBlockType( 'g-business-reviews-rating/reviews', {
+    icon: google_business_reviews_rating_block_icon,
     edit: google_business_reviews_rating_block_edit,
     save: () => null
 } );

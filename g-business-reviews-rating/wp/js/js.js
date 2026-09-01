@@ -33,7 +33,7 @@ function google_business_reviews_rating(e, i) {
 		}
 
 		if (full_text) {
-			full_text.style.display = '';
+			full_text.style.display = 'inline';
 		}
 
 		li.querySelector('.review-more-link')?.remove();
@@ -216,7 +216,7 @@ function google_business_reviews_rating(e, i) {
 					event.stopPropagation();
 
 					if (more_link.nextElementSibling?.classList.contains('review-full-text')) {
-						more_link.nextElementSibling.style.display = '';
+						more_link.nextElementSibling.style.display = 'inline';
 					}
 
 					if (view == null) {

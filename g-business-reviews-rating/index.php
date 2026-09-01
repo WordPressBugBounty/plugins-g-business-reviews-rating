@@ -9,7 +9,7 @@ class google_business_reviews_rating
 {
 	const OPTION_PREFIX = 'google_business_reviews_rating_',
 		PLUGIN_ALIAS = 'google_business_reviews_rating',
-		VERSION = '6.0';
+		VERSION = '6.1';
 	protected
 		bool $settings_updated = FALSE,
 		$show_reviews = FALSE,
